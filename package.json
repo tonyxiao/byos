@@ -55,5 +55,10 @@
     "tsx": "^4.6.2",
     "turbo": "^1.10.16",
     "typescript": "^5.3.2"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@jsonurl/jsonurl@1.1.7": "patches/@jsonurl__jsonurl@1.1.7.patch"
+    }
   }
 }

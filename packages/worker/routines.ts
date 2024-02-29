@@ -25,6 +25,10 @@ type SingleNoArray<T> = T extends Array<infer U> ? U : T
 export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 
 // export async function nangoScheduleSyncs({step}: RoutineInput<never>) {
+  //  const nango = initNangoSDK({
+  //   headers: {authorization: `Bearer ${env.NANGO_SECRET_KEY}`},
+  // })
+  
 //   const {
 //     data: {connections},
 //   } = await nango.GET('/connection')
