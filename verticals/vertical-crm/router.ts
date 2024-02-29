@@ -80,6 +80,8 @@ export const crmRouter = trpc.router({
     .input(z.object({id: z.string()}))
     .output(z.object({record: commonModels.user, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+
+  // MARK: - Custom objects
   listCustomObjectRecords: remoteProcedure
     .meta(oapi({method: 'GET', path: '/custom/{id}'}))
     .input(
@@ -90,7 +92,7 @@ export const crmRouter = trpc.router({
     )
     .output(zPaginatedResult.extend({items: z.array(z.unknown())}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
-
+  
   // MARK: - Metadata
   metadataListStandardObjects: remoteProcedure
     .meta(oapi({method: 'GET', path: '/metadata/objects/standard'}))

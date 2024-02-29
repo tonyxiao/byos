@@ -1,5 +1,59 @@
 import {z, zBaseRecord} from '@supaglue/vdk'
 
+export const address = z
+  .object({
+    /** @enum {string} */
+    address_type: z.enum([
+      'primary',
+      'mailing',
+      'other',
+      'billing',
+      'shipping',
+    ]),
+    /** @example San Francisco */
+    city: z.string().nullable(),
+    /** @example USA */
+    country: z.string().nullable(),
+    /** @example 94107 */
+    postal_code: z.string().nullable(),
+    /** @example CA */
+    state: z.string().nullable(),
+    /** @example 525 Brannan */
+    street_1: z.string().nullable(),
+    /** @example null */
+    street_2: z.string().nullable(),
+  })
+  .openapi({ref: 'crm.address'})
+
+export const email_address = z
+  .object({
+    /** @example hello@supaglue.com */
+    email_address: z.string(),
+    /** @enum {string} */
+    email_address_type: z.enum(['primary', 'work', 'other']),
+  })
+  .openapi({ref: 'crm.email_address'})
+
+export const phone_number = z.object({
+  /** @example +14151234567 */
+  phone_number: z.string().nullable(),
+  /** @enum {string} */
+  phone_number_type: z.enum(['primary', 'mobile', 'fax', 'other']),
+})
+
+export const lifecycle_stage = z
+  .enum([
+    'subscriber',
+    'lead',
+    'marketingqualifiedlead',
+    'salesqualifiedlead',
+    'opportunity',
+    'customer',
+    'evangelist',
+    'other',
+  ])
+  .openapi({ref: 'crm.lifecycle_stage'})
+
 export const account = zBaseRecord
   .extend({
     name: z.string().nullish(),
@@ -9,6 +63,13 @@ export const account = zBaseRecord
     number_of_employees: z.number().nullish(),
     owner_id: z.string().nullish(),
     created_at: z.string().nullish(),
+    // not implemented yet
+    description: z.string().nullish().openapi({example: 'Integration API'}),
+    last_activity_at: z.string().nullish().describe('date-time'),
+    addresses: z.array(address).nullish(),
+    phone_numbers: z.array(phone_number).nullish(),
+    lifecycle_stage: lifecycle_stage.nullish(),
+    last_modified_at: z.string().nullish(),
   })
   .openapi({ref: 'crm.account'})
 
@@ -31,35 +92,9 @@ export const lead = zBaseRecord
     lead_source: z.string().nullish(),
     converted_account_id: z.string().nullish(),
     converted_contact_id: z.string().nullish(),
-    addresses: z
-      .array(
-        z.object({
-          street1: z.string().nullish(),
-          street2: z.string().nullish(),
-          city: z.string().nullish(),
-          state: z.string().nullish(),
-          country: z.string().nullish(),
-          postal_code: z.string().nullish(),
-          address_type: z.string().nullish(),
-        }),
-      )
-      .nullish(),
-    email_addresses: z
-      .array(
-        z.object({
-          email_address: z.string().nullish(),
-          email_address_type: z.string().nullish(),
-        }),
-      )
-      .nullish(),
-    phone_numbers: z
-      .array(
-        z.object({
-          phone_number: z.string().nullish(),
-          phone_number_type: z.string().nullish(),
-        }),
-      )
-      .nullish(),
+    addresses: z.array(address).nullish(),
+    email_addresses: z.array(email_address).nullish(),
+    phone_numbers: z.array(phone_number).nullish(),
     created_at: z.string().nullish(),
     is_deleted: z.boolean().nullish(),
     last_modified_at: z.string().nullish(),
