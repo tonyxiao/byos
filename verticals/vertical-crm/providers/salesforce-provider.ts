@@ -176,9 +176,8 @@ const mappers = {
     name: 'Name',
     email: 'Email',
     is_active: 'IsActive',
+    updated_at: 'SystemModstamp',
     created_at: (record) =>
-      record.CreatedDate ? new Date(record.CreatedDate).toISOString() : '',
-    updated_at: (record) =>
       record.CreatedDate ? new Date(record.CreatedDate).toISOString() : '',
     last_modified_at: (record) =>
       record.CreatedDate ? new Date(record.CreatedDate).toISOString() : '',
