@@ -76,26 +76,31 @@ export const mappers = {
       record.PostalCode
         ? [
             {
-              street1: record.Street ?? null,
-              street2: null,
+              street_1: record.Street ?? null,
+              street_2: null,
               city: record.City ?? null,
               state: record.State ?? null,
               country: record.Country ?? null,
               postal_code: record.PostalCode ?? null,
-              address_type: 'primary',
+              address_type: commonModels.address_type.enum.primary,
             },
           ]
         : [],
     email_addresses: (record) =>
       record.Email
-        ? [{email_address: record.Email, email_address_type: 'primary'}]
+        ? [
+            {
+              email_address: record.Email,
+              email_address_type: commonModels.email_address_type.enum.primary,
+            },
+          ]
         : [],
     phone_numbers: (record) =>
       record.Phone
         ? [
             {
               phone_number: record.Phone ?? null,
-              phone_number_type: 'primary',
+              phone_number_type: commonModels.phone_number_type.enum.primary,
             },
           ]
         : [],

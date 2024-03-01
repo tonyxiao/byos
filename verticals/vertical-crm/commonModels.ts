@@ -1,15 +1,17 @@
 import {z, zBaseRecord} from '@supaglue/vdk'
 
+export const address_type = z.enum([
+  'primary',
+  'mailing',
+  'other',
+  'billing',
+  'shipping',
+])
+
 export const address = z
   .object({
     /** @enum {string} */
-    address_type: z.enum([
-      'primary',
-      'mailing',
-      'other',
-      'billing',
-      'shipping',
-    ]),
+    address_type,
     /** @example San Francisco */
     city: z.string().nullable(),
     /** @example USA */
@@ -25,20 +27,24 @@ export const address = z
   })
   .openapi({ref: 'crm.address'})
 
+export const email_address_type = z.enum(['primary', 'work', 'other'])
+
 export const email_address = z
   .object({
     /** @example hello@supaglue.com */
     email_address: z.string(),
-    /** @enum {string} */
-    email_address_type: z.enum(['primary', 'work', 'other']),
+
+    email_address_type,
   })
   .openapi({ref: 'crm.email_address'})
+
+export const phone_number_type = z.enum(['primary', 'mobile', 'fax', 'other'])
 
 export const phone_number = z.object({
   /** @example +14151234567 */
   phone_number: z.string().nullable(),
-  /** @enum {string} */
-  phone_number_type: z.enum(['primary', 'mobile', 'fax', 'other']),
+
+  phone_number_type,
 })
 
 export const lifecycle_stage = z
