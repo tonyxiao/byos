@@ -7,12 +7,15 @@ ALTER TABLE supaglue.crm_users ADD _name VARCHAR GENERATED ALWAYS AS
 ALTER TABLE supaglue.crm_users ADD _email VARCHAR GENERATED ALWAYS AS 
   (_supaglue_unified_data->>'email') STORED;
 
+-- 
+
 ALTER TABLE supaglue.crm_accounts ADD _name VARCHAR GENERATED ALWAYS AS 
   (_supaglue_unified_data->>'name') STORED;
 
 ALTER TABLE supaglue.crm_accounts ADD _website VARCHAR GENERATED ALWAYS AS 
   (_supaglue_unified_data->>'website') STORED;
 
+-- 
 
 ALTER TABLE supaglue.crm_opportunities ADD _name VARCHAR GENERATED ALWAYS AS 
   (_supaglue_unified_data->>'name') STORED;

@@ -14,6 +14,7 @@
     "@opensdks/sdk-nango": "0.0.4",
     "@opensdks/sdk-supaglue": "0.0.3",
     "@supaglue/api": "workspace:*",
+    "@supaglue/db": "workspace:*",
     "@supaglue/sdk": "workspace:*",
     "@supaglue/vdk": "workspace:*",
     "@supaglue/worker": "workspace:*",

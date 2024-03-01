@@ -133,6 +133,9 @@ importers:
       '@supaglue/api':
         specifier: workspace:*
         version: link:../packages/api
+      '@supaglue/db':
+        specifier: workspace:*
+        version: link:../packages/db
       '@supaglue/sdk':
         specifier: workspace:*
         version: link:../packages/sdk
