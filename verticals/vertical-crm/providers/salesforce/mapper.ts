@@ -33,25 +33,21 @@ export const mappers = {
     commonModels.opportunity,
     {
       id: 'Id',
-      updated_at: 'SystemModstamp',
       name: 'Name',
       description: 'Description',
       owner_id: 'OwnerId',
-      status: (record) => (record.IsClosed ? 'Closed' : 'Open'),
+      status: (record) =>
+        record.IsWon ? 'WON' : record.IsClosed ? 'LOST' : 'OPEN',
       stage: 'StageName',
-      close_date: (record) =>
-        record.CloseDate ? new Date(record.CloseDate) : null,
+      close_date: 'CloseDate', // sfdc already uses iso8601 format
       account_id: 'AccountId',
+      // pipeline is not supported in s fdc
       amount: 'Amount',
-      last_activity_at: (record) =>
-        record.LastActivityDate ? new Date(record.LastActivityDate) : null,
-      created_at: (record) =>
-        record.CreatedDate ? new Date(record.CreatedDate).toISOString() : '',
-      is_deleted: 'IsDeleted',
-      last_modified_at: (record) =>
-        record.LastModifiedDate
-          ? new Date(record.LastModifiedDate).toISOString()
-          : '',
+      last_activity_at: 'LastActivityDate',
+      created_at: 'CreatedDate',
+      updated_at: 'SystemModstamp',
+      is_deleted: 'IsDeleted', // supaglue had it as string but we are actually getting back boolean
+      last_modified_at: 'SystemModstamp',
     },
   ),
   lead: mapper(zCast<SFDC['LeadSObject']>(), commonModels.lead, {
