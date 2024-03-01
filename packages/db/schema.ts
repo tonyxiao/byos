@@ -1,6 +1,7 @@
 import {sql} from 'drizzle-orm'
 import {
   customType,
+  index,
   jsonb,
   pgSchema,
   pgTable,
@@ -66,40 +67,59 @@ export const customer = table('customer', {
 })
 
 /** Aka sync execution or sync log  */
-export const sync_run = table('sync_run', {
-  // Standard cols
-  id: text('id')
-    .notNull()
-    .primaryKey()
-    .default(sql`substr(md5(random()::text), 0, 25)`),
-  created_at: timestamp('created_at', {
-    precision: 3,
-    mode: 'string',
-  }).defaultNow(),
-  updated_at: timestamp('updated_at', {
-    precision: 3,
-    mode: 'string',
-  }).defaultNow(),
-  // Identifying cols
-  input_event: jsonb('input_event').notNull(),
-  // Data columns
-  started_at: timestamp('started_at', {precision: 3, mode: 'string'}),
-  completed_at: timestamp('completed_at', {
-    precision: 3,
-    mode: 'string',
-  }),
-  duration: generated('duration', 'interval', 'completed_at - started_at'),
+export const sync_run = table(
+  'sync_run',
+  {
+    // Standard cols
+    id: text('id')
+      .notNull()
+      .primaryKey()
+      .default(sql`substr(md5(random()::text), 0, 25)`),
+    created_at: timestamp('created_at', {
+      precision: 3,
+      mode: 'string',
+    }).defaultNow(),
+    updated_at: timestamp('updated_at', {
+      precision: 3,
+      mode: 'string',
+    }).defaultNow(),
+    // Identifying cols
+    input_event: jsonb('input_event').notNull(),
+    // Data columns
+    started_at: timestamp('started_at', {precision: 3, mode: 'string'}),
+    completed_at: timestamp('completed_at', {
+      precision: 3,
+      mode: 'string',
+    }),
+    duration: generated('duration', 'interval', 'completed_at - started_at'),
 
-  initial_state: jsonb('initial_state'),
-  final_state: jsonb('final_state'),
-  metrics: jsonb('metrics'),
-  status: generated<'PENDING' | 'SUCCESS' | 'ERROR'>(
-    'status',
-    'varchar',
-    "CASE WHEN error IS NOT NULL THEN 'ERROR' WHEN completed_at IS NOT NULL THEN 'SUCCESS' ELSE 'PENDING' END",
-  ),
-  error: text('error'),
-})
+    initial_state: jsonb('initial_state'),
+    final_state: jsonb('final_state'),
+    metrics: jsonb('metrics'),
+    status: generated<'PENDING' | 'SUCCESS' | 'ERROR'>(
+      'status',
+      'varchar',
+      "CASE WHEN error IS NOT NULL THEN 'ERROR' WHEN completed_at IS NOT NULL THEN 'SUCCESS' ELSE 'PENDING' END",
+    ),
+    customer_id: generated(
+      'customer_id',
+      'varchar',
+      "input_event#>>'{data,customer_id}'",
+    ),
+    provider_name: generated(
+      'provider_name',
+      'varchar',
+      "input_event#>>'{data,provider_name}'",
+    ),
+    error: text('error'),
+  },
+  (table) => ({
+    idx_customer_id_provider_name: index('idx_customer_id_provider_name').on(
+      table.customer_id,
+      table.provider_name,
+    ),
+  }),
+)
 
 export const sync_state = table(
   'sync_state',
