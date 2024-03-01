@@ -64,7 +64,7 @@ export async function scheduleSyncs({step}: RoutineInput<never>) {
   ])
   const connections = await Promise.all(
     customers
-      .slice(0, 10) // comment me out in production
+      .slice(0, 10) // TODO: comment me out in production
       .map((c) =>
         supaglue.mgmt
           .GET('/customers/{customer_id}/connections', {
