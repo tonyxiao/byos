@@ -490,8 +490,11 @@ export const salesforceProvider = {
   },
   metadataListProperties: async ({instance, input}) => {
     const sfdc = await instance.getJsForce()
-    await sfdc.metadata.read('CustomObject', input.name)
-    return []
+    const data = await sfdc.metadata.read('CustomObject', input.name)
+    return data.fields.map((obj) => ({
+      id: obj.fullName || 'unknown',
+      label: obj.label || obj.fullName || 'unknown',
+    }))
   },
 
   metadataCreateObjectsSchema: async ({instance, input}) => {
