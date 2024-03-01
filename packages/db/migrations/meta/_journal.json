@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1708479172557,
-      "tag": "0000_careless_mongoose",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1708481819072,
-      "tag": "0001_cheerful_lethal_legion",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1708484397902,
-      "tag": "0002_wealthy_scarecrow",
+      "when": 1709314808854,
+      "tag": "0000_safe_rick_jones",
       "breakpoints": true
     }
   ]

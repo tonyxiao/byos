@@ -1,4 +1,4 @@
-
+import {sql} from 'drizzle-orm'
 import {drizzle} from 'drizzle-orm/postgres-js'
 import {migrate} from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
@@ -17,6 +17,16 @@ export async function runMigration(opts?: {keepAlive?: boolean}) {
   const path = await import('node:path')
   // const fs = await import('node:fs')
   // const url = await import('node:url')
+
+  const schema = process.env['CONFIG_SCHEMA']
+  if (schema) {
+    await db.execute(
+      sql`CREATE SCHEMA IF NOT EXISTS ${sql.identifier(schema)};`,
+    )
+    await db.execute(sql`
+      SET search_path TO ${sql.identifier(schema)};
+    `)
+  }
 
   // const __filename = url.fileURLToPath(import.meta.url)
   // const __dirname = path.dirname(__filename)

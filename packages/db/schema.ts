@@ -1,8 +1,8 @@
 import {sql} from 'drizzle-orm'
 import {
   customType,
-  index,
   jsonb,
+  pgSchema,
   pgTable,
   primaryKey,
   text,
@@ -35,7 +35,13 @@ const generated = <T = undefined>(
     },
   })(name)
 
-export const customer = pgTable('customer', {
+const schema = process.env['CONFIG_SCHEMA']
+  ? pgSchema(process.env['CONFIG_SCHEMA'])
+  : null
+
+const table = schema?.table ?? pgTable
+
+export const customer = table('customer', {
   // Standard cols
   id: text('id')
     .notNull()
@@ -59,41 +65,8 @@ export const customer = pgTable('customer', {
   email: text('email'),
 })
 
-/** aka connection */
-export const connection = pgTable(
-  'connection',
-  {
-    id: text('id')
-      .notNull()
-      .primaryKey()
-      .default(sql`substr(md5(random()::text), 0, 25)`),
-    created_at: timestamp('created_at', {
-      precision: 3,
-      mode: 'string',
-    })
-      .notNull()
-      .defaultNow(),
-    updated_at: timestamp('updated_at', {
-      precision: 3,
-      mode: 'string',
-    })
-      .notNull()
-      .defaultNow(),
-    provider_name: text('provider_name').notNull(),
-    customer_id: text('customer_id').references(() => customer.id, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    }),
-  },
-  (table) => ({
-    provider_name_idx: index('connection_provider_name').on(
-      table.provider_name,
-    ),
-  }),
-)
-
 /** Aka sync execution or sync log  */
-export const sync_run = pgTable('sync_run', {
+export const sync_run = table('sync_run', {
   // Standard cols
   id: text('id')
     .notNull()
@@ -128,7 +101,7 @@ export const sync_run = pgTable('sync_run', {
   error: text('error'),
 })
 
-export const sync_state = pgTable(
+export const sync_state = table(
   'sync_state',
   {
     customer_id: text('customer_id').notNull(),
