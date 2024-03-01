@@ -1,5 +1,5 @@
 import type {BaseRecord} from '@supaglue/vdk'
-import {LastUpdatedAtNextOffset, mapper, z} from '@supaglue/vdk'
+import {LastUpdatedAtNextOffset, mapper, z, zCast} from '@supaglue/vdk'
 import type {Oas_crm_contacts, Oas_crm_owners} from '@opensdks/sdk-hubspot'
 import {initHubspotSDK, type HubspotSDK} from '@opensdks/sdk-hubspot'
 import type {CRMProvider} from '../router'
@@ -254,20 +254,15 @@ const mappers = {
     id: 'id',
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
   }),
-  user: mapper(HSUser, commonModels.user, {
+  user: mapper(zCast<Owner>(), commonModels.user, {
     id: 'id',
-    updated_at: (record) => new Date(record.updatedAt).toISOString(),
-    name: (record) =>
-      [record.properties.firstname, record.properties.lastname]
-        .filter((n) => !!n?.trim())
-        .join(' '),
-    email: 'properties.email',
+    updated_at: 'updatedAt',
+    created_at: 'createdAt',
+    last_modified_at: 'updatedAt',
+    name: (o) => [o.firstName, o.lastName].filter((n) => !!n?.trim()).join(' '),
+    email: 'email',
     is_active: (record) => !record.archived, // Assuming archived is a boolean
-    created_at: (record) =>
-      new Date(record.properties.createdate).toISOString(),
     is_deleted: (record) => !!record.archived, // Assuming archived is a boolean
-    last_modified_at: (record) =>
-      record.updatedAt ? new Date(record.updatedAt).toISOString() : null,
   }),
 }
 
@@ -477,7 +472,11 @@ export const hubspotProvider = {
         params: {path: {objectType: input.name}},
       },
     )
-    return res.data.results.map((obj) => ({id: obj.name, label: obj.label, type: obj.type}))
+    return res.data.results.map((obj) => ({
+      id: obj.name,
+      label: obj.label,
+      type: obj.type,
+    }))
   },
   // metadataCreateObjectsSchema: async ({instance, input}) => {
   //   const res = await instance.crm_schemas.POST('/crm/v3/schemas', {

@@ -210,12 +210,12 @@ export async function syncConnection({
                 `/${vertical}/v2/${stream}` as '/crm/v2/contact',
                 {params: {query: {cursor: state.cursor}}}, // We let each provider determine the page size rather than hard-coding
               )
-              const ct = incrementMetric(
+              const count = incrementMetric(
                 `${stream}_count`,
                 res.data.items.length,
               )
               incrementMetric(`${stream}_page_count`)
-              console.log(`Syncing ${vertical} ${stream} count=${ct}`)
+              console.log(`Syncing ${vertical} ${stream} count=${count}`)
               if (res.data.items.length) {
                 await dbUpsert(
                   db,
