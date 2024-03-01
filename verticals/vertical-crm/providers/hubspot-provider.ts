@@ -483,7 +483,7 @@ export const hubspotProvider = {
         params: {path: {objectType: input.name}},
       },
     )
-    return res.data.results.map((obj) => ({id: obj.name, label: obj.label}))
+    return res.data.results.map((obj) => ({id: obj.name, label: obj.label, type: obj.type}))
   },
   // metadataCreateObjectsSchema: async ({instance, input}) => {
   //   const res = await instance.crm_schemas.POST('/crm/v3/schemas', {

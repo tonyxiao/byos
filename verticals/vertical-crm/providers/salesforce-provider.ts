@@ -494,6 +494,7 @@ export const salesforceProvider = {
     return data.fields.map((obj) => ({
       id: obj.fullName || 'unknown',
       label: obj.label || obj.fullName || 'unknown',
+      type: obj.type || 'unknown',
     }))
   },
 
