@@ -1,4 +1,10 @@
-import {db, dbUpsert, getCommonObjectTable, schema} from '@supaglue/db'
+import {
+  db,
+  dbUpsert,
+  getCommonObjectTable,
+  ensureSchema,
+  schema,
+} from '@supaglue/db'
 import {initBYOSupaglueSDK} from '@supaglue/sdk'
 import {and, eq, sql} from 'drizzle-orm'
 import type {SendEventPayload} from 'inngest/helpers/types'
@@ -25,10 +31,10 @@ type SingleNoArray<T> = T extends Array<infer U> ? U : T
 export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 
 // export async function nangoScheduleSyncs({step}: RoutineInput<never>) {
-  //  const nango = initNangoSDK({
-  //   headers: {authorization: `Bearer ${env.NANGO_SECRET_KEY}`},
-  // })
-  
+//  const nango = initNangoSDK({
+//   headers: {authorization: `Bearer ${env.NANGO_SECRET_KEY}`},
+// })
+
 //   const {
 //     data: {connections},
 //   } = await nango.GET('/connection')
@@ -175,13 +181,13 @@ export async function syncConnection({
     // Load this from a config please...
 
     if (destination_schema) {
-      await db.execute(
-        sql`CREATE SCHEMA IF NOT EXISTS ${sql.identifier(destination_schema)};`,
-      )
+      await ensureSchema(db, destination_schema)
+      console.log('[syncConnection] Ensured schema', destination_schema)
     }
 
     for (const stream of common_objects) {
       const fullEntity = `${vertical}_${stream}`
+      console.log('[syncConnection] Syncing', fullEntity)
       const table = getCommonObjectTable(fullEntity, {
         schema: destination_schema,
       })

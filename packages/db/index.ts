@@ -9,8 +9,25 @@ export * from './upsert'
 export * from './schema-dynamic'
 
 export {schema, env}
+
+// TODO: Remove these global variables...
 export const pgClient = postgres(env.POSTGRES_URL)
 export const db = drizzle(pgClient, {schema, logger: !!process.env['DEBUG']})
+
+export async function ensureSchema(thisDb: typeof db, schema: string) {
+  // Check existence first because we may not have permission to actually create the schema
+  const exists = await thisDb
+    .execute(
+      sql`SELECT true as exists FROM information_schema.schemata WHERE schema_name = ${schema}`,
+    )
+    .then((r) => r[0]?.['exists'] === true)
+  if (exists) {
+    return
+  }
+  await thisDb.execute(
+    sql`CREATE SCHEMA IF NOT EXISTS ${sql.identifier(schema)};`,
+  )
+}
 
 /** Will close the postgres client connection by default */
 export async function runMigration(opts?: {keepAlive?: boolean}) {
@@ -20,9 +37,7 @@ export async function runMigration(opts?: {keepAlive?: boolean}) {
 
   const schema = process.env['CONFIG_SCHEMA']
   if (schema) {
-    await db.execute(
-      sql`CREATE SCHEMA IF NOT EXISTS ${sql.identifier(schema)};`,
-    )
+    await ensureSchema(db, schema)
     await db.execute(sql`
       SET search_path TO ${sql.identifier(schema)};
     `)
