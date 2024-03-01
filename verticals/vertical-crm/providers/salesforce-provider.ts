@@ -296,6 +296,9 @@ type SalesforceSDK = _SalesforceSDK & {
  */
 export const API_VERSION = '59.0'
 
+/** SOQL FIELDS function must have a LIMIT of at most 200 */
+export const SFDC_SOQL_MAX_LIMIT = 200
+
 function sdkExt(instance: SalesforceSDK) {
   /** NOTE: extract these into a helper functions inside sdk-salesforce */
   const countEntity = async (entity: string) =>
@@ -341,7 +344,7 @@ function sdkExt(instance: SalesforceSDK) {
       page_size?: number
       cursor?: string | null
     }) => {
-      const limit = opts?.page_size ?? 100
+      const limit = opts?.page_size ?? SFDC_SOQL_MAX_LIMIT
       const cursor = LastUpdatedAtId.fromCursor(opts?.cursor)
       const res = await listEntity<TIn>({entity, fields, cursor, limit})
       const items = res.records.map(opts.mapper.parse)

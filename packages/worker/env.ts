@@ -6,6 +6,7 @@ export const env = createEnv({
   server: {
     NANGO_SECRET_KEY: z.string().optional(),
     SUPAGLUE_API_KEY: z.string().optional(),
+    SUPAGLUE_APPLICATION_ID: z.string().default('byos'),
   },
   runtimeEnv: process.env,
 })

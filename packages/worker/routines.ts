@@ -1,8 +1,8 @@
 import {
   db,
   dbUpsert,
-  getCommonObjectTable,
   ensureSchema,
+  getCommonObjectTable,
   schema,
 } from '@supaglue/db'
 import {initBYOSupaglueSDK} from '@supaglue/sdk'
@@ -204,7 +204,7 @@ export async function syncConnection({
           async () => {
             const res = await byos.GET(
               `/${vertical}/v2/${stream}` as '/crm/v2/contact',
-              {params: {query: {cursor: state.cursor, page_size: 100}}},
+              {params: {query: {cursor: state.cursor}}}, // We let each provider determine the page size rather than hard-coding
             )
             console.log(
               `Syncing ${vertical} ${stream} count=${res.data.items.length}`,
@@ -217,7 +217,7 @@ export async function syncConnection({
                 table,
                 res.data.items.map(({raw_data, ...item}) => ({
                   // Primary keys
-                  _supaglue_application_id: '$YOUR_APPLICATION_ID',
+                  _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
                   _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
                   _supaglue_provider_name: provider_name,
                   id: item.id,
@@ -247,7 +247,11 @@ export async function syncConnection({
             }
           },
         )
-        console.log('[sync progress]', {completed_cursor: state.cursor, ...ret})
+        console.log('[sync progress]', {
+          stream,
+          completed_cursor: state.cursor,
+          ...ret,
+        })
         state.cursor = ret.next_cursor
         // Persist state. TODO: Figure out how to make this work with step function
         await dbUpsert(
