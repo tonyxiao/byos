@@ -359,6 +359,42 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
   }
 }
 
+// TODO: implement this when reading batch
+export const _listAssociations = async (
+  instance: HubspotSDK,
+  opts: {
+    fromObjectIds: string[]
+    fromObjectType: string
+    toObjectType: string
+  },
+): Promise<Record<string /*fromId*/, string[] /* toIds */>> => {
+  if (!opts.fromObjectIds.length) {
+    return {}
+  }
+  try {
+    const associations = await instance.crm_associations.POST(
+      '/{fromObjectType}/{toObjectType}/batch/read',
+      {
+        params: {
+          path: {
+            fromObjectType: opts.fromObjectType,
+            toObjectType: opts.toObjectType,
+          },
+        },
+        body: {inputs: opts.fromObjectIds.map((id) => ({id}))},
+      },
+    )
+    return associations.data.results
+      .map((result) => ({
+        [result.from.id]: [...new Set(result.to.map(({id}) => id))],
+      }))
+      .reduce((acc, curr) => ({...acc, ...curr}), {})
+  } catch (err) {
+    console.log(err)
+    throw err
+  }
+}
+
 const _listEntityFullThenMap = async <TIn, TOut extends BaseRecord>(
   instance: HubspotSDK,
   {

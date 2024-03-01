@@ -27,7 +27,7 @@ async function main() {
   //   body: {record: {domain: 'examplebob.com', }, upsert_on: {name: 'Jacob'}},
   // })
   // console.log('Success', res.data)
-  // const res = await supaglue.GET('/crm/v2/contact', {})
+  const res = await supaglue.GET('/crm/v2/contact', {})
   // console.log('Success', res.data)
   // const res = await supaglue.GET('/crm/v2/contacts/{id}', {
   //   params: {path: {id: '0033x00003D6SBOAA3'}},
@@ -49,13 +49,13 @@ async function main() {
   // const res = await supaglue.GET('/crm/v2/metadata/properties', {
   //   params: {query: {name: 'MyStuff', type: 'custom'}},
   // })
-  await supaglue.PUT('/customers/{customer_id}', {
-    body: {email: 'hello@gda.com', name: 'world'},
-    params: {path: {customer_id: '1123'}},
-  })
-  const res = await supaglue.GET('/customers', {
-    // params: {query: {name: 'MyStuff', type: 'custom'}},
-  })
+  // await supaglue.PUT('/customers/{customer_id}', {
+  //   body: {email: 'hello@gda.com', name: 'world'},
+  //   params: {path: {customer_id: '1123'}},
+  // })
+  // const res = await supaglue.GET('/customers', {
+  //   // params: {query: {name: 'MyStuff', type: 'custom'}},
+  // })
   console.log('Success', res.data)
   // res.data.record.name
 }

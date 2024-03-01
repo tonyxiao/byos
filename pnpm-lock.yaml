@@ -323,8 +323,8 @@ importers:
   verticals/vertical-crm:
     dependencies:
       '@opensdks/sdk-hubspot':
-        specifier: 0.0.5
-        version: 0.0.5
+        specifier: 0.0.6
+        version: 0.0.6
       '@opensdks/sdk-pipedrive':
         specifier: 0.0.1
         version: 0.0.1
@@ -2833,8 +2833,8 @@ packages:
   /@opensdks/sdk-apollo@0.0.21:
     resolution: {integrity: sha512-2vysmbvPH7lncmOoxqy870Pv3ZMeMK9bSxzyrJgWsUAFNn7Q6MjNHz+C2igDVnbaKnR5ow7eSl6lOr1/bI5P9g==}
 
-  /@opensdks/sdk-hubspot@0.0.5:
-    resolution: {integrity: sha512-r2uHA8W81SkDGWKpEOYeyoKYQCJLraAY4jr/c8/Sr9c6OEcLFN+ki3Y812/lyfwJWQUfJR9v3mjqry/BMuTuvA==}
+  /@opensdks/sdk-hubspot@0.0.6:
+    resolution: {integrity: sha512-UivI44M/g4XwoQvDq57b9PVdlGeiCYS+6zcFJq5HhEJLzYejg21oSJ+R3LC49TINfde88fZvV+wx/ism62C65A==}
     dev: false
 
   /@opensdks/sdk-nango@0.0.4:
