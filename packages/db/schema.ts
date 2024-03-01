@@ -1,3 +1,4 @@
+import type {ErrorType} from '@supaglue/vdk'
 import {sql} from 'drizzle-orm'
 import {
   customType,
@@ -8,6 +9,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  varchar,
 } from 'drizzle-orm/pg-core'
 
 /**
@@ -96,10 +98,10 @@ export const sync_run = table(
     initial_state: jsonb('initial_state'),
     final_state: jsonb('final_state'),
     metrics: jsonb('metrics'),
-    status: generated<'PENDING' | 'SUCCESS' | 'ERROR'>(
+    status: generated<'PENDING' | 'SUCCESS' | ErrorType>(
       'status',
       'varchar',
-      "CASE WHEN error IS NOT NULL THEN 'ERROR' WHEN completed_at IS NOT NULL THEN 'SUCCESS' ELSE 'PENDING' END",
+      "CASE WHEN error_type IS NOT NULL THEN error_type WHEN completed_at IS NOT NULL THEN 'SUCCESS' ELSE 'PENDING' END",
     ),
     customer_id: generated(
       'customer_id',
@@ -111,7 +113,9 @@ export const sync_run = table(
       'varchar',
       "input_event#>>'{data,provider_name}'",
     ),
-    error: text('error'),
+    error_detail: text('error_detail'),
+    /** zErrorType. But we don't want to use postgres enum */
+    error_type: varchar('error_type'),
   },
   (table) => ({
     idx_customer_id_provider_name: index('idx_customer_id_provider_name').on(

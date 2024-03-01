@@ -9,6 +9,7 @@ import {initBYOSupaglueSDK} from '@supaglue/sdk'
 import {and, eq, sql} from 'drizzle-orm'
 import type {SendEventPayload} from 'inngest/helpers/types'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
+import {parseErrorInfo} from '../vdk/errors'
 import {env} from './env'
 import type {Events} from './events'
 
@@ -159,7 +160,7 @@ export async function syncConnection({
   const overallState = (
     sync_mode === 'full' ? {} : syncState.state ?? {}
   ) as Record<string, {cursor?: string | null}>
-  let error: Error | undefined
+  let errorInfo: ReturnType<typeof parseErrorInfo> | undefined
   const metrics: Record<string, number | string> = {}
   function incrementMetric(name: string, amount = 1) {
     const metric = metrics[name]
@@ -275,25 +276,27 @@ export async function syncConnection({
       }
     }
   } catch (err) {
-    error = err as Error
+    errorInfo = parseErrorInfo(err)
   } finally {
     await db
       .update(schema.sync_run)
       .set({
+        ...errorInfo,
         completed_at: nowFn,
         final_state: sql`${overallState}::jsonb`,
         metrics: sql`${metrics}::jsonb`,
-        ...(error ? {error: `${error}`} : {}),
       })
       .where(eq(schema.sync_run.id, syncRunId))
   }
 
-  console.log('[syncConnection] Complete', {
+  const status = errorInfo?.error_type ?? 'SUCCESS'
+  console.log(`[syncConnection] Complete ${status}`, {
     customer_id,
     provider_name,
-    eventId: event.id,
+    status,
+    event_id: event.id,
     metrics,
-    error,
+    error: errorInfo,
     final_state: overallState,
   })
 }

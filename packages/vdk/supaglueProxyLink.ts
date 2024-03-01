@@ -1,12 +1,13 @@
 import type {Link as FetchLink} from '@opensdks/fetch-links'
 import {mergeHeaders, modifyRequest} from '@opensdks/fetch-links'
+import {z} from '@opensdks/util-zod'
+import {NoLongerAuthenticatedError} from './errors'
 
 interface SupaglueHeaders {
   'x-api-key': string
   'x-customer-id': string
   'x-provider-name': string
 }
-
 /** https://docs.supaglue.com/api/v2/actions/send-passthrough-request */
 export function supaglueProxyLink(opts: {
   apiKey: string
@@ -26,7 +27,7 @@ export function supaglueProxyLink(opts: {
     // Can be JSON object or text, Supaglue will accept either
     // prefer to send as JSON to make the underlying network request easier to debug compare to
     // stringfied JSON escaped into another string
-    const body = await req.text().then(safeJsonParse)
+    const requestBody = await req.text().then(safeJsonParse)
 
     const res = await next(
       modifyRequest(req, {
@@ -39,10 +40,27 @@ export function supaglueProxyLink(opts: {
           headers: Object.fromEntries(req.headers.entries()),
           query: Object.fromEntries(url.searchParams.entries()),
           // Sending body for get / head requests results in failure
-          ...((body as string) && {body}),
+          ...((requestBody as string) && {body: requestBody}),
         }),
       }),
     )
+    if (res.status === 500) {
+      const resBody = zErrorBody.safeParse(await res.clone().json())
+      const authError =
+        resBody.success &&
+        resBody.data.errors.find(
+          (e) => e.code === 'SG_CONNECTION_NO_LONGER_AUTHENTICATED_ERROR',
+        )
+
+      if (authError) {
+        throw new NoLongerAuthenticatedError(
+          opts.customerId,
+          opts.providerName,
+          authError.status,
+          resBody.data,
+        )
+      }
+    }
     if (res.status !== 200) {
       return res
     }
@@ -74,3 +92,38 @@ function safeJsonParse(s: string): unknown {
     return s
   }
 }
+
+/**
+ * e.g.
+{
+  "errors": [
+    {
+      "id": "90baefbd-ece5-4f51-bbaa-4dabdbf122b5",
+      "title": "expired access/refresh token",
+      "detail": "expired access/refresh token",
+      "problem_type": "SG_CONNECTION_NO_LONGER_AUTHENTICATED_ERROR",
+      "code": "SG_CONNECTION_NO_LONGER_AUTHENTICATED_ERROR",
+      "meta": {
+        "origin": "supaglue",
+        "application_name": "Ignition Production"
+      },
+      "status": "invalid_grant: expired access/refresh token"
+    }
+  ]
+}
+ */
+const zErrorBody = z.object({
+  errors: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string().optional(),
+      detail: z.string().optional(),
+      problem_type: z.string().optional(),
+      code: z.string(),
+      meta: z
+        .object({origin: z.string(), application_name: z.string()})
+        .optional(),
+      status: z.string(),
+    }),
+  ),
+})

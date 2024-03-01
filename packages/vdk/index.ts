@@ -4,7 +4,6 @@ import type {
   PathsWithMethod,
   SuccessResponse,
 } from 'openapi-typescript-helpers'
-import {HTTPError} from '@opensdks/runtime'
 
 export * from './mapper'
 export * from './pagination'
@@ -17,8 +16,8 @@ export * from '@opensdks/fetch-links'
 export * from '@opensdks/util-zod'
 
 export type {
-  PathsWithMethod,
   OperationRequestBodyContent,
+  PathsWithMethod,
 } from 'openapi-typescript-helpers'
 
 export type ResponseFrom<
@@ -35,18 +34,4 @@ export type ResponseFrom<
   >
 >
 
-export {HTTPError} from '@opensdks/runtime'
-
-/** TODO: MOve me into opensdks/runtime */
-export function isHttpError<T>(
-  err: unknown,
-  /** HTTPError code. TODO: Support range... */
-  code?: number,
-): err is HTTPError<T> {
-  if (err instanceof HTTPError) {
-    if (code == null || err.code === code) {
-      return true
-    }
-  }
-  return false
-}
+export * from './errors'
