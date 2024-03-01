@@ -9,7 +9,7 @@ import {initBYOSupaglueSDK} from '@supaglue/sdk'
 import {and, eq, sql} from 'drizzle-orm'
 import type {SendEventPayload} from 'inngest/helpers/types'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
-import {parseErrorInfo} from '../vdk/errors'
+import {HTTPError, parseErrorInfo} from '../vdk/errors'
 import {env} from './env'
 import type {Events} from './events'
 
@@ -165,9 +165,11 @@ export async function syncConnection({
   function incrementMetric(name: string, amount = 1) {
     const metric = metrics[name]
     metrics[name] = (typeof metric === 'number' ? metric : 0) + amount
+    return metrics[name] as number
   }
-  function setMetric(name: string, value: string | number) {
+  function setMetric<T extends string | number>(name: string, value: T) {
     metrics[name] = value
+    return metrics[name] as T
   }
 
   try {
@@ -203,53 +205,65 @@ export async function syncConnection({
         const ret = await step.run(
           `${stream}-sync-${state.cursor}`,
           async () => {
-            const res = await byos.GET(
-              `/${vertical}/v2/${stream}` as '/crm/v2/contact',
-              {params: {query: {cursor: state.cursor}}}, // We let each provider determine the page size rather than hard-coding
-            )
-            console.log(
-              `Syncing ${vertical} ${stream} count=${res.data.items.length}`,
-            )
-            incrementMetric(`${stream}_count`, res.data.items.length)
-            incrementMetric(`${stream}_page_count`)
-            if (res.data.items.length) {
-              await dbUpsert(
-                db,
-                table,
-                res.data.items.map(({raw_data, ...item}) => ({
-                  // Primary keys
-                  _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
-                  _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
-                  _supaglue_provider_name: provider_name,
-                  id: item.id,
-                  // Other columns
-                  created_at: nowFn,
-                  updated_at: nowFn,
-                  _supaglue_emitted_at: nowFn,
-                  last_modified_at: nowFn, // TODO: Fix me...
-                  is_deleted: false,
-                  // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
-                  raw_data: sql`${raw_data ?? ''}::jsonb`,
-                  _supaglue_unified_data: sql`${item}::jsonb`,
-                })),
-                {
-                  insertOnlyColumns: [
-                    'created_at',
-                    // TODO: Add back raw_data once we fetch custom fields as part of sync. For now avoid overwriting raw_data
-                    // that could be used by other services
-                    'raw_data', 
-                  ],
-                  noDiffColumns: [
-                    '_supaglue_emitted_at',
-                    'last_modified_at',
-                    'updated_at',
-                  ],
-                },
+            try {
+              const res = await byos.GET(
+                `/${vertical}/v2/${stream}` as '/crm/v2/contact',
+                {params: {query: {cursor: state.cursor}}}, // We let each provider determine the page size rather than hard-coding
               )
-            }
-            return {
-              next_cursor: res.data.next_cursor,
-              hast_next_page: res.data.has_next_page,
+              const ct = incrementMetric(
+                `${stream}_count`,
+                res.data.items.length,
+              )
+              incrementMetric(`${stream}_page_count`)
+              console.log(`Syncing ${vertical} ${stream} count=${ct}`)
+              if (res.data.items.length) {
+                await dbUpsert(
+                  db,
+                  table,
+                  res.data.items.map(({raw_data, ...item}) => ({
+                    // Primary keys
+                    _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
+                    _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
+                    _supaglue_provider_name: provider_name,
+                    id: item.id,
+                    // Other columns
+                    created_at: nowFn,
+                    updated_at: nowFn,
+                    _supaglue_emitted_at: nowFn,
+                    last_modified_at: nowFn, // TODO: Fix me...
+                    is_deleted: false,
+                    // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
+                    raw_data: sql`${raw_data ?? ''}::jsonb`,
+                    _supaglue_unified_data: sql`${item}::jsonb`,
+                  })),
+                  {
+                    insertOnlyColumns: [
+                      'created_at',
+                      // TODO: Add back raw_data once we fetch custom fields as part of sync. For now avoid overwriting raw_data
+                      // that could be used by other services
+                      'raw_data',
+                    ],
+                    noDiffColumns: [
+                      '_supaglue_emitted_at',
+                      'last_modified_at',
+                      'updated_at',
+                    ],
+                  },
+                )
+              }
+              return {
+                next_cursor: res.data.next_cursor,
+                hast_next_page: res.data.has_next_page,
+              }
+            } catch (err) {
+              // HTTP 501 not implemented
+              if (err instanceof HTTPError && err.code === 501) {
+                console.warn(
+                  `[sync progress] ${provider_name} does not implement ${stream}`,
+                )
+                return {hast_next_page: false, next_cursor: null}
+              }
+              throw err
             }
           },
         )
