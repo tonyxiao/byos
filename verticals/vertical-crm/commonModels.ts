@@ -1,12 +1,8 @@
 import {z, zBaseRecord} from '@supaglue/vdk'
 
-export const address_type = z.enum([
-  'primary',
-  'mailing',
-  'other',
-  'billing',
-  'shipping',
-])
+export const address_type = z
+  .enum(['primary', 'mailing', 'other', 'billing', 'shipping'])
+  .openapi({ref: 'crm.address_type'})
 
 export const address = z
   .object({
@@ -27,7 +23,9 @@ export const address = z
   })
   .openapi({ref: 'crm.address'})
 
-export const email_address_type = z.enum(['primary', 'work', 'other'])
+export const email_address_type = z
+  .enum(['primary', 'work', 'other'])
+  .openapi({ref: 'crm.email_address_type'})
 
 export const email_address = z
   .object({
@@ -38,7 +36,9 @@ export const email_address = z
   })
   .openapi({ref: 'crm.email_address'})
 
-export const phone_number_type = z.enum(['primary', 'mobile', 'fax', 'other'])
+export const phone_number_type = z
+  .enum(['primary', 'mobile', 'fax', 'other'])
+  .openapi({ref: 'crm.phone_number_type'})
 
 export const phone_number = z.object({
   /** @example +14151234567 */
@@ -107,18 +107,22 @@ export const lead = zBaseRecord
   })
   .openapi({ref: 'crm.lead'})
 
+export const opportunity_status = z
+  .enum(['OPEN', 'WON', 'LOST'])
+  .openapi({ref: 'crm.opportunity_status'})
+
 export const opportunity = zBaseRecord
   .extend({
     name: z.string().nullish(),
     description: z.string().nullish(),
     owner_id: z.string().nullish(),
-    status: z.string().nullish(),
+    status: opportunity_status.nullish(),
     stage: z.string().nullish(),
-    close_date: z.date().nullish(),
+    close_date: z.string().nullish(),
     account_id: z.string().nullish(),
     pipeline: z.string().nullish(),
     amount: z.number().nullish(),
-    last_activity_at: z.date().nullish(),
+    last_activity_at: z.string().nullish(),
     created_at: z.string().nullish(),
     is_deleted: z.boolean().nullish(),
     last_modified_at: z.string().nullish(),

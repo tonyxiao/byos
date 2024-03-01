@@ -236,23 +236,17 @@ const mappers = {
         ? 'WON'
         : record.properties.hs_is_closed
           ? 'LOST'
-          : 'Open',
+          : 'OPEN',
     stage: 'properties.stage',
-    close_date: (record) =>
-      record.properties.closedate
-        ? new Date(record.properties.closedate)
-        : null,
-    account_id: 'properties.account_id',
+    close_date: 'properties.closedate',
+    account_id: 'properties.account_id', // may need to do this separately...
     amount: (record) =>
       record.properties.amount
         ? Number.parseFloat(record.properties.amount)
         : null,
-    last_activity_at: (record) =>
-      record.properties.last_activity_at
-        ? new Date(record.properties.last_activity_at)
-        : null,
-    created_at: (record) =>
-      new Date(record.properties.createdate).toISOString(),
+    last_activity_at: 'properties.last_activity_at',
+    created_at: 'properties.createdate',
+    // TODO: take into account archivedAt if needed
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
     last_modified_at: (record) => new Date(record.updatedAt).toISOString(),
   }),
