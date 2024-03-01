@@ -493,8 +493,7 @@ export const salesforceProvider = {
     const data = await sfdc.metadata.read('CustomObject', input.name)
     return data.fields.map((obj) => ({
       id: obj.fullName || 'unknown',
-      label: obj.label || obj.fullName || 'unknown',
-      type: obj.type || 'unknown',
+      label: obj.label || 'unknown',
     }))
   },
 

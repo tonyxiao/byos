@@ -22,6 +22,7 @@ export const customer = z
 
 export const connection = z
   .object({
+    id: z.string(),
     customer_id: z.string().nullish(),
     provider_name: z.string(),
   })
