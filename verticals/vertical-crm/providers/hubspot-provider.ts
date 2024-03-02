@@ -74,26 +74,27 @@ const HSContact = z.object({
   updatedAt: z.string(),
   archived: z.boolean(),
 })
-const HSOpportunity = z.object({
+const HSDeal = z.object({
   id: z.string(),
   properties: z.object({
     hs_object_id: z.string(),
     createdate: z.string().nullish(),
     lastmodifieddate: z.string().nullish(),
     // properties specific to opportunities below...
-    name: z.string().nullish(),
-    description: z.string().nullish(),
-    owner_id: z.string().nullish(),
-    account_id: z.string().nullish(),
-    status: z.string().nullish(),
-    stage: z.string().nullish(),
+    dealname: z.string().nullish(),
+    hubspot_owner_id: z.string().nullish(),
+    notes_last_updated: z.string().nullish(), // Assuming lastActivityAt is a string in HubSpot format
+    dealstage: z.string().nullish(),
     closedate: z.string().nullish(), // Assuming closeDate is a string in HubSpot format
+    description: z.string().nullish(),
     amount: z.string().nullish(),
-    last_activity_at: z.string().nullish(), // Assuming lastActivityAt is a string in HubSpot format
-    is_deleted: z.boolean().nullish(),
     hs_is_closed_won: z.string().nullish(),
     hs_is_closed: z.string().nullish(),
-    archivedAt: z.string().nullish(),
+
+    // account_id: z.string().nullish(),
+    // status: z.string().nullish(),
+    is_deleted: z.boolean().nullish(), // Does this exist?
+    archivedAt: z.string().nullish(), // Does this exist?
   }),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -212,25 +213,25 @@ const mappers = {
     last_name: 'properties.lastname',
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
   }),
-  opportunity: mapper(HSOpportunity, commonModels.opportunity, {
+  opportunity: mapper(HSDeal, commonModels.opportunity, {
     id: 'id',
-    name: 'properties.name',
+    name: 'properties.dealname',
     description: 'properties.description',
-    owner_id: 'properties.owner_id',
+    owner_id: 'properties.hubspot_owner_id',
     status: (record) =>
       record.properties.hs_is_closed_won
         ? 'WON'
         : record.properties.hs_is_closed
           ? 'LOST'
           : 'OPEN',
-    stage: 'properties.stage',
+    stage: 'properties.dealstage', // FIXME: Need to look up pipeline stage definition
+    // account_id: 'properties.account_id', // may need to do this separately...
     close_date: 'properties.closedate',
-    account_id: 'properties.account_id', // may need to do this separately...
     amount: (record) =>
       record.properties.amount
         ? Number.parseFloat(record.properties.amount)
         : null,
-    last_activity_at: 'properties.last_activity_at',
+    last_activity_at: 'properties.notes_last_updated',
     created_at: 'properties.createdate',
     // TODO: take into account archivedAt if needed
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
