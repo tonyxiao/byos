@@ -1,4 +1,3 @@
-import type {StrictObj} from '@supaglue/vdk'
 import {mapper, zCast} from '@supaglue/vdk'
 import {
   initApolloSDK,
@@ -12,7 +11,7 @@ type Apollo = ApolloSDKTypes['oas']['components']['schemas']
 
 const mappers = {
   // @ts-expect-error TODO: Implement me
-  contact: mapper(zCast<StrictObj<Apollo['contact']>>(), commonModels.contact, {
+  contact: mapper(zCast<Apollo['contact']>(), commonModels.contact, {
     id: 'id',
     first_name: (c) => c.first_name ?? '',
     last_name: (c) => c.last_name ?? '',

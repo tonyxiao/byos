@@ -1,9 +1,4 @@
-import type {
-  BaseRecord,
-  PathsWithMethod,
-  ResponseFrom,
-  StrictObj,
-} from '@supaglue/vdk'
+import type {BaseRecord, PathsWithMethod, ResponseFrom} from '@supaglue/vdk'
 import {mapper, zCast} from '@supaglue/vdk'
 import type {PipedriveSDKTypes} from '@opensdks/sdk-pipedrive'
 import {initPipedriveSDK, type PipedriveSDK} from '@opensdks/sdk-pipedrive'
@@ -26,27 +21,27 @@ type Lead = NonNullable<GETResponse<'/leads'>['data']>[number]
 type User = NonNullable<GETResponse<'/users'>['data']>[number]
 
 const mappers = {
-  account: mapper(zCast<StrictObj<Organization>>(), commonModels.account, {
+  account: mapper(zCast<Organization>(), commonModels.account, {
     id: (p) => `${p.id}`,
     updated_at: 'update_time',
     name: 'name',
   }),
-  contact: mapper(zCast<StrictObj<Person>>(), commonModels.contact, {
+  contact: mapper(zCast<Person>(), commonModels.contact, {
     id: (p) => `${p.id}`,
     updated_at: 'update_time',
     first_name: (p) => p.first_name ?? '',
     last_name: (p) => p.last_name ?? '',
   }),
-  opportunity: mapper(zCast<StrictObj<Deal>>(), commonModels.opportunity, {
+  opportunity: mapper(zCast<Deal>(), commonModels.opportunity, {
     id: (p) => `${p.id}`,
     updated_at: 'update_time',
     name: 'title',
   }),
-  lead: mapper(zCast<StrictObj<Lead>>(), commonModels.lead, {
+  lead: mapper(zCast<Lead>(), commonModels.lead, {
     id: (p) => `${p.id}`,
     updated_at: 'update_time',
   }),
-  user: mapper(zCast<StrictObj<User>>(), commonModels.user, {
+  user: mapper(zCast<User>(), commonModels.user, {
     id: (p) => `${p.id}`,
     updated_at: 'modified',
   }),

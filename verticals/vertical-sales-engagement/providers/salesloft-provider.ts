@@ -1,4 +1,3 @@
-import type {StrictObj} from '@supaglue/vdk'
 import {mapper, zCast} from '@supaglue/vdk'
 import {
   initSalesloftSDK,
@@ -12,7 +11,7 @@ type Salesloft = SalesloftSDKTypes['oas']['components']['schemas']
 
 const mappers = {
   contact: mapper(
-    zCast<StrictObj<Salesloft['Person']>>(),
+    zCast<Salesloft['Person']>(),
     commonModels.contact,
     // @ts-expect-error TODO: Implement me
     {

@@ -1,4 +1,3 @@
-import type {StrictObj} from '@supaglue/vdk'
 import {mapper, z, zCast} from '@supaglue/vdk'
 import {
   initOutreachSDK,
@@ -35,73 +34,69 @@ const listResponse = z.object({
 })
 
 const mappers = {
-  contact: mapper(
-    zCast<StrictObj<Outreach['prospectResponse']>>(),
-    commonModels.contact,
-    {
-      id: (r) => r.id?.toString() ?? '',
-      first_name: (r) => r.attributes?.firstName ?? '',
-      last_name: (r) => r.attributes?.lastName ?? '',
-      owner_id: (r) => r.relationships?.owner?.data?.id?.toString() ?? '',
-      account_id: (r) => r.relationships?.account?.data?.id?.toString(),
-      job_title: (r) => r.attributes?.title ?? '',
-      address: (r) => ({
-        city: r.attributes?.addressCity ?? '',
-        country: r.attributes?.addressCountry ?? '',
-        postal_code: r.attributes?.addressZip ?? '',
-        state: r.attributes?.addressState ?? '',
-        street_1: r.attributes?.addressStreet ?? '',
-        street_2: r.attributes?.addressStreet2 ?? '',
-      }),
-      email_addresses: (r) => {
-        const emails: EmailAddress[] = []
-        r.attributes?.emails?.forEach((record) => ({
-          email_address: record,
-          email_address_type: 'primary',
-        }))
-        return emails
-      },
-      phone_numbers: (r) => {
-        const phoneNumbers: PhoneNumber[] = []
-        r.attributes?.workPhones?.forEach((record) => {
-          phoneNumbers.push({
-            phone_number: record,
-            phone_number_type: 'work',
-          })
-        })
-        r.attributes?.homePhones?.forEach((record) => {
-          phoneNumbers.push({
-            phone_number: record,
-            phone_number_type: 'home',
-          })
-        })
-        r.attributes?.mobilePhones?.forEach((record) => {
-          phoneNumbers.push({
-            phone_number: record,
-            phone_number_type: 'mobile',
-          })
-        })
-        r.attributes?.otherPhones?.forEach((record) => {
-          phoneNumbers.push({
-            phone_number: record,
-            phone_number_type: 'other',
-          })
-        })
-        return phoneNumbers
-      },
-      open_count: (r) => r.attributes?.openCount ?? 0,
-      click_count: (r) => r.attributes?.openCount ?? 0,
-      reply_count: (r) => r.attributes?.openCount ?? 0,
-      bounced_count: (r) => r.attributes?.openCount ?? 0,
-      created_at: (r) => r.attributes?.createdAt ?? '',
-      updated_at: (r) => r.attributes?.updatedAt ?? '',
-      is_deleted: () => false,
-      last_modified_at: (r) => r.attributes?.updatedAt ?? '',
-      raw_data: (r) => r,
+  contact: mapper(zCast<Outreach['prospectResponse']>(), commonModels.contact, {
+    id: (r) => r.id?.toString() ?? '',
+    first_name: (r) => r.attributes?.firstName ?? '',
+    last_name: (r) => r.attributes?.lastName ?? '',
+    owner_id: (r) => r.relationships?.owner?.data?.id?.toString() ?? '',
+    account_id: (r) => r.relationships?.account?.data?.id?.toString(),
+    job_title: (r) => r.attributes?.title ?? '',
+    address: (r) => ({
+      city: r.attributes?.addressCity ?? '',
+      country: r.attributes?.addressCountry ?? '',
+      postal_code: r.attributes?.addressZip ?? '',
+      state: r.attributes?.addressState ?? '',
+      street_1: r.attributes?.addressStreet ?? '',
+      street_2: r.attributes?.addressStreet2 ?? '',
+    }),
+    email_addresses: (r) => {
+      const emails: EmailAddress[] = []
+      r.attributes?.emails?.forEach((record) => ({
+        email_address: record,
+        email_address_type: 'primary',
+      }))
+      return emails
     },
-  ),
+    phone_numbers: (r) => {
+      const phoneNumbers: PhoneNumber[] = []
+      r.attributes?.workPhones?.forEach((record) => {
+        phoneNumbers.push({
+          phone_number: record,
+          phone_number_type: 'work',
+        })
+      })
+      r.attributes?.homePhones?.forEach((record) => {
+        phoneNumbers.push({
+          phone_number: record,
+          phone_number_type: 'home',
+        })
+      })
+      r.attributes?.mobilePhones?.forEach((record) => {
+        phoneNumbers.push({
+          phone_number: record,
+          phone_number_type: 'mobile',
+        })
+      })
+      r.attributes?.otherPhones?.forEach((record) => {
+        phoneNumbers.push({
+          phone_number: record,
+          phone_number_type: 'other',
+        })
+      })
+      return phoneNumbers
+    },
+    open_count: (r) => r.attributes?.openCount ?? 0,
+    click_count: (r) => r.attributes?.openCount ?? 0,
+    reply_count: (r) => r.attributes?.openCount ?? 0,
+    bounced_count: (r) => r.attributes?.openCount ?? 0,
+    created_at: (r) => r.attributes?.createdAt ?? '',
+    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    is_deleted: () => false,
+    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    raw_data: (r) => r,
+  }),
   sequence: mapper(
-    zCast<StrictObj<Outreach['sequenceResponse']>>(),
+    zCast<Outreach['sequenceResponse']>(),
     commonModels.sequence,
     {
       id: (r) => r.id?.toString() ?? '',
@@ -131,23 +126,19 @@ const mappers = {
       raw_data: (r) => r,
     },
   ),
-  account: mapper(
-    zCast<StrictObj<Outreach['accountResponse']>>(),
-    commonModels.account,
-    {
-      id: (r) => r.id?.toString() ?? '',
-      name: (r) => r.attributes?.name ?? '',
-      created_at: (r) => r.attributes?.createdAt ?? '',
-      updated_at: (r) => r.attributes?.updatedAt ?? '',
-      is_deleted: () => false,
-      last_modified_at: (r) => r.attributes?.updatedAt ?? '',
-      owner_id: (r) => r.relationships?.owner?.data?.id?.toString() ?? '',
-      domain: (r) => r.attributes?.domain ?? '',
-      raw_data: (r) => r,
-    },
-  ),
+  account: mapper(zCast<Outreach['accountResponse']>(), commonModels.account, {
+    id: (r) => r.id?.toString() ?? '',
+    name: (r) => r.attributes?.name ?? '',
+    created_at: (r) => r.attributes?.createdAt ?? '',
+    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    is_deleted: () => false,
+    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    owner_id: (r) => r.relationships?.owner?.data?.id?.toString() ?? '',
+    domain: (r) => r.attributes?.domain ?? '',
+    raw_data: (r) => r,
+  }),
   sequenceState: mapper(
-    zCast<StrictObj<Outreach['sequenceStateResponse']>>(),
+    zCast<Outreach['sequenceStateResponse']>(),
     commonModels.sequenceState,
     {
       id: (r) => r.id?.toString() ?? '',
@@ -163,35 +154,27 @@ const mappers = {
       raw_data: (r) => r,
     },
   ),
-  mailbox: mapper(
-    zCast<StrictObj<Outreach['mailboxResponse']>>(),
-    commonModels.mailbox,
-    {
-      id: (r) => r.id?.toString() ?? '',
-      email: (r) => r.attributes?.email ?? '',
-      created_at: (r) => r.attributes?.createdAt ?? '',
-      updated_at: (r) => r.attributes?.updatedAt ?? '',
-      is_deleted: () => false,
-      last_modified_at: (r) => r.attributes?.updatedAt ?? '',
-      user_id: (r) => r.relationships?.user?.data?.id?.toString() ?? '',
-      raw_data: (r) => r,
-    },
-  ),
-  user: mapper(
-    zCast<StrictObj<Outreach['userResponse']>>(),
-    commonModels.user,
-    {
-      id: (r) => r.id?.toString() ?? '',
-      first_name: (r) => r.attributes?.firstName ?? '',
-      last_name: (r) => r.attributes?.lastName ?? '',
-      email: (r) => r.attributes?.email ?? '',
-      created_at: (r) => r.attributes?.createdAt ?? '',
-      updated_at: (r) => r.attributes?.updatedAt ?? '',
-      is_deleted: () => false,
-      last_modified_at: (r) => r.attributes?.updatedAt ?? '',
-      raw_data: (r) => r,
-    },
-  ),
+  mailbox: mapper(zCast<Outreach['mailboxResponse']>(), commonModels.mailbox, {
+    id: (r) => r.id?.toString() ?? '',
+    email: (r) => r.attributes?.email ?? '',
+    created_at: (r) => r.attributes?.createdAt ?? '',
+    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    is_deleted: () => false,
+    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    user_id: (r) => r.relationships?.user?.data?.id?.toString() ?? '',
+    raw_data: (r) => r,
+  }),
+  user: mapper(zCast<Outreach['userResponse']>(), commonModels.user, {
+    id: (r) => r.id?.toString() ?? '',
+    first_name: (r) => r.attributes?.firstName ?? '',
+    last_name: (r) => r.attributes?.lastName ?? '',
+    email: (r) => r.attributes?.email ?? '',
+    created_at: (r) => r.attributes?.createdAt ?? '',
+    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    is_deleted: () => false,
+    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    raw_data: (r) => r,
+  }),
 }
 
 export const outreachProvider = {
