@@ -1,5 +1,6 @@
 import type {BaseRecord} from '@supaglue/vdk'
 import {LastUpdatedAtNextOffset, mapper, z, zCast} from '@supaglue/vdk'
+import {LRUCache} from 'lru-cache'
 import * as RM from 'remeda'
 import type {Oas_crm_contacts, Oas_crm_owners} from '@opensdks/sdk-hubspot'
 import {initHubspotSDK, type HubspotSDK} from '@opensdks/sdk-hubspot'
@@ -105,8 +106,7 @@ const HSDeal = z.object({
   '#associations': z
     .record(z.enum(['company']), z.array(z.string()))
     .optional(),
-  '#pipelineStageMapping':
-    zCast<Awaited<ReturnType<typeof _getPipelineStageMapping>>>(),
+  '#pipelineStageMapping': zCast<PipelineStageMapping>(),
 })
 const HSAccount = z.object({
   id: z.string(),
@@ -276,6 +276,8 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
     mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
     page_size?: number
     cursor?: string | null
+    // For caching prupose only really...
+    ctx: {customerId: string}
   },
 ) => {
   const limit = opts?.page_size ?? 100
@@ -339,7 +341,9 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
   )
   // console.log('associations:', batchedAssociations)
   const pipelineStageMapping =
-    entity === 'deals' ? await _getPipelineStageMapping(instance) : undefined
+    entity === 'deals'
+      ? await cachedGetPipelineStageMapping(instance, opts.ctx)
+      : undefined
 
   const resultsExtended = res.data.results.map((rawData) => {
     const currentAssociations = Object.fromEntries(
@@ -415,8 +419,32 @@ export const _batchListAssociations = async (
   }
 }
 
-// TODO: Cache this
-export const _getPipelineStageMapping = async (instance: HubspotSDK) => {
+const pipelineStageMappingCache = new LRUCache<string, PipelineStageMapping>({
+  ttl: 1000 * 60 * 5,
+  ttlAutopurge: false,
+})
+
+// TODO: Introduce a proper caching fetchLink based on customerId that can be backed by
+// memory cache or redis cache... For now we are just gonna hack around by passing the customerId context around...
+const cachedGetPipelineStageMapping = async (
+  instance: HubspotSDK,
+  opts: {customerId: string},
+): ReturnType<typeof _getPipelineStageMapping> => {
+  const cached = pipelineStageMappingCache.get(opts.customerId)
+  if (cached) {
+    console.log(
+      '[hubspot] Using cached pipeline stage mapping for customerId:',
+      opts.customerId,
+    )
+    return cached
+  }
+  const res = await _getPipelineStageMapping(instance)
+  pipelineStageMappingCache.set(opts.customerId, res)
+  return res
+}
+
+type PipelineStageMapping = Awaited<ReturnType<typeof _getPipelineStageMapping>>
+const _getPipelineStageMapping = async (instance: HubspotSDK) => {
   const res = await instance.crm_pipelines.GET(
     '/crm/v3/pipelines/{objectType}',
     {params: {path: {objectType: 'deals'}}},
@@ -471,30 +499,33 @@ export const hubspotProvider = {
       headers: {authorization: 'Bearer ...'}, // This will be populated by Nango, or you can populate your own...
       links: (defaultLinks) => [...proxyLinks, ...defaultLinks],
     }),
-  listContacts: async ({instance, input}) =>
+  listContacts: async ({instance, input, ctx}) =>
     _listEntityIncrementalThenMap(instance, {
       ...input,
       entity: 'contacts',
       mapper: mappers.contact,
       fields: propertiesToFetch.contact,
+      ctx,
     }),
-  listAccounts: async ({instance, input}) =>
+  listAccounts: async ({instance, input, ctx}) =>
     _listEntityIncrementalThenMap(instance, {
       ...input,
       entity: 'companies',
       mapper: mappers.account,
       fields: propertiesToFetch.account,
+      ctx,
     }),
-  listOpportunities: async ({instance, input}) =>
+  listOpportunities: async ({instance, input, ctx}) =>
     _listEntityIncrementalThenMap(instance, {
       ...input,
       entity: 'deals',
       mapper: mappers.opportunity,
       fields: propertiesToFetch.deal,
       associations: ['company'],
+      ctx,
     }),
   // Original supaglue never implemented this, TODO: handle me...
-  // listLeads: async ({instance, input}) =>
+  // listLeads: async ({instance, input, ctx}) =>
   //   _listEntityThenMap(instance, {
   //     ...input,
   //     entity: 'leads',

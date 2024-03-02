@@ -6,7 +6,8 @@
     "@opensdks/sdk-salesforce": "0.0.2",
     "@supaglue/vdk": "workspace:*",
     "jsforce": "^2.0.0-beta.29",
-    "remeda": "1.46.0"
+    "lru-cache": "^10.2.0",
+    "remeda": "^1.46.0"
   },
   "devDependencies": {}
 }
