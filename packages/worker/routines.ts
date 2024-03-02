@@ -64,7 +64,7 @@ export async function scheduleSyncs({step}: RoutineInput<never>) {
   ])
   const connections = await Promise.all(
     customers
-      .slice(0, 10) // TODO: comment me out in production
+      // .slice(0, 10) // TODO: comment me out in production
       .map((c) =>
         supaglue.mgmt
           .GET('/customers/{customer_id}/connections', {
@@ -145,14 +145,14 @@ export async function syncConnection({
           .then((rows) => rows[0]!),
     )
 
-  const nowFn = sql`now()`
+  const sqlNow = sql`now()`
 
   const syncRunId = await db
     .insert(schema.sync_run)
     .values({
       input_event: sql`${event}::jsonb`,
       initial_state: sql`${syncState.state}::jsonb`,
-      started_at: nowFn,
+      started_at: sqlNow,
     })
     .returning()
     .then((rows) => rows[0]!.id)
@@ -227,10 +227,10 @@ export async function syncConnection({
                     _supaglue_provider_name: provider_name,
                     id: item.id,
                     // Other columns
-                    created_at: nowFn,
-                    updated_at: nowFn,
-                    _supaglue_emitted_at: nowFn,
-                    last_modified_at: nowFn, // TODO: Fix me...
+                    created_at: sqlNow,
+                    updated_at: sqlNow,
+                    _supaglue_emitted_at: sqlNow,
+                    last_modified_at: sqlNow, // TODO: Fix me...
                     is_deleted: false,
                     // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
                     raw_data: sql`${raw_data ?? ''}::jsonb`,
@@ -274,21 +274,32 @@ export async function syncConnection({
         })
         state.cursor = ret.next_cursor
         // Persist state. TODO: Figure out how to make this work with step function
-        await dbUpsert(
-          db,
-          schema.sync_state,
-          [
+        await Promise.all([
+          dbUpsert(
+            db,
+            schema.sync_state,
+            [
+              {
+                ...syncState,
+                state: sql`${overallState}::jsonb`,
+                updated_at: sqlNow,
+              },
+            ],
             {
-              ...syncState,
-              state: sql`${overallState}::jsonb`,
-              updated_at: nowFn,
+              shallowMergeJsonbColumns: ['state'], // For race condition / concurrent sync of multiple streams
+              noDiffColumns: ['created_at', 'updated_at'],
             },
-          ],
-          {
-            shallowMergeJsonbColumns: ['state'], // For race condition / concurrent sync of multiple streams
-            noDiffColumns: ['created_at', 'updated_at'],
-          },
-        )
+          ),
+          // Should this happen in a transaction? doesn't seem necessary but still
+          db
+            .update(schema.sync_run)
+            .set({
+              // Should we call it currentState instead? Also do we need it on the sync_state itself?
+              final_state: sql`${overallState}::jsonb`,
+              metrics: sql`${metrics}::jsonb`,
+            })
+            .where(eq(schema.sync_run.id, syncRunId)),
+        ])
         if (!ret.hast_next_page) {
           break
         }
@@ -301,7 +312,7 @@ export async function syncConnection({
       .update(schema.sync_run)
       .set({
         ...errorInfo,
-        completed_at: nowFn,
+        completed_at: sqlNow,
         final_state: sql`${overallState}::jsonb`,
         metrics: sql`${metrics}::jsonb`,
       })
