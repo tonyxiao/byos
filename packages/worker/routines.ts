@@ -101,9 +101,10 @@ export async function scheduleSyncs({step}: RoutineInput<never>) {
   )
 }
 
+const sqlNow = sql`now()`
+
 export async function syncConnection({
-  event,
-  step,
+  event, // step,
 }: RoutineInput<'connection/sync'>) {
   const {
     data: {
@@ -146,8 +147,6 @@ export async function syncConnection({
           .then((rows) => rows[0]!),
     )
 
-  const sqlNow = sql`now()`
-
   const syncRunId = await db
     .insert(schema.sync_run)
     .values({
@@ -157,6 +156,14 @@ export async function syncConnection({
     })
     .returning()
     .then((rows) => rows[0]!.id)
+
+  const byos = initBYOSupaglueSDK({
+    headers: {
+      'x-api-key': env.SUPAGLUE_API_KEY,
+      'x-customer-id': customer_id, // This relies on customer-id mapping 1:1 to connection_id
+      'x-provider-name': provider_name, // This relies on provider_config_key mapping 1:1 to provider-name
+    },
+  })
 
   const overallState = (syncState.state ?? {}) as Record<
     string,
@@ -177,13 +184,64 @@ export async function syncConnection({
     return metrics[name] as T
   }
 
-  const byos = initBYOSupaglueSDK({
-    headers: {
-      'x-api-key': env.SUPAGLUE_API_KEY,
-      'x-customer-id': customer_id, // This relies on customer-id mapping 1:1 to connection_id
-      'x-provider-name': provider_name, // This relies on provider_config_key mapping 1:1 to provider-name
-    },
-  })
+  async function syncStreamPage(
+    stream: string,
+    table: ReturnType<typeof getCommonObjectTable>,
+    state: {cursor?: string | null},
+  ) {
+    try {
+      const res = await byos.GET(
+        `/${vertical}/v2/${stream}` as '/crm/v2/contact',
+        {params: {query: {cursor: state.cursor}}}, // We let each provider determine the page size rather than hard-coding
+      )
+      const count = incrementMetric(`${stream}_count`, res.data.items.length)
+      incrementMetric(`${stream}_page_count`)
+      console.log(`Syncing ${vertical} ${stream} count=${count}`)
+      if (res.data.items.length) {
+        await dbUpsert(
+          db,
+          table,
+          res.data.items.map(({raw_data, ...item}) => ({
+            // Primary keys
+            _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
+            _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
+            _supaglue_provider_name: provider_name,
+            id: item.id,
+            // Other columns
+            created_at: sqlNow,
+            updated_at: sqlNow,
+            _supaglue_emitted_at: sqlNow,
+            last_modified_at: sqlNow, // TODO: Fix me...
+            is_deleted: false,
+            // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
+            raw_data: sql`${raw_data ?? ''}::jsonb`,
+            _supaglue_unified_data: sql`${item}::jsonb`,
+          })),
+          {
+            insertOnlyColumns: ['created_at'],
+            noDiffColumns: [
+              '_supaglue_emitted_at',
+              'last_modified_at',
+              'updated_at',
+            ],
+          },
+        )
+      }
+      return {
+        next_cursor: res.data.next_cursor,
+        has_next_page: res.data.has_next_page,
+      }
+    } catch (err) {
+      // HTTP 501 not implemented
+      if (err instanceof HTTPError && err.code === 501) {
+        console.warn(
+          `[sync progress] ${provider_name} does not implement ${stream}`,
+        )
+        return {has_next_page: false, next_cursor: null}
+      }
+      throw err
+    }
+  }
 
   async function syncStream(stream: string) {
     const fullEntity = `${vertical}_${stream}`
@@ -198,66 +256,11 @@ export async function syncConnection({
     setMetric(`${stream}_sync_mode`, streamSyncMode)
 
     while (true) {
-      const ret = await step.run(
-        `${stream}-sync-${state.cursor ?? ''}`,
-        async () => {
-          try {
-            const res = await byos.GET(
-              `/${vertical}/v2/${stream}` as '/crm/v2/contact',
-              {params: {query: {cursor: state.cursor}}}, // We let each provider determine the page size rather than hard-coding
-            )
-            const count = incrementMetric(
-              `${stream}_count`,
-              res.data.items.length,
-            )
-            incrementMetric(`${stream}_page_count`)
-            console.log(`Syncing ${vertical} ${stream} count=${count}`)
-            if (res.data.items.length) {
-              await dbUpsert(
-                db,
-                table,
-                res.data.items.map(({raw_data, ...item}) => ({
-                  // Primary keys
-                  _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
-                  _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
-                  _supaglue_provider_name: provider_name,
-                  id: item.id,
-                  // Other columns
-                  created_at: sqlNow,
-                  updated_at: sqlNow,
-                  _supaglue_emitted_at: sqlNow,
-                  last_modified_at: sqlNow, // TODO: Fix me...
-                  is_deleted: false,
-                  // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
-                  raw_data: sql`${raw_data ?? ''}::jsonb`,
-                  _supaglue_unified_data: sql`${item}::jsonb`,
-                })),
-                {
-                  insertOnlyColumns: ['created_at'],
-                  noDiffColumns: [
-                    '_supaglue_emitted_at',
-                    'last_modified_at',
-                    'updated_at',
-                  ],
-                },
-              )
-            }
-            return {
-              next_cursor: res.data.next_cursor,
-              has_next_page: res.data.has_next_page,
-            }
-          } catch (err) {
-            // HTTP 501 not implemented
-            if (err instanceof HTTPError && err.code === 501) {
-              console.warn(
-                `[sync progress] ${provider_name} does not implement ${stream}`,
-              )
-              return {has_next_page: false, next_cursor: null}
-            }
-            throw err
-          }
-        },
-      )
+      // const ret = await step.run(
+      //   `${stream}-sync-${state.cursor ?? ''}`,
+      //   iteratePage,
+      // )
+      const ret = await syncStreamPage(stream, table, state)
       console.log('[sync progress]', {
         stream,
         completed_cursor: state.cursor,
