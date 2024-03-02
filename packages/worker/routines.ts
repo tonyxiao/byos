@@ -158,9 +158,10 @@ export async function syncConnection({
     .returning()
     .then((rows) => rows[0]!.id)
 
-  const overallState = (
-    sync_mode === 'full' ? {} : syncState.state ?? {}
-  ) as Record<string, {cursor?: string | null}>
+  const overallState = (syncState.state ?? {}) as Record<
+    string,
+    {cursor?: string | null}
+  >
 
   let errorInfo: ReturnType<typeof parseErrorInfo> | undefined
 
@@ -191,11 +192,10 @@ export async function syncConnection({
       schema: destination_schema,
     })
     await db.execute(table.createIfNotExistsSql())
-
-    const state = overallState[stream] ?? {}
+    const state = sync_mode === 'full' ? {} : overallState[stream] ?? {}
     overallState[stream] = state
-    const syncMode = state.cursor ? 'incremental' : 'full'
-    setMetric(`${stream}_sync_mode`, syncMode)
+    const streamSyncMode = state.cursor ? 'incremental' : 'full'
+    setMetric(`${stream}_sync_mode`, streamSyncMode)
 
     while (true) {
       const ret = await step.run(
