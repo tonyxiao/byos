@@ -233,12 +233,7 @@ export async function syncConnection({
                   _supaglue_unified_data: sql`${item}::jsonb`,
                 })),
                 {
-                  insertOnlyColumns: [
-                    'created_at',
-                    // TODO: Add back raw_data once we fetch custom fields as part of sync. For now avoid overwriting raw_data
-                    // that could be used by other services
-                    'raw_data',
-                  ],
+                  insertOnlyColumns: ['created_at'],
                   noDiffColumns: [
                     '_supaglue_emitted_at',
                     'last_modified_at',
