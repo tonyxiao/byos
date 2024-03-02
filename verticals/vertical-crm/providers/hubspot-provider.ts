@@ -1,5 +1,6 @@
 import type {BaseRecord} from '@supaglue/vdk'
 import {LastUpdatedAtNextOffset, mapper, z, zCast} from '@supaglue/vdk'
+import * as RM from 'remeda'
 import type {Oas_crm_contacts, Oas_crm_owners} from '@opensdks/sdk-hubspot'
 import {initHubspotSDK, type HubspotSDK} from '@opensdks/sdk-hubspot'
 import type {CRMProvider} from '../router'
@@ -85,6 +86,7 @@ const HSDeal = z.object({
     hubspot_owner_id: z.string().nullish(),
     notes_last_updated: z.string().nullish(), // Assuming lastActivityAt is a string in HubSpot format
     dealstage: z.string().nullish(),
+    pipeline: z.string().nullish(),
     closedate: z.string().nullish(), // Assuming closeDate is a string in HubSpot format
     description: z.string().nullish(),
     amount: z.string().nullish(),
@@ -103,6 +105,8 @@ const HSDeal = z.object({
   '#associations': z
     .record(z.enum(['company']), z.array(z.string()))
     .optional(),
+  '#pipelineStageMapping':
+    zCast<Awaited<ReturnType<typeof _getPipelineStageMapping>>>(),
 })
 const HSAccount = z.object({
   id: z.string(),
@@ -184,11 +188,11 @@ const propertiesToFetch = {
   deal: [
     'dealname',
     'description',
-    'dealstage',
     'amount',
     'hubspot_owner_id',
     'notes_last_updated',
     'closedate',
+    'dealstage',
     'pipeline',
     'hs_is_closed_won',
     'hs_is_closed',
@@ -227,8 +231,10 @@ const mappers = {
         : record.properties.hs_is_closed
           ? 'LOST'
           : 'OPEN',
-    stage: 'properties.dealstage', // FIXME: Need to look up pipeline stage definition
-    // account_id: 'properties.account_id', // may need to do this separately...
+    stage: (r) =>
+      r['#pipelineStageMapping'][r.properties.pipeline ?? '']?.stageLabelById?.[
+        r.properties.dealstage ?? ''
+      ],
     account_id: (r) => r['#associations']?.company?.[0],
     close_date: 'properties.closedate',
     amount: (record) =>
@@ -331,20 +337,27 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
       return [associatedType, toObjectIdsByFromObjectId] as const
     }),
   )
-  console.log('associations:', batchedAssociations)
+  // console.log('associations:', batchedAssociations)
+  const pipelineStageMapping =
+    entity === 'deals' ? await _getPipelineStageMapping(instance) : undefined
 
-  const rawWithAssociations = res.data.results.map((rawData) => {
+  const resultsExtended = res.data.results.map((rawData) => {
     const currentAssociations = Object.fromEntries(
       batchedAssociations.map(([associatedType, toObjectIdsByFromObjectId]) => {
         const toIds = toObjectIdsByFromObjectId[rawData.id] ?? []
         return [associatedType, toIds]
       }),
     ) satisfies z.infer<typeof HSDeal>['#associations']
-    console.log('currentAssociations:', currentAssociations)
-    return {...rawData, '#associations': currentAssociations}
+    // console.log('currentAssociations:', currentAssociations)
+
+    return {
+      ...rawData,
+      '#associations': currentAssociations,
+      '#pipelineStageMapping': pipelineStageMapping,
+    }
   })
 
-  const items = rawWithAssociations.map(opts.mapper.parse)
+  const items = resultsExtended.map(opts.mapper.parse)
   const lastItem = items[items.length - 1]
   return {
     items,
@@ -400,6 +413,24 @@ export const _batchListAssociations = async (
     console.log(err)
     throw err
   }
+}
+
+// TODO: Cache this
+export const _getPipelineStageMapping = async (instance: HubspotSDK) => {
+  const res = await instance.crm_pipelines.GET(
+    '/crm/v3/pipelines/{objectType}',
+    {params: {path: {objectType: 'deals'}}},
+  )
+  return RM.mapToObj(res.data.results, (result) => [
+    result.id,
+    {
+      label: result.label,
+      stageLabelById: RM.mapToObj(result.stages, (stage) => [
+        stage.id,
+        stage.label,
+      ]),
+    },
+  ])
 }
 
 const _listEntityFullThenMap = async <TIn, TOut extends BaseRecord>(

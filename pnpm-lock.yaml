@@ -343,6 +343,9 @@ importers:
       jsforce:
         specifier: ^2.0.0-beta.29
         version: 2.0.0-beta.29
+      remeda:
+        specifier: 1.46.0
+        version: 1.46.0
 
   verticals/vertical-sales-engagement:
     dependencies:
