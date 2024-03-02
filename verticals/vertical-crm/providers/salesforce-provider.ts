@@ -611,7 +611,7 @@ export const salesforceProvider = {
     // Look up source custom object to figure out a relationship name
     const sourceCustomObjectMetadata = await sfdc.metadata.read(
       'CustomObject',
-      input.sourceObject,
+      input.source_object,
     )
 
     // If the relationship field doesn't already exist, create it
@@ -620,7 +620,7 @@ export const salesforceProvider = {
     )
 
     const customFieldPayload = {
-      fullName: `${input.sourceObject}.${input.id}`,
+      fullName: `${input.source_object}.${input.id}`,
       label: input.label,
       // The custom field name you provided Related Opportunity on object Opportunity can
       // only contain alphanumeric characters, must begin with a letter, cannot end
@@ -632,7 +632,7 @@ export const salesforceProvider = {
         'relationshipName',
       type: 'Lookup',
       required: false,
-      referenceTo: input.targetObject,
+      referenceTo: input.target_object,
     }
 
     if (existingField) {
@@ -694,7 +694,7 @@ export const salesforceProvider = {
 
     // Figure out which fields already have permissions
     const {records: existingFieldPermissions} = await sfdc.query(
-      `SELECT Id,Field FROM FieldPermissions WHERE SobjectType='${input.sourceObject}' AND ParentId='${permissionSetId}' AND Field='${input.sourceObject}.${input.id}'`,
+      `SELECT Id,Field FROM FieldPermissions WHERE SobjectType='${input.source_object}' AND ParentId='${permissionSetId}' AND Field='${input.source_object}.${input.id}'`,
     )
     if (existingFieldPermissions.length) {
       // Update permission
@@ -702,8 +702,8 @@ export const salesforceProvider = {
       const result = await sfdc.update('FieldPermissions', {
         Id: existingFieldPermission?.Id as string,
         ParentId: permissionSetId,
-        SobjectType: input.sourceObject,
-        Field: `${input.sourceObject}.${input.id}`,
+        SobjectType: input.source_object,
+        Field: `${input.source_object}.${input.id}`,
         PermissionsEdit: true,
         PermissionsRead: true,
       })
@@ -720,8 +720,8 @@ export const salesforceProvider = {
       // Create permission
       const result = await sfdc.create('FieldPermissions', {
         ParentId: permissionSetId,
-        SobjectType: input.sourceObject,
-        Field: `${input.sourceObject}.${input.id}`,
+        SobjectType: input.source_object,
+        Field: `${input.source_object}.${input.id}`,
         PermissionsEdit: true,
         PermissionsRead: true,
       })
@@ -736,10 +736,64 @@ export const salesforceProvider = {
       }
     }
     return {
-      id: `${input.sourceObject}.${input.id}`,
-      sourceObject: input.sourceObject,
-      targetObject: input.targetObject,
+      id: `${input.source_object}.${input.id}`,
+      sourceObject: input.source_object,
+      targetObject: input.target_object,
       label: input.label,
     }
+  },
+  metadataUpdateCustomObject: async ({instance, input}) => {
+    const sfdc = await instance.getJsForce()
+    const objectName = input.name.endsWith('__c')
+      ? input.name
+      : `${input.name}__c`
+
+    const readResponse = await sfdc.metadata.read('CustomObject', objectName)
+    if (!readResponse.fullName) {
+      throw new Error(`Custom object with name ${objectName} does not exist`)
+    }
+
+    const primaryField = input.fields.find(
+      (field) => field.id === input.primaryFieldId,
+    )
+    if (!primaryField) {
+      throw new Error('Primary field not found')
+    }
+
+    const nonPrimaryFields = input.fields.filter(
+      (field) => field.id !== input.primaryFieldId,
+    )
+
+    const primaryFieldMapped = {
+      ...primaryField,
+      type: mapStringToPropertyType(primaryField.type),
+    }
+
+    const nonPrimaryFieldsMapped = nonPrimaryFields.map((field) => ({
+      ...field,
+      type: mapStringToPropertyType(field.type),
+    }))
+
+    const result = await sfdc.metadata.update(
+      'CustomObject',
+      toSalesforceCustomObjectCreateParams(
+        objectName,
+        input.labels,
+        input.description || null,
+        primaryFieldMapped,
+        nonPrimaryFieldsMapped,
+      ),
+    )
+
+    if (result.success) {
+      return {id: input.name, name: input.name}
+    }
+    throw new Error(
+      `Failed to update custom object. Raw error message from Salesforce: ${JSON.stringify(
+        result,
+        null,
+        2,
+      )}`,
+    )
   },
 } satisfies CRMProvider<SalesforceSDK>

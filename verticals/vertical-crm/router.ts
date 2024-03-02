@@ -92,7 +92,7 @@ export const crmRouter = trpc.router({
     )
     .output(zPaginatedResult.extend({items: z.array(z.unknown())}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
-  
+
   // MARK: - Metadata
   metadataListStandardObjects: remoteProcedure
     .meta(oapi({method: 'GET', path: '/metadata/objects/standard'}))
@@ -168,8 +168,8 @@ export const crmRouter = trpc.router({
     .meta(oapi({method: 'POST', path: '/metadata/associations'}))
     .input(
       z.object({
-        sourceObject: z.string(),
-        targetObject: z.string(),
+        source_object: z.string(),
+        target_object: z.string(),
         id: z.string(),
         label: z.string(),
       }),
@@ -182,6 +182,32 @@ export const crmRouter = trpc.router({
         label: z.string(),
       }),
     )
+    .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+  metadataUpdateCustomObject: remoteProcedure
+    .meta(oapi({method: 'PUT', path: '/metadata/objects/custom'}))
+    .input(
+      z.object({
+        name: z.string(),
+        description: z.string().nullable(),
+        labels: z.object({
+          singular: z.string(),
+          plural: z.string(),
+        }),
+        primaryFieldId: z.string(),
+        fields: z.array(
+          z.object({
+            id: z.string(),
+            description: z.string().optional(),
+            type: z.string(),
+            label: z.string(),
+            isRequired: z.boolean(),
+            default_value: z.string().optional(),
+            group_name: z.string().optional(),
+          }),
+        ),
+      }),
+    )
+    .output(commonModels.metaCustomObject)
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 })
 
