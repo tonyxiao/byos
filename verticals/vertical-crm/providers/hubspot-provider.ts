@@ -422,6 +422,7 @@ export const _batchListAssociations = async (
 const pipelineStageMappingCache = new LRUCache<string, PipelineStageMapping>({
   ttl: 1000 * 60 * 5,
   ttlAutopurge: false,
+  max: 100,
 })
 
 // TODO: Introduce a proper caching fetchLink based on customerId that can be backed by
