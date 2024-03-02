@@ -166,7 +166,7 @@ export const propertiesForCommonObject = {
     'ShippingState',
     'ShippingStreet',
     'Phone',
-    'Fax',
+    // 'Fax', // Not All accounts have the `Fax` field. 65b28b35e43f25d0823a26d6 is notably missing it...
     'LastActivityDate',
     'CreatedDate',
     'IsDeleted',

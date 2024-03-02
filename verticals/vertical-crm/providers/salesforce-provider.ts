@@ -306,11 +306,14 @@ function sdkExt(instance: SalesforceSDK) {
 
   const listEntity = async <T>({
     cursor,
+    includeCustomFields = true,
     ...opts
   }: {
     // to-do: Make entity and fields type safe
     entity: string
     fields: string[]
+    /** Default true */
+    includeCustomFields?: boolean
     cursor?: {
       last_updated_at: string
       last_id: string
@@ -321,8 +324,12 @@ function sdkExt(instance: SalesforceSDK) {
       ? `WHERE SystemModstamp > ${cursor.last_updated_at} OR (SystemModstamp = ${cursor.last_updated_at} AND Id > '${cursor.last_id}')`
       : ''
     const limitStatement = opts.limit != null ? `LIMIT ${opts.limit}` : ''
+    const fields = [
+      ...opts.fields,
+      ...(includeCustomFields ? ['FIELDS(CUSTOM)'] : []),
+    ]
     return instance.query<T>(`
-        SELECT Id, SystemModstamp, ${opts.fields.join(', ')}, FIELDS(CUSTOM)
+        SELECT Id, SystemModstamp, ${fields.join(', ')}
         FROM ${opts.entity}
         ${whereStatement}
         ORDER BY SystemModstamp ASC, Id ASC
