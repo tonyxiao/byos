@@ -19,6 +19,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@supaglue/vdk": "workspace:*",
     "drizzle-kit": "^0.20.12"
   }
 }
