@@ -122,8 +122,8 @@ importers:
         specifier: 0.36.89
         version: 0.36.89
       '@opensdks/runtime':
-        specifier: 0.0.17
-        version: 0.0.17
+        specifier: 0.0.19
+        version: 0.0.19
       '@opensdks/sdk-nango':
         specifier: 0.0.4
         version: 0.0.4
@@ -198,8 +198,8 @@ importers:
         specifier: 1.3.10
         version: 1.3.10(@trpc/server@10.40.0)(zod@3.22.4)
       '@opensdks/runtime':
-        specifier: 0.0.17
-        version: 0.0.17
+        specifier: 0.0.19
+        version: 0.0.19
       '@opensdks/sdk-nango':
         specifier: 0.0.4
         version: 0.0.4
@@ -248,8 +248,8 @@ importers:
   packages/sdk:
     dependencies:
       '@opensdks/runtime':
-        specifier: 0.0.17
-        version: 0.0.17
+        specifier: 0.0.19
+        version: 0.0.19
     devDependencies:
       '@supaglue/api':
         specifier: workspace:*
@@ -280,8 +280,8 @@ importers:
         specifier: 1.3.10
         version: 1.3.10(@trpc/server@10.40.0)(zod@3.22.4)
       '@opensdks/runtime':
-        specifier: 0.0.17
-        version: 0.0.17
+        specifier: 0.0.19
+        version: 0.0.19
       '@opensdks/sdk-apollo':
         specifier: 0.0.21
         version: 0.0.21
@@ -2828,8 +2828,8 @@ packages:
   /@opensdks/fetch-links@0.0.18:
     resolution: {integrity: sha512-EhBj92wLXoj3pF4ERxzoEhAlwlefIzQ31At0zaksSbA9zqMlod9DyfypQRX/6J8w4iZzraV33BtFEk7l98nsLA==}
 
-  /@opensdks/runtime@0.0.17:
-    resolution: {integrity: sha512-H4Fl5++daJhM6ILxpBOT8FDTdEGP6JCdVeGN5ZN/pyxnhsFjBW8ddPCMOZbe6IGilrMKQZf6AF0Tm9f7Pdwn0A==}
+  /@opensdks/runtime@0.0.19:
+    resolution: {integrity: sha512-9rPrPDHS+PRVKOWXbdYEtys/4uHeVzitQgR0QVSWtMFOn6FOY8VxMGvem0TGJwHf4EPecejoWF8NuNwUATmbeA==}
     dependencies:
       '@opensdks/fetch-links': 0.0.18
       openapi-fetch: 0.8.1

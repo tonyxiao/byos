@@ -6,10 +6,13 @@ import * as routines from './routines'
 
 /** Mimic subset of Inngest StepTools UI */
 const step: routines.RoutineInput<never>['step'] = {
-  run: (_, fn) => fn(),
+  run: (name, fn) => {
+    console.log('[step.run]', name)
+    return fn()
+  },
   // eslint-disable-next-line @typescript-eslint/require-await
   sendEvent: async (stepId, events) => {
-    console.log('NOOP: [sendEvent]', stepId, JSON.stringify(events, null, 2))
+    console.log('[step.sendEvent]', stepId, JSON.stringify(events, null, 2))
   },
 }
 

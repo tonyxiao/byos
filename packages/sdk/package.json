@@ -1,6 +1,7 @@
 {
   "name": "@supaglue/sdk",
   "version": "0.0.0",
+  "private": true,
   "description": "SDK for BYO Supaglue",
   "module": "./index.ts",
   "scripts": {
@@ -9,7 +10,7 @@
     "gen:types": "npx @opensdks/cli@0.0.17 ./openapi.json --meta-dir ./ --types-dir ./ "
   },
   "dependencies": {
-    "@opensdks/runtime": "0.0.17"
+    "@opensdks/runtime": "0.0.19"
   },
   "devDependencies": {
     "@supaglue/api": "workspace:*"
