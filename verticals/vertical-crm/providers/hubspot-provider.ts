@@ -45,6 +45,7 @@ export const HUBSPOT_STANDARD_OBJECTS = [
   'postal_mail',
   'task',
 ] as const
+
 const HSBase = z.object({
   id: z.string(),
   properties: z
@@ -62,7 +63,7 @@ const HSContact = z.object({
   id: z.string(),
   properties: z.object({
     hs_object_id: z.string(),
-    createdate: z.string(),
+    createdate: z.string().nullish(),
     lastmodifieddate: z.string(),
     // properties specific to contacts below...
     email: z.string().nullish(),
@@ -77,7 +78,7 @@ const HSOpportunity = z.object({
   id: z.string(),
   properties: z.object({
     hs_object_id: z.string(),
-    createdate: z.string(),
+    createdate: z.string().nullish(),
     lastmodifieddate: z.string().nullish(),
     // properties specific to opportunities below...
     name: z.string().nullish(),
@@ -98,26 +99,11 @@ const HSOpportunity = z.object({
   updatedAt: z.string(),
   archived: z.boolean(),
 })
-const HSUser = z.object({
-  id: z.string(),
-  properties: z.object({
-    hs_object_id: z.string(),
-    createdate: z.string(),
-    lastmodifieddate: z.string().nullish(),
-    // properties specific to opportunities below...
-    email: z.string().nullish(),
-    firstname: z.string().nullish(),
-    lastname: z.string().nullish(),
-  }),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  archived: z.boolean(),
-})
 const HSAccount = z.object({
   id: z.string(),
   properties: z.object({
     hs_object_id: z.string(),
-    createdate: z.string(),
+    createdate: z.string().nullish(),
     lastmodifieddate: z.string().nullish(),
     name: z.string().nullish(),
     description: z.string().nullish(),
