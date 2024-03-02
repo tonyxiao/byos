@@ -99,6 +99,10 @@ const HSDeal = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   archived: z.boolean(),
+  /** toObjectType => toObjectId[] */
+  '#associations': z
+    .record(z.enum(['company']), z.array(z.string()))
+    .optional(),
 })
 const HSAccount = z.object({
   id: z.string(),
@@ -123,6 +127,22 @@ const HSAccount = z.object({
 })
 
 const propertiesToFetch = {
+  account: [
+    'Id',
+    'Name',
+    'Type',
+    'ParentId',
+    'BillingAddress',
+    'ShippingAddress',
+    'Phone',
+    'Fax',
+    'Website',
+    'Industry',
+    'NumberOfEmployees',
+    'OwnerId',
+    'CreatedDate',
+    'LastModifiedDate',
+  ],
   company: [
     'hubspot_owner_id',
     'description',
@@ -173,23 +193,6 @@ const propertiesToFetch = {
     'hs_is_closed_won',
     'hs_is_closed',
   ],
-  user: ['Id', 'Name', 'Email', 'IsActive', 'CreatedDate', 'SystemModstamp'],
-  account: [
-    'Id',
-    'Name',
-    'Type',
-    'ParentId',
-    'BillingAddress',
-    'ShippingAddress',
-    'Phone',
-    'Fax',
-    'Website',
-    'Industry',
-    'NumberOfEmployees',
-    'OwnerId',
-    'CreatedDate',
-    'LastModifiedDate',
-  ],
 }
 
 const mappers = {
@@ -226,6 +229,7 @@ const mappers = {
           : 'OPEN',
     stage: 'properties.dealstage', // FIXME: Need to look up pipeline stage definition
     // account_id: 'properties.account_id', // may need to do this separately...
+    account_id: (r) => r['#associations']?.company?.[0],
     close_date: 'properties.closedate',
     amount: (record) =>
       record.properties.amount
@@ -262,6 +266,7 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
   }: {
     entity: string
     fields: string[]
+    associations?: string[]
     mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
     page_size?: number
     cursor?: string | null
@@ -276,14 +281,16 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
     `/crm/v3/objects/${entity as 'contacts'}/search`,
     {
       body: {
-        properties: [
-          'hs_object_id',
-          'createdate',
-          'lastmodifieddate',
-          'hs_lastmodifieddate',
-          'name',
-          ...fields,
-        ],
+        properties: Array.from(
+          new Set([
+            'hs_object_id',
+            'createdate',
+            'lastmodifieddate',
+            'hs_lastmodifieddate',
+            'name',
+            ...fields,
+          ]),
+        ),
         filterGroups: cursor?.last_updated_at
           ? [
               {
@@ -313,7 +320,31 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
       },
     },
   )
-  const items = res.data.results.map(opts.mapper.parse)
+
+  const batchedAssociations = await Promise.all(
+    (opts.associations ?? []).map(async (associatedType) => {
+      const toObjectIdsByFromObjectId = await _batchListAssociations(instance, {
+        fromObjectIds: res.data.results.map((r) => r.id),
+        fromObjectType: entity,
+        toObjectType: associatedType,
+      })
+      return [associatedType, toObjectIdsByFromObjectId] as const
+    }),
+  )
+  console.log('associations:', batchedAssociations)
+
+  const rawWithAssociations = res.data.results.map((rawData) => {
+    const currentAssociations = Object.fromEntries(
+      batchedAssociations.map(([associatedType, toObjectIdsByFromObjectId]) => {
+        const toIds = toObjectIdsByFromObjectId[rawData.id] ?? []
+        return [associatedType, toIds]
+      }),
+    ) satisfies z.infer<typeof HSDeal>['#associations']
+    console.log('currentAssociations:', currentAssociations)
+    return {...rawData, '#associations': currentAssociations}
+  })
+
+  const items = rawWithAssociations.map(opts.mapper.parse)
   const lastItem = items[items.length - 1]
   return {
     items,
@@ -336,7 +367,7 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
 }
 
 // TODO: implement this when reading batch
-export const _listAssociations = async (
+export const _batchListAssociations = async (
   instance: HubspotSDK,
   opts: {
     fromObjectIds: string[]
@@ -429,6 +460,7 @@ export const hubspotProvider = {
       entity: 'deals',
       mapper: mappers.opportunity,
       fields: propertiesToFetch.deal,
+      associations: ['company'],
     }),
   // Original supaglue never implemented this, TODO: handle me...
   // listLeads: async ({instance, input}) =>

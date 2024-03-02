@@ -249,7 +249,7 @@ export async function syncConnection({
             }
             return {
               next_cursor: res.data.next_cursor,
-              hast_next_page: res.data.has_next_page,
+              has_next_page: res.data.has_next_page,
             }
           } catch (err) {
             // HTTP 501 not implemented
@@ -257,7 +257,7 @@ export async function syncConnection({
               console.warn(
                 `[sync progress] ${provider_name} does not implement ${stream}`,
               )
-              return {hast_next_page: false, next_cursor: null}
+              return {has_next_page: false, next_cursor: null}
             }
             throw err
           }
@@ -296,7 +296,7 @@ export async function syncConnection({
           })
           .where(eq(schema.sync_run.id, syncRunId)),
       ])
-      if (!ret.hast_next_page) {
+      if (!ret.has_next_page) {
         break
       }
     }

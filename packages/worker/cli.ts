@@ -81,7 +81,10 @@ async function runBackfill() {
     })
     // Should we handle timeout and other things?
     console.log('Backfill', i, 'of', syncEvents.length, event.data)
-    if (lastRun?.status === 'SUCCESS' || lastRun?.status === 'USER_ERROR') {
+    if (
+      (lastRun?.status === 'SUCCESS' || lastRun?.status === 'USER_ERROR') &&
+      event.data.provider_name !== 'hubspot' // Need to redo hubspot unfortunately...
+    ) {
       console.log(
         'Skipping backfill',
         i,
@@ -96,13 +99,14 @@ async function runBackfill() {
         ...event,
         data: {
           ...event.data,
+          ...(process.env['COMMON_OBJECT'] && {
+            common_objects: [process.env['COMMON_OBJECT']! as 'contact'],
+          }),
           ...(process.env['SYNC_MODE'] && {
             sync_mode: process.env['SYNC_MODE']! as 'incremental',
           }),
           ...(process.env['DESTINATION_SCHEMA'] && {
-            destination_schema: process.env[
-              'DESTINATION_SCHEMA'
-            ]! as 'incremental',
+            destination_schema: process.env['DESTINATION_SCHEMA']!,
           }),
         },
       },
