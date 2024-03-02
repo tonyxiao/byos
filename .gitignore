@@ -141,3 +141,4 @@ types
 .vercel
 
 .env.*
+.env*.local
