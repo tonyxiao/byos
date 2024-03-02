@@ -245,7 +245,9 @@ export function listFields<T extends keyof typeof propertiesForCommonObject>(
 
   if (
     objectType === 'opportunity' &&
-    ctx.customerId === '6580d11eda0dd92961348262'
+    ['63aca2d6213def0014837f98', '6580d11eda0dd92961348262'].includes(
+      ctx.customerId,
+    )
   ) {
     return fields.filter((f) => f !== 'Description') as typeof fields
   }
