@@ -124,6 +124,7 @@ export async function syncConnection({
     common_objects,
   })
 
+  // This can probably be done via an upsert returning...
   const syncState = await db.query.sync_state
     .findFirst({
       where: and(
@@ -160,8 +161,11 @@ export async function syncConnection({
   const overallState = (
     sync_mode === 'full' ? {} : syncState.state ?? {}
   ) as Record<string, {cursor?: string | null}>
+
   let errorInfo: ReturnType<typeof parseErrorInfo> | undefined
+
   const metrics: Record<string, number | string> = {}
+
   function incrementMetric(name: string, amount = 1) {
     const metric = metrics[name]
     metrics[name] = (typeof metric === 'number' ? metric : 0) + amount
@@ -172,135 +176,148 @@ export async function syncConnection({
     return metrics[name] as T
   }
 
-  try {
-    const byos = initBYOSupaglueSDK({
-      headers: {
-        'x-api-key': env.SUPAGLUE_API_KEY,
-        'x-customer-id': customer_id, // This relies on customer-id mapping 1:1 to connection_id
-        'x-provider-name': provider_name, // This relies on provider_config_key mapping 1:1 to provider-name
-      },
+  const byos = initBYOSupaglueSDK({
+    headers: {
+      'x-api-key': env.SUPAGLUE_API_KEY,
+      'x-customer-id': customer_id, // This relies on customer-id mapping 1:1 to connection_id
+      'x-provider-name': provider_name, // This relies on provider_config_key mapping 1:1 to provider-name
+    },
+  })
+
+  async function syncStream(stream: string) {
+    const fullEntity = `${vertical}_${stream}`
+    console.log('[syncConnection] Syncing', fullEntity)
+    const table = getCommonObjectTable(fullEntity, {
+      schema: destination_schema,
     })
+    await db.execute(table.createIfNotExistsSql())
 
+    const state = overallState[stream] ?? {}
+    overallState[stream] = state
+    const syncMode = state.cursor ? 'incremental' : 'full'
+    setMetric(`${stream}_sync_mode`, syncMode)
+
+    while (true) {
+      const ret = await step.run(
+        `${stream}-sync-${state.cursor ?? ''}`,
+        async () => {
+          try {
+            const res = await byos.GET(
+              `/${vertical}/v2/${stream}` as '/crm/v2/contact',
+              {params: {query: {cursor: state.cursor}}}, // We let each provider determine the page size rather than hard-coding
+            )
+            const count = incrementMetric(
+              `${stream}_count`,
+              res.data.items.length,
+            )
+            incrementMetric(`${stream}_page_count`)
+            console.log(`Syncing ${vertical} ${stream} count=${count}`)
+            if (res.data.items.length) {
+              await dbUpsert(
+                db,
+                table,
+                res.data.items.map(({raw_data, ...item}) => ({
+                  // Primary keys
+                  _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
+                  _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
+                  _supaglue_provider_name: provider_name,
+                  id: item.id,
+                  // Other columns
+                  created_at: sqlNow,
+                  updated_at: sqlNow,
+                  _supaglue_emitted_at: sqlNow,
+                  last_modified_at: sqlNow, // TODO: Fix me...
+                  is_deleted: false,
+                  // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
+                  raw_data: sql`${raw_data ?? ''}::jsonb`,
+                  _supaglue_unified_data: sql`${item}::jsonb`,
+                })),
+                {
+                  insertOnlyColumns: [
+                    'created_at',
+                    // TODO: Add back raw_data once we fetch custom fields as part of sync. For now avoid overwriting raw_data
+                    // that could be used by other services
+                    'raw_data',
+                  ],
+                  noDiffColumns: [
+                    '_supaglue_emitted_at',
+                    'last_modified_at',
+                    'updated_at',
+                  ],
+                },
+              )
+            }
+            return {
+              next_cursor: res.data.next_cursor,
+              hast_next_page: res.data.has_next_page,
+            }
+          } catch (err) {
+            // HTTP 501 not implemented
+            if (err instanceof HTTPError && err.code === 501) {
+              console.warn(
+                `[sync progress] ${provider_name} does not implement ${stream}`,
+              )
+              return {hast_next_page: false, next_cursor: null}
+            }
+            throw err
+          }
+        },
+      )
+      console.log('[sync progress]', {
+        stream,
+        completed_cursor: state.cursor,
+        ...ret,
+      })
+      state.cursor = ret.next_cursor
+      // Persist state. TODO: Figure out how to make this work with step function
+      await Promise.all([
+        dbUpsert(
+          db,
+          schema.sync_state,
+          [
+            {
+              ...syncState,
+              state: sql`${overallState}::jsonb`,
+              updated_at: sqlNow,
+            },
+          ],
+          {
+            shallowMergeJsonbColumns: ['state'], // For race condition / concurrent sync of multiple streams
+            noDiffColumns: ['created_at', 'updated_at'],
+          },
+        ),
+        // Should this happen in a transaction? doesn't seem necessary but still
+        db
+          .update(schema.sync_run)
+          .set({
+            // Should we call it currentState instead? Also do we need it on the sync_state itself?
+            final_state: sql`${overallState}::jsonb`,
+            metrics: sql`${metrics}::jsonb`,
+          })
+          .where(eq(schema.sync_run.id, syncRunId)),
+      ])
+      if (!ret.hast_next_page) {
+        break
+      }
+    }
+  }
+
+  try {
     // Load this from a config please...
-
     if (destination_schema) {
       await ensureSchema(db, destination_schema)
       console.log('[syncConnection] Ensured schema', destination_schema)
     }
-
+    // TODO: Collect list of errors not just the last one...
     for (const stream of common_objects) {
-      const fullEntity = `${vertical}_${stream}`
-      console.log('[syncConnection] Syncing', fullEntity)
-      const table = getCommonObjectTable(fullEntity, {
-        schema: destination_schema,
-      })
-      await db.execute(table.createIfNotExistsSql())
-
-      const state = overallState[stream] ?? {}
-      overallState[stream] = state
-      const syncMode = state.cursor ? 'incremental' : 'full'
-      setMetric(`${stream}_sync_mode`, syncMode)
-
-      while (true) {
-        const ret = await step.run(
-          `${stream}-sync-${state.cursor ?? ''}`,
-          async () => {
-            try {
-              const res = await byos.GET(
-                `/${vertical}/v2/${stream}` as '/crm/v2/contact',
-                {params: {query: {cursor: state.cursor}}}, // We let each provider determine the page size rather than hard-coding
-              )
-              const count = incrementMetric(
-                `${stream}_count`,
-                res.data.items.length,
-              )
-              incrementMetric(`${stream}_page_count`)
-              console.log(`Syncing ${vertical} ${stream} count=${count}`)
-              if (res.data.items.length) {
-                await dbUpsert(
-                  db,
-                  table,
-                  res.data.items.map(({raw_data, ...item}) => ({
-                    // Primary keys
-                    _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
-                    _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
-                    _supaglue_provider_name: provider_name,
-                    id: item.id,
-                    // Other columns
-                    created_at: sqlNow,
-                    updated_at: sqlNow,
-                    _supaglue_emitted_at: sqlNow,
-                    last_modified_at: sqlNow, // TODO: Fix me...
-                    is_deleted: false,
-                    // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
-                    raw_data: sql`${raw_data ?? ''}::jsonb`,
-                    _supaglue_unified_data: sql`${item}::jsonb`,
-                  })),
-                  {
-                    insertOnlyColumns: [
-                      'created_at',
-                      // TODO: Add back raw_data once we fetch custom fields as part of sync. For now avoid overwriting raw_data
-                      // that could be used by other services
-                      'raw_data',
-                    ],
-                    noDiffColumns: [
-                      '_supaglue_emitted_at',
-                      'last_modified_at',
-                      'updated_at',
-                    ],
-                  },
-                )
-              }
-              return {
-                next_cursor: res.data.next_cursor,
-                hast_next_page: res.data.has_next_page,
-              }
-            } catch (err) {
-              // HTTP 501 not implemented
-              if (err instanceof HTTPError && err.code === 501) {
-                console.warn(
-                  `[sync progress] ${provider_name} does not implement ${stream}`,
-                )
-                return {hast_next_page: false, next_cursor: null}
-              }
-              throw err
-            }
-          },
-        )
-        console.log('[sync progress]', {
-          stream,
-          completed_cursor: state.cursor,
-          ...ret,
-        })
-        state.cursor = ret.next_cursor
-        // Persist state. TODO: Figure out how to make this work with step function
-        await Promise.all([
-          dbUpsert(
-            db,
-            schema.sync_state,
-            [
-              {
-                ...syncState,
-                state: sql`${overallState}::jsonb`,
-                updated_at: sqlNow,
-              },
-            ],
-            {
-              shallowMergeJsonbColumns: ['state'], // For race condition / concurrent sync of multiple streams
-              noDiffColumns: ['created_at', 'updated_at'],
-            },
-          ),
-          // Should this happen in a transaction? doesn't seem necessary but still
-          db
-            .update(schema.sync_run)
-            .set({
-              // Should we call it currentState instead? Also do we need it on the sync_state itself?
-              final_state: sql`${overallState}::jsonb`,
-              metrics: sql`${metrics}::jsonb`,
-            })
-            .where(eq(schema.sync_run.id, syncRunId)),
-        ])
-        if (!ret.hast_next_page) {
+      try {
+        await syncStream(stream)
+      } catch (err) {
+        console.error('[syncConnection] Error syncing', stream, err)
+        errorInfo = parseErrorInfo(err)
+        // No longer authenticated error means we should be able to break out of all other streams, it's unnecessary.
+        // Will need to think more about how this works for parallel read scenarios though.
+        if (errorInfo?.error_type === 'USER_ERROR') {
           break
         }
       }
