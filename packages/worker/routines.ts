@@ -203,7 +203,7 @@ export async function syncConnection({
 
       while (true) {
         const ret = await step.run(
-          `${stream}-sync-${state.cursor}`,
+          `${stream}-sync-${state.cursor ?? ''}`,
           async () => {
             try {
               const res = await byos.GET(

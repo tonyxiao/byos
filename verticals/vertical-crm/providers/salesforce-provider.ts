@@ -17,7 +17,7 @@ import {
 } from '@opensdks/sdk-salesforce'
 import type {CRMProvider} from '../router'
 import {SALESFORCE_STANDARD_OBJECTS} from './salesforce/constants'
-import {mappers, propertiesForCommonObject} from './salesforce/mapper'
+import {listFields, mappers} from './salesforce/mapper'
 
 // import {updateFieldPermissions} from './salesforce/updatePermissions'
 
@@ -324,12 +324,16 @@ function sdkExt(instance: SalesforceSDK) {
       ? `WHERE SystemModstamp > ${cursor.last_updated_at} OR (SystemModstamp = ${cursor.last_updated_at} AND Id > '${cursor.last_id}')`
       : ''
     const limitStatement = opts.limit != null ? `LIMIT ${opts.limit}` : ''
-    const fields = [
-      ...opts.fields,
-      ...(includeCustomFields ? ['FIELDS(CUSTOM)'] : []),
-    ]
+    const fields = Array.from(
+      new Set([
+        'Id',
+        'SystemModstamp',
+        ...opts.fields,
+        ...(includeCustomFields ? ['FIELDS(CUSTOM)'] : []),
+      ]),
+    )
     return instance.query<T>(`
-        SELECT Id, SystemModstamp, ${fields.join(', ')}
+        SELECT ${fields.join(', ')}
         FROM ${opts.entity}
         ${whereStatement}
         ORDER BY SystemModstamp ASC, Id ASC
@@ -409,10 +413,10 @@ export const salesforceProvider = {
     return {count: res.totalSize}
   },
   // MARK: - Account
-  listAccounts: async ({instance, input}) =>
+  listAccounts: async ({instance, input, ctx}) =>
     sdkExt(instance)._listEntityThenMap({
       entity: 'Account',
-      fields: propertiesForCommonObject.account,
+      fields: listFields('account', ctx),
       mapper: mappers.account,
       cursor: input?.cursor,
       page_size: input?.page_size,
@@ -429,10 +433,10 @@ export const salesforceProvider = {
 
   // MARK: - Contact
 
-  listContacts: async ({instance, input}) =>
+  listContacts: async ({instance, input, ctx}) =>
     sdkExt(instance)._listEntityThenMap({
       entity: 'Contact',
-      fields: propertiesForCommonObject.contact,
+      fields: listFields('contact', ctx),
       mapper: mappers.contact,
       cursor: input?.cursor,
       page_size: input?.page_size,
@@ -449,10 +453,10 @@ export const salesforceProvider = {
 
   // MARK: - Opportunity
 
-  listOpportunities: async ({instance, input}) =>
+  listOpportunities: async ({instance, input, ctx}) =>
     sdkExt(instance)._listEntityThenMap({
       entity: 'Opportunity',
-      fields: propertiesForCommonObject.opportunity,
+      fields: listFields('opportunity', ctx),
       mapper: mappers.opportunity,
       cursor: input?.cursor,
       page_size: input?.page_size,
@@ -460,10 +464,10 @@ export const salesforceProvider = {
 
   // MARK: - Lead
 
-  listLeads: async ({instance, input}) =>
+  listLeads: async ({instance, input, ctx}) =>
     sdkExt(instance)._listEntityThenMap({
       entity: 'Lead',
-      fields: ['Name'],
+      fields: listFields('lead', ctx),
       mapper: mappers.lead,
       cursor: input?.cursor,
       page_size: input?.page_size,
@@ -471,10 +475,10 @@ export const salesforceProvider = {
 
   // MARK: - User
 
-  listUsers: async ({instance, input}) =>
+  listUsers: async ({instance, input, ctx}) =>
     sdkExt(instance)._listEntityThenMap({
       entity: 'User',
-      fields: propertiesForCommonObject.user,
+      fields: listFields('user', ctx),
       mapper: mappers.user,
       cursor: input?.cursor,
       page_size: input?.page_size,
@@ -492,6 +496,7 @@ export const salesforceProvider = {
   // MARK: - Metadata
   metadataListStandardObjects: () =>
     SALESFORCE_STANDARD_OBJECTS.map((name) => ({name})),
+
   metadataListCustomObjects: async ({instance}) => {
     const res = await instance.GET('/sobjects')
     return (res.data.sobjects ?? [])

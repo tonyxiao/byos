@@ -34,6 +34,7 @@ export type ProviderFromRouter<TRouter extends AnyRouter, TInstance = {}> = {
     ? k
     : never]?: TRouter[k] extends AnyProcedure
     ? (opts: {
+        ctx: RemoteProcedureContext
         instance: TInstance
         input: inferProcedureInput<TRouter[k]>
       }) => MaybePromise<inferProcedureOutput<TRouter[k]>>
@@ -129,7 +130,7 @@ export async function proxyCallProvider({
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const out = await implementation({instance, input})
+  const out = await implementation({instance, input, ctx})
   // console.log('[proxyCallRemote] output', out)
   return out
 }

@@ -145,7 +145,7 @@ export const mappers = {
 }
 
 /** Properties to fetch for common object */
-export const propertiesForCommonObject = {
+const propertiesForCommonObject = {
   account: [
     'OwnerId',
     'Name',
@@ -188,18 +188,19 @@ export const propertiesForCommonObject = {
     'MailingState',
     'MailingStreet',
     // We may not need all of these fields in order to map to common object
-    'OtherCity',
-    'OtherCountry',
-    'OtherPostalCode',
-    'OtherState',
-    'OtherStreet',
+    // TODO: We should really use the metadata API to list all the props available instead of doing it like this...
+    // 'OtherCity', // not universal, does not exist for customer 65a69f996a1ed263b3486feb
+    // 'OtherCountry',
+    // 'OtherPostalCode',
+    // 'OtherState',
+    // 'OtherStreet',
     'IsDeleted',
     'CreatedDate',
   ] satisfies Array<keyof SFDC['ContactSObject']>,
   opportunity: [
     'OwnerId',
     'Name',
-    'Description',
+    'Description', // Even this field can be null for some customers (e.g. 6580d11eda0dd92961348262). Really need to use metadata API
     'LastActivityDate',
     'Amount',
     'IsClosed',
@@ -217,7 +218,6 @@ export const propertiesForCommonObject = {
     'LastName',
     'ConvertedDate',
     'CreatedDate',
-    'SystemModstamp',
     'ConvertedContactId',
     'ConvertedAccountId',
     'Company',
@@ -233,4 +233,37 @@ export const propertiesForCommonObject = {
   user: ['Name', 'Email', 'IsActive', 'CreatedDate'] satisfies Array<
     keyof SFDC['UserSObject']
   >,
+}
+
+// HACK ALERT: Some customers are missing standard sfdc fields, but we also don't have the permission
+// to read metadata endpoint to filter them out. So instead we are gonna hard code it for now until we figure out a workaround.
+export function listFields<T extends keyof typeof propertiesForCommonObject>(
+  objectType: T,
+  ctx: {customerId: string},
+) {
+  const fields = propertiesForCommonObject[objectType]
+
+  if (
+    objectType === 'opportunity' &&
+    ctx.customerId === '6580d11eda0dd92961348262'
+  ) {
+    return fields.filter((f) => f !== 'Description') as typeof fields
+  }
+
+  if (
+    objectType === 'account' &&
+    ctx.customerId === '63aca2d6213def0014837f98'
+  ) {
+    return fields.filter(
+      (f) =>
+        ![
+          'ShippingCity',
+          'ShippingCountry',
+          'ShippingPostalCode',
+          'ShippingState',
+          'ShippingStreet',
+        ].includes(f),
+    ) as typeof fields
+  }
+  return fields
 }
