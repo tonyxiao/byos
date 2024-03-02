@@ -1,6 +1,7 @@
 import * as R from 'remeda'
 import type {z} from '@opensdks/util-zod'
 import type {PathsOf} from './type-utils/PathsOf'
+import type {StrictObjDeep} from './type-utils/StrictObj'
 
 export const literal = <T>(literal: T) => ({literal})
 
@@ -14,7 +15,7 @@ export function mapper<
   zOutput: ZOutputSchema,
   mapping: {
     [k in keyof TOut]:  // | ExtractKeyOfValueType<TIn, TOut[k]> // | Getter<ExtractKeyOfValueType<TIn, TOut[k]>> // | TOut[k] // Constant
-      | PathsOf<TIn> // Getter for the keypaths
+      | PathsOf<StrictObjDeep<TIn>> // Getter for the keypaths
       | ReturnType<typeof literal<TOut[k]>> // literal value
       | ((ext: TIn) => TOut[k]) // Function that can do whatever
   },

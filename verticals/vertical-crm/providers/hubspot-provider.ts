@@ -63,42 +63,46 @@ const HSBase = z.object({
 })
 const HSContact = z.object({
   id: z.string(),
-  properties: z.object({
-    hs_object_id: z.string(),
-    createdate: z.string().nullish(),
-    lastmodifieddate: z.string(),
-    // properties specific to contacts below...
-    email: z.string().nullish(),
-    firstname: z.string().nullish(),
-    lastname: z.string().nullish(),
-  }),
+  properties: z
+    .object({
+      hs_object_id: z.string(),
+      createdate: z.string().nullish(),
+      lastmodifieddate: z.string(),
+      // properties specific to contacts below...
+      email: z.string().nullish(),
+      firstname: z.string().nullish(),
+      lastname: z.string().nullish(),
+    })
+    .passthrough(),
   createdAt: z.string(),
   updatedAt: z.string(),
   archived: z.boolean(),
 })
 const HSDeal = z.object({
   id: z.string(),
-  properties: z.object({
-    hs_object_id: z.string(),
-    createdate: z.string().nullish(),
-    lastmodifieddate: z.string().nullish(),
-    // properties specific to opportunities below...
-    dealname: z.string().nullish(),
-    hubspot_owner_id: z.string().nullish(),
-    notes_last_updated: z.string().nullish(), // Assuming lastActivityAt is a string in HubSpot format
-    dealstage: z.string().nullish(),
-    pipeline: z.string().nullish(),
-    closedate: z.string().nullish(), // Assuming closeDate is a string in HubSpot format
-    description: z.string().nullish(),
-    amount: z.string().nullish(),
-    hs_is_closed_won: z.string().nullish(),
-    hs_is_closed: z.string().nullish(),
+  properties: z
+    .object({
+      hs_object_id: z.string(),
+      createdate: z.string().nullish(),
+      lastmodifieddate: z.string().nullish(),
+      // properties specific to opportunities below...
+      dealname: z.string().nullish(),
+      hubspot_owner_id: z.string().nullish(),
+      notes_last_updated: z.string().nullish(), // Assuming lastActivityAt is a string in HubSpot format
+      dealstage: z.string().nullish(),
+      pipeline: z.string().nullish(),
+      closedate: z.string().nullish(), // Assuming closeDate is a string in HubSpot format
+      description: z.string().nullish(),
+      amount: z.string().nullish(),
+      hs_is_closed_won: z.string().nullish(),
+      hs_is_closed: z.string().nullish(),
 
-    // account_id: z.string().nullish(),
-    // status: z.string().nullish(),
-    is_deleted: z.boolean().nullish(), // Does this exist?
-    archivedAt: z.string().nullish(), // Does this exist?
-  }),
+      // account_id: z.string().nullish(),
+      // status: z.string().nullish(),
+      is_deleted: z.boolean().nullish(), // Does this exist?
+      archivedAt: z.string().nullish(), // Does this exist?
+    })
+    .passthrough(),
   createdAt: z.string(),
   updatedAt: z.string(),
   archived: z.boolean(),
@@ -110,21 +114,23 @@ const HSDeal = z.object({
 })
 const HSAccount = z.object({
   id: z.string(),
-  properties: z.object({
-    hs_object_id: z.string(),
-    createdate: z.string().nullish(),
-    lastmodifieddate: z.string().nullish(),
-    name: z.string().nullish(),
-    description: z.string().nullish(),
-    hubspot_owner_id: z.string().nullish(),
-    industry: z.string().nullish(),
-    website: z.string().nullish(),
-    numberofemployees: z.string().nullish(),
-    addresses: z.string().nullish(), // Assuming addresses is a string; adjust the type if needed
-    phonenumbers: z.string().nullish(), // Assuming phonenumbers is a string; adjust the type if needed
-    lifecyclestage: z.string().nullish(),
-    notes_last_updated: z.string().nullish(),
-  }),
+  properties: z
+    .object({
+      hs_object_id: z.string(),
+      createdate: z.string().nullish(),
+      lastmodifieddate: z.string().nullish(),
+      name: z.string().nullish(),
+      description: z.string().nullish(),
+      hubspot_owner_id: z.string().nullish(),
+      industry: z.string().nullish(),
+      website: z.string().nullish(),
+      numberofemployees: z.string().nullish(),
+      addresses: z.string().nullish(), // Assuming addresses is a string; adjust the type if needed
+      phonenumbers: z.string().nullish(), // Assuming phonenumbers is a string; adjust the type if needed
+      lifecyclestage: z.string().nullish(),
+      notes_last_updated: z.string().nullish(),
+    })
+    .passthrough(),
   createdAt: z.string(),
   updatedAt: z.string(),
   archived: z.boolean(),
@@ -266,12 +272,14 @@ const mappers = {
 const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
   instance: HubspotSDK,
   {
-    entity,
+    objectType,
     fields,
     ...opts
   }: {
-    entity: string
+    objectType: string
     fields: string[]
+    /** Will use the properties endpoint to fetch all available fields */
+    includeAllFields?: boolean
     associations?: string[]
     mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
     page_size?: number
@@ -283,10 +291,11 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
   const limit = opts?.page_size ?? 100
   const cursor = LastUpdatedAtNextOffset.fromCursor(opts?.cursor)
   const kUpdatedAt =
-    entity === 'contacts' ? 'lastmodifieddate' : 'hs_lastmodifieddate'
+    objectType === 'contacts' ? 'lastmodifieddate' : 'hs_lastmodifieddate'
   // We may want to consider using the list rather than search endpoint for this stuff...
-  const res = await instance[`crm_${entity as 'contacts'}`].POST(
-    `/crm/v3/objects/${entity as 'contacts'}/search`,
+
+  const res = await instance[`crm_${objectType as 'contacts'}`].POST(
+    `/crm/v3/objects/${objectType as 'contacts'}/search`,
     {
       body: {
         properties: Array.from(
@@ -297,6 +306,12 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
             'hs_lastmodifieddate',
             'name',
             ...fields,
+            ...(opts.includeAllFields
+              ? await cachedGetObjectProperties(instance, {
+                  customerId: opts.ctx.customerId,
+                  objectType,
+                })
+              : []),
           ]),
         ),
         filterGroups: cursor?.last_updated_at
@@ -333,7 +348,7 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
     (opts.associations ?? []).map(async (associatedType) => {
       const toObjectIdsByFromObjectId = await _batchListAssociations(instance, {
         fromObjectIds: res.data.results.map((r) => r.id),
-        fromObjectType: entity,
+        fromObjectType: objectType,
         toObjectType: associatedType,
       })
       return [associatedType, toObjectIdsByFromObjectId] as const
@@ -341,7 +356,7 @@ const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
   )
   // console.log('associations:', batchedAssociations)
   const pipelineStageMapping =
-    entity === 'deals'
+    objectType === 'deals'
       ? await cachedGetPipelineStageMapping(instance, opts.ctx)
       : undefined
 
@@ -419,7 +434,41 @@ export const _batchListAssociations = async (
   }
 }
 
-const pipelineStageMappingCache = new LRUCache<string, PipelineStageMapping>({
+const objectPropertiesCache = new LRUCache<
+  string /* {customerId}_{objectType} */,
+  string[] /* {fieldName}[] */
+>({
+  ttl: 1000 * 60 * 5,
+  ttlAutopurge: false,
+  max: 100,
+})
+
+const cachedGetObjectProperties = async (
+  instance: HubspotSDK,
+  opts: {customerId: string; objectType: string},
+) => {
+  const cacheKey = `${opts.customerId}_${opts.objectType}`
+  const cached = objectPropertiesCache.get(cacheKey)
+  if (cached) {
+    console.log(
+      '[hubspot] Using cached available fields for objectType:',
+      opts.objectType,
+    )
+    return cached
+  }
+  const fields = await instance.crm_properties
+    .GET('/crm/v3/properties/{objectType}', {
+      params: {path: {objectType: opts.objectType}},
+    })
+    .then((r) => r.data.results.map((obj) => obj.name))
+  objectPropertiesCache.set(cacheKey, fields)
+  return fields
+}
+
+const pipelineStageMappingCache = new LRUCache<
+  string /* {customerId} */,
+  PipelineStageMapping
+>({
   ttl: 1000 * 60 * 5,
   ttlAutopurge: false,
   max: 100,
@@ -503,25 +552,28 @@ export const hubspotProvider = {
   listContacts: async ({instance, input, ctx}) =>
     _listEntityIncrementalThenMap(instance, {
       ...input,
-      entity: 'contacts',
+      objectType: 'contacts',
       mapper: mappers.contact,
       fields: propertiesToFetch.contact,
+      includeAllFields: true,
       ctx,
     }),
   listAccounts: async ({instance, input, ctx}) =>
     _listEntityIncrementalThenMap(instance, {
       ...input,
-      entity: 'companies',
+      objectType: 'companies',
       mapper: mappers.account,
       fields: propertiesToFetch.account,
+      includeAllFields: true,
       ctx,
     }),
   listOpportunities: async ({instance, input, ctx}) =>
     _listEntityIncrementalThenMap(instance, {
       ...input,
-      entity: 'deals',
+      objectType: 'deals',
       mapper: mappers.opportunity,
       fields: propertiesToFetch.deal,
+      includeAllFields: true,
       associations: ['company'],
       ctx,
     }),
@@ -550,9 +602,7 @@ export const hubspotProvider = {
   metadataListProperties: async ({instance, input}) => {
     const res = await instance.crm_properties.GET(
       '/crm/v3/properties/{objectType}',
-      {
-        params: {path: {objectType: input.name}},
-      },
+      {params: {path: {objectType: input.name}}},
     )
     return res.data.results.map((obj) => ({
       id: obj.name,

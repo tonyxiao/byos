@@ -6,3 +6,8 @@ export type StrictObj<T> = Pick<
   T,
   StrictKeyOf<T> extends keyof T ? StrictKeyOf<T> : never
 >
+
+/** 2 level depth for strictiness */
+export type StrictObjDeep<T> = {
+  [k in keyof StrictObj<T>]: StrictObj<StrictObj<T>[k]>
+}
