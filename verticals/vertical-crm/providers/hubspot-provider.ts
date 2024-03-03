@@ -593,7 +593,7 @@ export const hubspotProvider = {
       page_size: input?.page_size,
       cursor: input?.cursor,
     }),
-  metadataListStandardObjects: () =>
+  metadataListObjects: () =>
     HUBSPOT_STANDARD_OBJECTS.map((name) => ({name})),
   metadataListCustomObjects: async ({instance}) => {
     const res = await instance.crm_schemas.GET('/crm/v3/schemas')

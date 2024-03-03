@@ -140,18 +140,15 @@ export const user = zBaseRecord
   })
   .openapi({ref: 'crm.user'})
 
-export const meta_standard_object = z
-  .object({
-    name: z.string(),
-  })
-  .openapi({ref: 'crm.meta_standard_object'})
+// MARK: - Meta
 
-export const meta_custom_object = z
+export const meta_object = z
   .object({
+    // Custom object does not always have an id
     id: z.string(),
     name: z.string(),
   })
-  .openapi({ref: 'crm.meta_custom_object'})
+  .openapi({ref: 'crm.meta.object'})
 
 export const meta_property = z
   .object({
@@ -176,48 +173,9 @@ export const meta_property = z
       example: {},
     }),
   })
-  .openapi({ref: 'crm.meta_property'})
+  .openapi({ref: 'crm.meta.property'})
 
-export const metaStandardObject = z
-  .object({
-    name: z.string(),
-  })
-  .openapi({ref: 'crm.metaStandardObject'})
-
-export const metaCustomObject = z
-  .object({
-    // Custom object does not always have an id
-    // id: z.string(),
-    name: z.string(),
-  })
-  .openapi({ref: 'crm.metaCustomObject'})
-
-export const metaProperty = z
-  .object({
-    id: z.string().openapi({
-      description:
-        'The machine name of the property as it appears in the third-party Provider',
-      example: 'FirstName',
-    }),
-    label: z.string().openapi({
-      description:
-        'The human-readable name of the property as provided by the third-party Provider.',
-      example: 'First Name',
-    }),
-    type: z.string().optional().openapi({
-      description:
-        'The type of the property as provided by the third-party Provider. These types are not unified by Supaglue. For Intercom, this is string, integer, boolean, or object. For Outreach, this is integer, boolean, number, array, or string.',
-      example: 'string',
-    }),
-    raw_details: z.record(z.unknown()).optional().openapi({
-      description:
-        'The raw details of the property as provided by the third-party Provider, if available.',
-      example: {},
-    }),
-  })
-  .openapi({ref: 'crm.metaProperty'})
-
-export const property_type = z
+export const meta_property_type = z
   .enum([
     'text',
     'textarea',
@@ -231,7 +189,7 @@ export const property_type = z
     'other',
   ])
   .openapi({
-    ref: 'crm.property_type',
+    ref: 'crm.meta.property_type',
     description: `
 :::note
 \`picklist\` and \`multipicklist\` property types are currently only supported in Salesforce and Hubspot
@@ -242,13 +200,11 @@ export const property_type = z
 :::`.trim(),
   })
 
-export const association_schema = z
+export const meta_association_schema = z
   .object({
     id: z.string(),
     source_object: z.string().openapi({example: 'contact'}),
     target_object: z.string().openapi({example: 'my_custom_object'}),
     display_name: z.string(),
   })
-  .openapi({ref: 'crm.association_schema'})
-
-
+  .openapi({ref: 'crm.meta.association_schema'})

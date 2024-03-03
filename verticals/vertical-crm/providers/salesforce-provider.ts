@@ -3,6 +3,7 @@ import {
   LastUpdatedAtId,
   modifyRequest,
   PLACEHOLDER_BASE_URL,
+  uniqBy,
 } from '@supaglue/vdk'
 import * as jsforce from 'jsforce'
 import type {SalesforceSDKTypes} from '@opensdks/sdk-salesforce'
@@ -247,15 +248,25 @@ export const salesforceProvider = {
 
   // MARK: - Metadata
 
-  metadataListStandardObjects: () =>
-    SALESFORCE_STANDARD_OBJECTS.map((name) => ({name})),
+  metadataListObjects: async ({instance, input}) =>
+    uniqBy(
+      [
+        ...(!input.type || input.type === 'standard'
+          ? SALESFORCE_STANDARD_OBJECTS.map((name) => ({id: name, name}))
+          : []),
+        ...(!input.type || input.type === 'custom'
+          ? await instance
+              .GET('/sobjects')
+              .then((res) =>
+                (res.data.sobjects ?? [])
+                  .filter((s) => s.custom)
+                  .map((s) => ({id: s.name ?? '', name: s.name ?? ''})),
+              )
+          : []),
+      ],
+      (o) => o.id,
+    ),
 
-  metadataListCustomObjects: async ({instance}) => {
-    const res = await instance.GET('/sobjects')
-    return (res.data.sobjects ?? [])
-      .filter((s) => s.custom)
-      .map((s) => ({id: s.name ?? '', name: s.name ?? ''}))
-  },
   metadataListObjectProperties: async ({instance, input}) => {
     const res = await instance.GET('/sobjects/{sObject}/describe', {
       params: {path: {sObject: capitalizeFirstChar(input.object_name)}},

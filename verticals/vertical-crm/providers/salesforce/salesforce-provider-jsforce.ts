@@ -103,7 +103,7 @@ async function updateFieldPermissions(
 
 /**
  * Some salesforce APIs (e.g. metadata API) are SOAP based which is not currently supported in
- * openSDKs so we use the jsforce lib instead. 
+ * openSDKs so we use the jsforce lib instead.
  */
 export const salesforceProviderJsForce = {
   metadataCreateCustomObjectSchema: async ({instance: sfdc, input: params}) => {
@@ -162,7 +162,7 @@ export const salesforceProviderJsForce = {
         )}`,
       )
     }
-    return {name: objectName}
+    return {id: objectName, name: objectName}
   },
   metadataCreateAssociationSchema: async ({
     instance: sfdc,

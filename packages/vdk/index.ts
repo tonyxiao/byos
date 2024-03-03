@@ -35,3 +35,8 @@ export type ResponseFrom<
 >
 
 export * from './errors'
+
+
+// re-exporting utiltities
+
+export {uniq, uniqBy} from 'remeda'

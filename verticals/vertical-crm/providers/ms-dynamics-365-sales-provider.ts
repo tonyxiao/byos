@@ -14,6 +14,6 @@ export const msDynamics365SalesProvider = {
   getAccount: async ({}) => {
     throw new Error('Not implemented yet')
   },
-  metadataListStandardObjects: () =>
+  metadataListObjects: () =>
     MS_DYNAMICS_365_SALES_STANDARD_OBJECTS.map((name) => ({name})),
 } satisfies CRMProvider<PipedriveSDK>
