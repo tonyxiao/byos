@@ -282,12 +282,12 @@ export const salesforceProvider = {
       }))
   },
   metadataCreateObject: async ({instance, ...opts}) =>
-    salesforceProviderJsForce.metadataCreateCustomObjectSchema({
+    salesforceProviderJsForce.metadataCreateObject({
       ...opts,
       instance: await instance.getJsForce(),
     }),
   metadataCreateAssociation: async ({instance, ...opts}) =>
-    salesforceProviderJsForce.metadataCreateAssociationSchema({
+    salesforceProviderJsForce.metadataCreateAssociation({
       ...opts,
       instance: await instance.getJsForce(),
     }),

@@ -85,7 +85,7 @@ export const toSalesforceType = (
 }
 
 export function validateCustomObject(
-  params: RouteInput<'metadataCreateCustomObjectSchema'>,
+  params: RouteInput<'metadataCreateObject'>,
 ): void {
   if (!params.fields.length) {
     throw new BadRequestError('Cannot create custom object with no fields')
