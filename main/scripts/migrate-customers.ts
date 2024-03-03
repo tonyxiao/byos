@@ -152,9 +152,9 @@ async function migrateCustomer(opts: {customerId: string}) {
   // })
 }
 
-// main()
+main()
 // migrateConfigs()
-migrateCustomer({customerId: '64a350c383ea68001832fd8a'})
+// migrateCustomer({customerId: '64a350c383ea68001832fd8a'})
 
 // nango.GET('/connection', {
 //   params: {query: {connectionId: '64a350c383ea68001832fd8a'}},
