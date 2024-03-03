@@ -270,7 +270,6 @@ export function listFields<T extends keyof typeof propertiesForCommonObject>(
   return fields
 }
 
-
 export function capitalizeFirstChar(str: string): string {
   if (!str) {
     return str

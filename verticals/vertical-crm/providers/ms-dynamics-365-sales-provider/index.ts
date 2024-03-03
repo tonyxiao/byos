@@ -1,7 +1,7 @@
 import {NotImplementedError, PLACEHOLDER_BASE_URL} from '@supaglue/vdk'
 import {initPipedriveSDK, type PipedriveSDK} from '@opensdks/sdk-pipedrive'
-import type {CRMProvider} from '../router'
-import {MS_DYNAMICS_365_SALES_STANDARD_OBJECTS} from './ms-dynamics-365-sales/constants'
+import type {CRMProvider} from '../../router'
+import {MS_DYNAMICS_365_SALES_STANDARD_OBJECTS} from './constants'
 
 export const msDynamics365SalesProvider = {
   __init__: ({proxyLinks}) =>

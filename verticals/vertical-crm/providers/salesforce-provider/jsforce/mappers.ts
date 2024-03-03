@@ -1,6 +1,6 @@
 import {BadRequestError} from '@supaglue/vdk'
 import type {CustomField as SalesforceCustomField} from 'jsforce/lib/api/metadata/schema'
-import type {CRMProvider} from '../../router'
+import type {CRMProvider} from '../../../router'
 
 type RouteInput<T extends Exclude<keyof CRMProvider<unknown>, '__init__'>> =
   Parameters<NonNullable<CRMProvider<unknown>[T]>>[0]['input']

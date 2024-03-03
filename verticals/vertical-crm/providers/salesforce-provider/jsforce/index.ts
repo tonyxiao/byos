@@ -1,11 +1,11 @@
 import {BadRequestError} from '@supaglue/vdk'
 import type * as jsforce from 'jsforce'
-import type {CRMProvider} from '../../router'
-import {SALESFORCE_API_VERSION} from './constants'
+import type {CRMProvider} from '../../../router'
+import {SALESFORCE_API_VERSION} from '../constants'
 import {
   toSalesforceCustomObjectCreateParams,
   validateCustomObject,
-} from './salesforce-provider-jsforce-mappers'
+} from './mappers'
 
 async function updateFieldPermissions(
   sfdc: jsforce.Connection,

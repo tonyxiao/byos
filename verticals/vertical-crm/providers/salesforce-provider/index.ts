@@ -11,13 +11,10 @@ import {
   initSalesforceSDK,
   type SalesforceSDK as _SalesforceSDK,
 } from '@opensdks/sdk-salesforce'
-import type {CRMProvider} from '../router'
-import {
-  SALESFORCE_API_VERSION,
-  SALESFORCE_STANDARD_OBJECTS,
-} from './salesforce/constants'
-import {capitalizeFirstChar, listFields, mappers} from './salesforce/mapper'
-import {salesforceProviderJsForce} from './salesforce/salesforce-provider-jsforce'
+import type {CRMProvider} from '../../router'
+import {SALESFORCE_API_VERSION, SALESFORCE_STANDARD_OBJECTS} from './constants'
+import {salesforceProviderJsForce} from './jsforce'
+import {capitalizeFirstChar, listFields, mappers} from './mappers'
 
 export type SFDC = SalesforceSDKTypes['oas']['components']['schemas']
 
