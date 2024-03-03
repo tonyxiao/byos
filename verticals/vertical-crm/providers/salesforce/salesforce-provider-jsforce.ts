@@ -106,6 +106,12 @@ async function updateFieldPermissions(
  * openSDKs so we use the jsforce lib instead
  */
 export const salesforceProviderJsForce = {
+  // regular API
+  createCustomObjectRecord: async ({instance: sfdc, input}) => {
+    const result = await sfdc.sobject(input.id).create(input.record)
+    return {record: {id: result.id}}
+  },
+  // Metadata API
   metadataListProperties: async ({instance: sfdc, input}) => {
     const data = await sfdc.metadata.read('CustomObject', input.name)
     return data.fields.map((obj) => ({
@@ -172,30 +178,35 @@ export const salesforceProviderJsForce = {
     }
     return {name: objectName}
   },
-  createCustomObjectRecord: async ({instance: sfdc, input}) => {
-    const result = await sfdc.sobject(input.id).create(input.record)
-    return {record: {id: result.id}}
-  },
-  metadataCreateAssociation: async ({instance: sfdc, input}) => {
+  metadataCreateAssociationSchema: async ({
+    instance: sfdc,
+    input: {
+      source_object: sourceObject,
+      target_object: targetObject,
+      suggested_key_name: keyName,
+      display_name: label,
+    },
+  }) => {
     // if id doesn't end with __c, we need to add it ourselves
-    if (!input.id.endsWith('__c')) {
-      input.id = `${input.id}__c`
+    if (!keyName.endsWith('__c')) {
+      keyName = `${keyName}__c`
     }
 
     // Look up source custom object to figure out a relationship name
+    // TODO: we should find a better way to do this
     const sourceCustomObjectMetadata = await sfdc.metadata.read(
       'CustomObject',
-      input.source_object,
+      sourceObject,
     )
 
     // If the relationship field doesn't already exist, create it
     const existingField = sourceCustomObjectMetadata.fields?.find(
-      (field: any) => field.fullName === input.id,
+      (field) => field.fullName === keyName,
     )
 
     const customFieldPayload = {
-      fullName: `${input.source_object}.${input.id}`,
-      label: input.label,
+      fullName: `${sourceObject}.${keyName}`,
+      label,
       // The custom field name you provided Related Opportunity on object Opportunity can
       // only contain alphanumeric characters, must begin with a letter, cannot end
       // with an underscore or contain two consecutive underscore characters, and
@@ -206,7 +217,7 @@ export const salesforceProviderJsForce = {
         'relationshipName',
       type: 'Lookup',
       required: false,
-      referenceTo: input.target_object,
+      referenceTo: targetObject,
     }
 
     if (existingField) {
@@ -214,8 +225,6 @@ export const salesforceProviderJsForce = {
         'CustomField',
         customFieldPayload,
       )
-
-      console.log('result', result)
 
       if (!result.success) {
         throw new Error(
@@ -268,7 +277,7 @@ export const salesforceProviderJsForce = {
 
     // Figure out which fields already have permissions
     const {records: existingFieldPermissions} = await sfdc.query(
-      `SELECT Id,Field FROM FieldPermissions WHERE SobjectType='${input.source_object}' AND ParentId='${permissionSetId}' AND Field='${input.source_object}.${input.id}'`,
+      `SELECT Id,Field FROM FieldPermissions WHERE SobjectType='${sourceObject}' AND ParentId='${permissionSetId}' AND Field='${sourceObject}.${keyName}'`,
     )
     if (existingFieldPermissions.length) {
       // Update permission
@@ -276,8 +285,8 @@ export const salesforceProviderJsForce = {
       const result = await sfdc.update('FieldPermissions', {
         Id: existingFieldPermission?.Id as string,
         ParentId: permissionSetId,
-        SobjectType: input.source_object,
-        Field: `${input.source_object}.${input.id}`,
+        SobjectType: sourceObject,
+        Field: `${sourceObject}.${keyName}`,
         PermissionsEdit: true,
         PermissionsRead: true,
       })
@@ -294,8 +303,8 @@ export const salesforceProviderJsForce = {
       // Create permission
       const result = await sfdc.create('FieldPermissions', {
         ParentId: permissionSetId,
-        SobjectType: input.source_object,
-        Field: `${input.source_object}.${input.id}`,
+        SobjectType: sourceObject,
+        Field: `${sourceObject}.${keyName}`,
         PermissionsEdit: true,
         PermissionsRead: true,
       })
@@ -310,10 +319,10 @@ export const salesforceProviderJsForce = {
       }
     }
     return {
-      id: `${input.source_object}.${input.id}`,
-      sourceObject: input.source_object,
-      targetObject: input.target_object,
-      label: input.label,
+      id: `${sourceObject}.${keyName}`,
+      source_object: sourceObject,
+      target_object: targetObject,
+      display_name: label,
     }
   },
 } satisfies Omit<CRMProvider<jsforce.Connection>, '__init__'>

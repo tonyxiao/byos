@@ -93,17 +93,30 @@ export const crmRouter = trpc.router({
     .output(zPaginatedResult.extend({items: z.array(z.unknown())}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
+  createCustomObjectRecord: remoteProcedure
+    .meta(oapi({method: 'POST', path: '/custom/{id}'}))
+    .input(
+      z.object({
+        id: z.string(),
+        record: z.record(z.any()),
+      }),
+    )
+    .output(z.object({record: z.unknown()}))
+    .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+
   // MARK: - Metadata
   metadataListStandardObjects: remoteProcedure
     .meta(oapi({method: 'GET', path: '/metadata/objects/standard'}))
     .input(z.void())
     .output(z.array(commonModels.metaStandardObject))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+
   metadataListCustomObjects: remoteProcedure
     .meta(oapi({method: 'GET', path: '/metadata/objects/custom'}))
     .input(z.void())
     .output(z.array(commonModels.metaCustomObject))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+
   metadataListProperties: remoteProcedure
     .meta(oapi({method: 'GET', path: '/metadata/properties'}))
     .input(
@@ -140,36 +153,24 @@ export const crmRouter = trpc.router({
     )
     .output(commonModels.metaCustomObject)
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
-  // Update custom object schema didn't work within Supaglue anyways...
-  createCustomObjectRecord: remoteProcedure
-    .meta(oapi({method: 'POST', path: '/custom/{id}'}))
-    .input(
-      z.object({
-        id: z.string(),
-        record: z.record(z.any()),
-      }),
-    )
-    .output(z.object({record: z.unknown()}))
-    .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
-  metadataCreateAssociation: remoteProcedure
+
+  metadataCreateAssociationSchema: remoteProcedure
     .meta(oapi({method: 'POST', path: '/metadata/associations'}))
     .input(
       z.object({
         source_object: z.string(),
         target_object: z.string(),
-        id: z.string(),
-        label: z.string(),
+        suggested_key_name: z
+          .string()
+          .describe(
+            'The underlying provider may change this (e.g. adding `__c` for Salesforce).',
+          ),
+        display_name: z.string(),
       }),
     )
-    .output(
-      z.object({
-        sourceObject: z.string(),
-        targetObject: z.string(),
-        id: z.string(),
-        label: z.string(),
-      }),
-    )
+    .output(commonModels.association_schema)
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+  // Update custom object schema didn't work within Supaglue anyways...
 })
 
 export type CRMProvider<TInstance> = ProviderFromRouter<

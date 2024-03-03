@@ -258,7 +258,7 @@ export const salesforceProvider = {
       ...opts,
       instance: await instance.getJsForce(),
     }),
-  metadataCreateAssociation: async ({instance, ...opts}) =>
+  metadataCreateAssociationSchema: async ({instance, ...opts}) =>
     salesforceProviderJsForce.metadataCreateAssociation({
       ...opts,
       instance: await instance.getJsForce(),

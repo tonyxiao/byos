@@ -241,3 +241,12 @@ export const property_type = z
 \`url\` property type currently is only natively supported in Salesforce.
 :::`.trim(),
   })
+
+export const association_schema = z
+  .object({
+    id: z.string(),
+    source_object: z.string().openapi({example: 'contact'}),
+    target_object: z.string().openapi({example: 'my_custom_object'}),
+    display_name: z.string(),
+  })
+  .openapi({ref: 'crm.association_schema'})
