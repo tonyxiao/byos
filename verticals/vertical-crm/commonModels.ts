@@ -208,3 +208,68 @@ export const meta_association_schema = z
     display_name: z.string(),
   })
   .openapi({ref: 'crm.meta.association_schema'})
+
+export const meta_pick_list_option = z
+  .object({
+    label: z.string().openapi({example: 'Option 1'}),
+    value: z.string().openapi({example: 'option_1'}),
+    description: z.string().optional(),
+    hidden: z.boolean().optional().describe('Defaults to false.'),
+  })
+  .openapi({ref: 'crm.meta.pick_list_option'})
+
+export const meta_custom_object_field = z
+  .object({
+    id: z
+      .string()
+      .describe(
+        'The machine name of the property as it appears in the third-party Provider. In Salesforce, this must end with `__c`.',
+      ),
+    label: z
+      .string()
+      .describe(
+        'The human-readable name of the property as provided by the third-party Provider.',
+      ),
+    description: z.string().describe('A description of the field.').optional(),
+    is_required: z
+      .boolean()
+      .describe(
+        'Whether or not this field is required. Must be false for Salesforce boolean fields.',
+      )
+      .optional(),
+    default_value: z
+      .union([z.string(), z.number(), z.boolean()])
+      .optional()
+      .describe(
+        'The default value for the property. Only supported for Salesforce.',
+      ),
+    group_name: z.string().optional().openapi({
+      description:
+        "Only applicable for Hubspot. If specified, Supaglue will attempt to attach the field to this group if it exists, or create it if it doesn't.",
+      example: 'supaglue',
+    }),
+    type: meta_property_type,
+    precision: z
+      .number()
+      .describe(
+        'Only applicable in Salesforce. If not given, will default to 18.',
+      )
+      .optional(),
+    scale: z
+      .number()
+      .describe(
+        'Only applicable in Salesforce. If not given, will default to 0.',
+      )
+      .optional(),
+    options: z
+      .array(meta_pick_list_option)
+      .describe('The list of options for a picklist/multipicklist field.')
+      .optional(),
+    raw_details: z
+      .record(z.unknown())
+      .describe(
+        'The raw details of the property as provided by the third-party Provider, if available.',
+      )
+      .optional(),
+  })
+  .openapi({ref: 'crm.meta.custom_object_field'})

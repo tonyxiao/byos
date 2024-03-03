@@ -1,43 +1,14 @@
+import type {z} from '@supaglue/vdk'
 import {BadRequestError} from '@supaglue/vdk'
 import type {CustomField as SalesforceCustomField} from 'jsforce/lib/api/metadata/schema'
-import type {CRMProvider} from '../../../router'
+import type {commonModels, CRMProvider} from '../../../router'
 
 type RouteInput<T extends Exclude<keyof CRMProvider<unknown>, '__init__'>> =
   Parameters<NonNullable<CRMProvider<unknown>[T]>>[0]['input']
 
-type PropertyType =
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'picklist'
-  | 'multipicklist'
-  | 'date'
-  | 'datetime'
-  | 'boolean'
-  | 'url'
-  | 'other'
-
-type PicklistOption = {
-  label: string
-  value: string
-  description?: string
-  hidden?: boolean
-}
-
-type PropertyUnified = {
-  id: string
-  customName?: string
-  label: string
-  description?: string
-  isRequired?: boolean
-  defaultValue?: string | number | boolean
-  groupName?: string
-  type: PropertyType
-  precision?: number
-  scale?: number
-  options?: PicklistOption[]
-  rawDetails?: Record<string, unknown>
-}
+type PropertyUnified = z.infer<
+  (typeof commonModels)['meta_custom_object_field']
+>
 
 type ToolingAPIValueSet = {
   restricted: boolean
@@ -78,7 +49,7 @@ type ToolingAPICustomField = {
   }
 }
 
-function capitalizeString(str: string): string {
+function capitalizeFirstChar(str: string): string {
   if (!str) {
     return str
   }
@@ -142,7 +113,7 @@ export function validateCustomObject(
     )
   }
 
-  if (capitalizeString(primaryField.id) !== 'Name') {
+  if (capitalizeFirstChar(primaryField.id) !== 'Name') {
     throw new BadRequestError(
       `Primary field for salesforce must have key name 'Name', but was ${primaryField.id}`,
     )
@@ -176,8 +147,8 @@ export const toSalesforceCustomFieldCreateParams = (
     fullName: prefixed ? `${objectName}.${property.id}` : property.id,
     label: property.label,
     type: toSalesforceType(property),
-    required: property.isRequired,
-    defaultValue: property.defaultValue?.toString() ?? null,
+    required: property.is_required,
+    defaultValue: property.default_value?.toString() ?? null,
   }
   // if (property.defaultValue) {
   //   base = { ...base, defaultValue: property.defaultValue.toString() };
@@ -203,7 +174,7 @@ export const toSalesforceCustomFieldCreateParams = (
       required: false,
       // JS Force (incorrectly) expects string here
       // This is required for boolean fields
-      defaultValue: property.defaultValue?.toString() ?? 'false',
+      defaultValue: property.default_value?.toString() ?? 'false',
     }
   }
   // TODO: Support picklist options

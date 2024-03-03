@@ -132,17 +132,7 @@ export const crmRouter = trpc.router({
           plural: z.string(),
         }),
         primary_field_id: z.string(),
-        fields: z.array(
-          z.object({
-            id: z.string(),
-            description: z.string().optional(),
-            type: commonModels.meta_property_type,
-            label: z.string(),
-            is_required: z.boolean(),
-            default_value: z.string().optional(),
-            group_name: z.string().optional(),
-          }),
-        ),
+        fields: z.array(commonModels.meta_custom_object_field),
       }),
     )
     // Maybe this should output meta_object_schema instead?
