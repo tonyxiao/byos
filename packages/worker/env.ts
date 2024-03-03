@@ -8,6 +8,9 @@ export const env = createEnv({
     SUPAGLUE_API_KEY: z.string().optional(),
     SUPAGLUE_APPLICATION_ID: z.string().default('byos'),
     DESTINATION_SCHEMA: z.string().optional(),
+    // Required on production, but optional on dev
+    INNGEST_SIGNING_KEY: z.string().optional(),
+    INNGEST_EVENT_KEY: z.string().optional(),
   },
   runtimeEnv: process.env,
 })
