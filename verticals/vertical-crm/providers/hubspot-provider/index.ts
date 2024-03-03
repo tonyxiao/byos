@@ -1,5 +1,5 @@
 import type {BaseRecord, z} from '@supaglue/vdk'
-import {LastUpdatedAtNextOffset, uniqBy} from '@supaglue/vdk'
+import {LastUpdatedAtNextOffset, NotFoundError, uniqBy} from '@supaglue/vdk'
 import {LRUCache} from 'lru-cache'
 import * as RM from 'remeda'
 import {initHubspotSDK, type HubspotSDK} from '@opensdks/sdk-hubspot'
@@ -7,7 +7,47 @@ import type {CRMProvider} from '../../router'
 import type {HSDeal} from './mappers'
 import {HUBSPOT_STANDARD_OBJECTS, mappers, propertiesToFetch} from './mappers'
 
-const _listEntityIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
+const isStandardObjectType = (
+  objectType: string,
+): objectType is (typeof HUBSPOT_STANDARD_OBJECTS)[number] =>
+  HUBSPOT_STANDARD_OBJECTS.includes(
+    objectType as (typeof HUBSPOT_STANDARD_OBJECTS)[number],
+  )
+
+/**
+ * In certain cases, Hubspot cannot determine the object type based on just the name for custom objects,
+ * so we need to get the ID.
+ */
+async function getObjectTypeFromNameOrId(
+  instance: HubspotSDK,
+  nameOrId: string,
+): Promise<string> {
+  // Standard objects can be referred by name no problem
+  if (isStandardObjectType(nameOrId)) {
+    return nameOrId
+  }
+  // isAlreadyObjectTypeId
+
+  if (/^\d+-\d+$/.test(nameOrId)) {
+    return nameOrId
+  }
+  const schemas = await instance.crm_schemas
+    .GET('/crm/v3/schemas')
+    .then((r) => r.data.results)
+
+  // const schemas = await this.#client.crm.schemas.coreApi.getAll();
+  const schemaId = schemas.find(
+    (schema) => schema.name === nameOrId || schema.objectTypeId === nameOrId,
+  )?.objectTypeId
+  if (!schemaId) {
+    throw new NotFoundError(
+      `Could not find custom object schema with name or id ${nameOrId}`,
+    )
+  }
+  return schemaId
+}
+
+const _listObjectsIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
   instance: HubspotSDK,
   {
     objectType,
@@ -251,20 +291,20 @@ const _getPipelineStageMapping = async (instance: HubspotSDK) => {
   ])
 }
 
-const _listEntityFullThenMap = async <TIn, TOut extends BaseRecord>(
+const _listObjectsFullThenMap = async <TIn, TOut extends BaseRecord>(
   instance: HubspotSDK,
   {
-    entity,
+    objectType,
     ...opts
   }: {
-    entity: string
+    objectType: string
     mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
     page_size?: number
     cursor?: string | null
   },
 ) => {
-  const res = await instance[`crm_${entity as 'owners'}`].GET(
-    `/crm/v3/${entity as 'owners'}/`,
+  const res = await instance[`crm_${objectType as 'owners'}`].GET(
+    `/crm/v3/${objectType as 'owners'}/`,
     {
       params: {
         query: {
@@ -290,7 +330,7 @@ export const hubspotProvider = {
       links: (defaultLinks) => [...proxyLinks, ...defaultLinks],
     }),
   listContacts: async ({instance, input, ctx}) =>
-    _listEntityIncrementalThenMap(instance, {
+    _listObjectsIncrementalThenMap(instance, {
       ...input,
       objectType: 'contacts',
       mapper: mappers.contact,
@@ -299,7 +339,7 @@ export const hubspotProvider = {
       ctx,
     }),
   listAccounts: async ({instance, input, ctx}) =>
-    _listEntityIncrementalThenMap(instance, {
+    _listObjectsIncrementalThenMap(instance, {
       ...input,
       objectType: 'companies',
       mapper: mappers.account,
@@ -308,7 +348,7 @@ export const hubspotProvider = {
       ctx,
     }),
   listOpportunities: async ({instance, input, ctx}) =>
-    _listEntityIncrementalThenMap(instance, {
+    _listObjectsIncrementalThenMap(instance, {
       ...input,
       objectType: 'deals',
       mapper: mappers.opportunity,
@@ -319,16 +359,16 @@ export const hubspotProvider = {
     }),
   // Original supaglue never implemented this, TODO: handle me...
   // listLeads: async ({instance, input, ctx}) =>
-  //   _listEntityThenMap(instance, {
+  //   _listObjectsFullThenMap(instance, {
   //     ...input,
-  //     entity: 'leads',
+  //     objectType: 'leads',
   //     mapper: mappers.lead,
   //     fields: [],
   //   }),
   // Owners does not have a search API... so we have to do a full sync every time
   listUsers: async ({instance, input}) =>
-    _listEntityFullThenMap(instance, {
-      entity: 'owners',
+    _listObjectsFullThenMap(instance, {
+      objectType: 'owners',
       mapper: mappers.user,
       page_size: input?.page_size,
       cursor: input?.cursor,
@@ -336,13 +376,27 @@ export const hubspotProvider = {
 
   // MARK: - Custom objects
   listCustomObjectRecords: async ({instance, input}) =>
-    // TODO: Support both objectId and objectName in the input
-    _listEntityFullThenMap(instance, {
-      entity: input.object_name,
+    _listObjectsFullThenMap(instance, {
+      objectType: await getObjectTypeFromNameOrId(instance, input.object_name),
       mapper: mappers.customObject,
       page_size: input?.page_size,
       cursor: input?.cursor,
     }),
+
+  createCustomObjectRecord: async ({instance, input}) => {
+    // This may cause a runtime error as Hubspot appears to only support string prop values
+    // during creation anyways
+    const properties = input.record as Record<string, string>
+    const objectType = await getObjectTypeFromNameOrId(
+      instance,
+      input.object_name,
+    )
+    const res = await instance.crm_objects.POST(
+      '/crm/v3/objects/{objectType}',
+      {params: {path: {objectType}}, body: {properties, associations: []}},
+    )
+    return {record: res.data}
+  },
 
   // MARK: - Metadata endpoints
   metadataListObjects: async ({instance, input}) =>

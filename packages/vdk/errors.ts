@@ -24,6 +24,12 @@ export class NotImplementedError extends TRPCError {
   }
 }
 
+export class NotFoundError extends TRPCError {
+  constructor(message?: string, cause?: unknown) {
+    super({code: 'NOT_FOUND', message, cause})
+  }
+}
+
 /** Refreshing token failed / access revoked */
 export class NotAuthenticatedError extends TRPCError {
   // Cannot modify the name as it is used by trpc internals to determine if it's a trpc error...
