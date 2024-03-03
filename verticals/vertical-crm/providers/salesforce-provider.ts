@@ -15,7 +15,7 @@ import {
   SALESFORCE_API_VERSION,
   SALESFORCE_STANDARD_OBJECTS,
 } from './salesforce/constants'
-import {listFields, mappers} from './salesforce/mapper'
+import {capitalizeFirstChar, listFields, mappers} from './salesforce/mapper'
 import {salesforceProviderJsForce} from './salesforce/salesforce-provider-jsforce'
 
 export type SFDC = SalesforceSDKTypes['oas']['components']['schemas']
@@ -226,14 +226,27 @@ export const salesforceProvider = {
 
   listCustomObjectRecords: async ({instance, input}) =>
     sdkExt(instance)._listEntityThenMap({
-      entity: input.id,
+      entity: input.object_name,
       fields: ['Name'],
       mapper: mappers.customObject,
       cursor: input?.cursor,
       page_size: input?.page_size,
     }),
 
+  createCustomObjectRecord: async ({instance, input}) => {
+    const objectName = input.object_name.endsWith('__c')
+      ? input.object_name
+      : `${input.object_name}__c`
+    const res = await instance.POST(`/sobjects/${objectName as 'Account'}`, {
+      // sdc-salesforce already defaults to json. Would be good to not have to repeat it due to typing
+      params: {header: {'Content-Type': 'application/json'}},
+      body: input.record,
+    })
+    return {record: res.data}
+  },
+
   // MARK: - Metadata
+
   metadataListStandardObjects: () =>
     SALESFORCE_STANDARD_OBJECTS.map((name) => ({name})),
 
@@ -241,26 +254,31 @@ export const salesforceProvider = {
     const res = await instance.GET('/sobjects')
     return (res.data.sobjects ?? [])
       .filter((s) => s.custom)
-      .map((s) => ({id: s.name!, name: s.name!}))
+      .map((s) => ({id: s.name ?? '', name: s.name ?? ''}))
   },
-  metadataListProperties: async ({instance, ...opts}) =>
-    salesforceProviderJsForce.metadataListProperties({
-      ...opts,
-      instance: await instance.getJsForce(),
-    }),
+  metadataListObjectProperties: async ({instance, input}) => {
+    const res = await instance.GET('/sobjects/{sObject}/describe', {
+      params: {path: {sObject: capitalizeFirstChar(input.object_name)}},
+    })
+    return (res.data.fields ?? [])
+      .filter((field) => COMPOUND_TYPES.includes(field.type ?? ''))
+      .map((field) => ({
+        id: field.name ?? '',
+        label: field.label ?? '',
+        type: field.type,
+        raw_details: field,
+      }))
+  },
   metadataCreateCustomObjectSchema: async ({instance, ...opts}) =>
     salesforceProviderJsForce.metadataCreateCustomObjectSchema({
       ...opts,
       instance: await instance.getJsForce(),
     }),
-  createCustomObjectRecord: async ({instance, ...opts}) =>
-    salesforceProviderJsForce.createCustomObjectRecord({
-      ...opts,
-      instance: await instance.getJsForce(),
-    }),
   metadataCreateAssociationSchema: async ({instance, ...opts}) =>
-    salesforceProviderJsForce.metadataCreateAssociation({
+    salesforceProviderJsForce.metadataCreateAssociationSchema({
       ...opts,
       instance: await instance.getJsForce(),
     }),
 } satisfies CRMProvider<SalesforceSDK>
+
+const COMPOUND_TYPES = ['location', 'address']

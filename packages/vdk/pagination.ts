@@ -103,7 +103,7 @@ export const zWarning = z
   })
   .openapi({ref: 'warning'})
 
-export function responseWithWarnings<T extends z.ZodRawShape>(shape: T) {
+export function withWarnings<T extends z.ZodRawShape>(shape: T) {
   return z.object({
     ...shape,
     warnings: z.array(zWarning).optional(),

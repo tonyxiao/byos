@@ -599,10 +599,10 @@ export const hubspotProvider = {
     const res = await instance.crm_schemas.GET('/crm/v3/schemas')
     return res.data.results.map((obj) => ({id: obj.id, name: obj.name}))
   },
-  metadataListProperties: async ({instance, input}) => {
+  metadataListObjectProperties: async ({instance, input}) => {
     const res = await instance.crm_properties.GET(
       '/crm/v3/properties/{objectType}',
-      {params: {path: {objectType: input.name}}},
+      {params: {path: {objectType: input.object_name}}},
     )
     return res.data.results.map((obj) => ({
       id: obj.name,

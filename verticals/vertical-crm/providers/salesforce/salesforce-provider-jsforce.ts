@@ -102,24 +102,10 @@ async function updateFieldPermissions(
 }
 
 /**
- * Some salesforce APIs (e.g. metadata) are SOAP based which is not currently supported in
- * openSDKs so we use the jsforce lib instead
+ * Some salesforce APIs (e.g. metadata API) are SOAP based which is not currently supported in
+ * openSDKs so we use the jsforce lib instead. 
  */
 export const salesforceProviderJsForce = {
-  // regular API
-  createCustomObjectRecord: async ({instance: sfdc, input}) => {
-    const result = await sfdc.sobject(input.id).create(input.record)
-    return {record: {id: result.id}}
-  },
-  // Metadata API
-  metadataListProperties: async ({instance: sfdc, input}) => {
-    const data = await sfdc.metadata.read('CustomObject', input.name)
-    return data.fields.map((obj) => ({
-      id: obj.fullName || 'unknown',
-      label: obj.label || 'unknown',
-    }))
-  },
-
   metadataCreateCustomObjectSchema: async ({instance: sfdc, input: params}) => {
     validateCustomObject(params)
 

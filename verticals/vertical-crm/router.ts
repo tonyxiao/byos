@@ -2,8 +2,8 @@ import type {ProviderFromRouter, RouterMeta} from '@supaglue/vdk'
 import {
   proxyCallProvider,
   remoteProcedure,
-  responseWithWarnings,
   trpc,
+  withWarnings,
   z,
   zPaginatedResult,
   zPaginationParams,
@@ -84,10 +84,10 @@ export const crmRouter = trpc.router({
 
   // MARK: - Custom objects
   listCustomObjectRecords: remoteProcedure
-    .meta(oapi({method: 'GET', path: '/custom/{id}'}))
+    .meta(oapi({method: 'GET', path: '/custom_objects/{object_name}'}))
     .input(
       z.object({
-        id: z.string(),
+        object_name: z.string(),
         ...zPaginationParams.shape,
       }),
     )
@@ -95,14 +95,14 @@ export const crmRouter = trpc.router({
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   createCustomObjectRecord: remoteProcedure
-    .meta(oapi({method: 'POST', path: '/custom/{id}'}))
+    .meta(oapi({method: 'POST', path: '/custom_objects/{object_name}'}))
     .input(
       z.object({
-        id: z.string(),
-        record: z.record(z.any()),
+        object_name: z.string(),
+        record: z.record(z.unknown()),
       }),
     )
-    .output(z.object({record: z.unknown()}))
+    .output(withWarnings({record: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   // MARK: - Metadata
@@ -118,14 +118,12 @@ export const crmRouter = trpc.router({
     .output(z.array(commonModels.metaCustomObject))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
-  metadataListProperties: remoteProcedure
-    .meta(oapi({method: 'GET', path: '/metadata/properties'}))
-    .input(
-      z.object({
-        type: z.enum(['standard', 'custom']),
-        name: z.string(),
-      }),
+  metadataListObjectProperties: remoteProcedure
+    .meta(
+      oapi({method: 'GET', path: '/metadata/objects/{object_name}/properties'}),
     )
+    // type: z.enum(['standard', 'custom']),
+    .input(z.object({object_name: z.string()}))
     .output(z.array(commonModels.metaProperty))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   metadataCreateCustomObjectSchema: remoteProcedure
@@ -169,11 +167,7 @@ export const crmRouter = trpc.router({
         display_name: z.string(),
       }),
     )
-    .output(
-      responseWithWarnings({
-        association_schema: commonModels.association_schema,
-      }),
-    )
+    .output(withWarnings({association_schema: commonModels.association_schema}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   // Update custom object schema didn't work within Supaglue anyways...
 })
