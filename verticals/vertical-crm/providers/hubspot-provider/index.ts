@@ -435,7 +435,7 @@ export const hubspotProvider = {
     }))
   },
 
-  metadataCreateCustomObjectSchema: async ({instance, input: params}) => {
+  metadataCreateObject: async ({instance, input: params}) => {
     const primaryField = params.fields.find(
       (field) => field.id === params.primary_field_id,
     )
@@ -532,7 +532,7 @@ export const hubspotProvider = {
     })
     return {id: res.data.id, name: res.data.name}
   },
-  metadataCreateAssociationSchema: async ({instance, input}) => {
+  metadataCreateAssociation: async ({instance, input}) => {
     const [fromObjectType, toObjectType] = await Promise.all([
       getObjectTypeFromNameOrId(instance, input.source_object),
       getObjectTypeFromNameOrId(instance, input.target_object),

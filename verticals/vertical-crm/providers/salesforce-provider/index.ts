@@ -281,12 +281,12 @@ export const salesforceProvider = {
         raw_details: field,
       }))
   },
-  metadataCreateCustomObjectSchema: async ({instance, ...opts}) =>
+  metadataCreateObject: async ({instance, ...opts}) =>
     salesforceProviderJsForce.metadataCreateCustomObjectSchema({
       ...opts,
       instance: await instance.getJsForce(),
     }),
-  metadataCreateAssociationSchema: async ({instance, ...opts}) =>
+  metadataCreateAssociation: async ({instance, ...opts}) =>
     salesforceProviderJsForce.metadataCreateAssociationSchema({
       ...opts,
       instance: await instance.getJsForce(),

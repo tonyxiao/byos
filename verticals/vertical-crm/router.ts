@@ -112,17 +112,17 @@ export const crmRouter = trpc.router({
     .output(z.array(commonModels.meta_object))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
-  metadataListObjectProperties: remoteProcedure
+  metadataCreateObject: remoteProcedure
     .meta(
-      oapi({method: 'GET', path: '/metadata/objects/{object_name}/properties'}),
+      oapi({
+        method: 'POST',
+        path: '/metadata/objects',
+        // There is no need to add `custom` to path here.
+        // Whenever we are creating a new object, it is always custom.
+        // Otherwise we'd have to say create_custom_assocations also
+        description: 'Create custom object schema',
+      }),
     )
-    // type: z.enum(['standard', 'custom']), // Does not seem to be needed
-    .input(z.object({object_name: z.string()}))
-    .output(z.array(commonModels.meta_property))
-    .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
-
-  metadataCreateCustomObjectSchema: remoteProcedure
-    .meta(oapi({method: 'POST', path: '/metadata/objects/custom'}))
     .input(
       z.object({
         name: z.string(),
@@ -139,7 +139,16 @@ export const crmRouter = trpc.router({
     .output(commonModels.meta_object)
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
-  metadataCreateAssociationSchema: remoteProcedure
+  metadataListObjectProperties: remoteProcedure
+    .meta(
+      oapi({method: 'GET', path: '/metadata/objects/{object_name}/properties'}),
+    )
+    // type: z.enum(['standard', 'custom']), // Does not seem to be needed
+    .input(z.object({object_name: z.string()}))
+    .output(z.array(commonModels.meta_property))
+    .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+
+  metadataCreateAssociation: remoteProcedure
     .meta(oapi({method: 'POST', path: '/metadata/associations'}))
     .input(
       z.object({

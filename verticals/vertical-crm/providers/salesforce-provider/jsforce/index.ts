@@ -106,7 +106,7 @@ async function updateFieldPermissions(
  * openSDKs so we use the jsforce lib instead.
  */
 export const salesforceProviderJsForce = {
-  metadataCreateCustomObjectSchema: async ({instance: sfdc, input: params}) => {
+  metadataCreateObject: async ({instance: sfdc, input: params}) => {
     validateCustomObject(params)
 
     const objectName = params.name.endsWith('__c')
@@ -164,7 +164,7 @@ export const salesforceProviderJsForce = {
     }
     return {id: objectName, name: objectName}
   },
-  metadataCreateAssociationSchema: async ({
+  metadataCreateAssociation: async ({
     instance: sfdc,
     input: {
       source_object: sourceObject,

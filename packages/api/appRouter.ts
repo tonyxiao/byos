@@ -35,7 +35,8 @@ export function getOpenAPISpec() {
     openApiVersion: '3.1.0', // Want jsonschema
     title: 'Bulid your own Supaglue',
     version: '0.0.0',
-    baseUrl: 'http://localhost:3000/api',
+    // Can we get env passed in instead of directly using it?
+    baseUrl: new URL('/api', getServerUrl({env: process.env})).toString(),
     // TODO: add the security field to specify what methods are required.
     securitySchemes: {
       apiKey: {name: 'x-api-key', type: 'apiKey', in: 'header'},
@@ -44,6 +45,27 @@ export function getOpenAPISpec() {
     },
   })
   return oas
+}
+
+export function getServerUrl(opts: {
+  req?: Request
+  env?: Record<string, string | undefined>
+}) {
+  return (
+    (typeof window !== 'undefined' &&
+      `${window.location.protocol}//${window.location.host}`) ||
+    (opts.req &&
+      `${
+        opts.req.headers.get('x-forwarded-proto') || 'http'
+      }://${opts.req.headers.get('host')}`) ||
+    (opts.env?.['NEXT_PUBLIC_SERVER_URL']
+      ? opts.env['NEXT_PUBLIC_SERVER_URL']
+      : null) ||
+    (opts.env?.['VERCEL_URL'] ? 'https://' + opts.env['VERCEL_URL'] : null) ||
+    `http://localhost:${
+      opts.env?.['PORT'] || opts.env?.['NEXT_PUBLIC_PORT'] || 3000
+    }`
+  )
 }
 
 if (require.main === module) {
