@@ -171,16 +171,10 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": ["string", "null"]
                   },
                   "email": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": ["string", "null"],
                     "format": "email"
                   }
                 }
@@ -454,30 +448,19 @@
                 "type": "object",
                 "properties": {
                   "destination_config": {
-                    "type": [
-                      "object",
-                      "null"
-                    ],
+                    "type": ["object", "null"],
                     "properties": {
                       "type": {
                         "type": "string"
                       },
                       "schema": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
+                        "type": ["string", "null"]
                       }
                     },
-                    "required": [
-                      "type"
-                    ]
+                    "required": ["type"]
                   },
                   "custom_objects": {
-                    "type": [
-                      "array",
-                      "null"
-                    ],
+                    "type": ["array", "null"],
                     "items": {
                       "type": "object",
                       "properties": {
@@ -485,9 +468,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "object"
-                      ]
+                      "required": ["object"]
                     }
                   }
                 }
@@ -547,10 +528,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           }
         ],
@@ -563,10 +541,7 @@
                   "type": "object",
                   "properties": {
                     "nextPageCursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "items": {
                       "type": "array",
@@ -575,9 +550,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "items"
-                  ]
+                  "required": ["items"]
                 }
               }
             }
@@ -623,10 +596,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           }
         ],
@@ -639,10 +609,7 @@
                   "type": "object",
                   "properties": {
                     "nextPageCursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "items": {
                       "type": "array",
@@ -651,9 +618,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "items"
-                  ]
+                  "required": ["items"]
                 }
               }
             }
@@ -699,10 +664,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           }
         ],
@@ -715,10 +677,7 @@
                   "type": "object",
                   "properties": {
                     "nextPageCursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "items": {
                       "type": "array",
@@ -727,9 +686,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "items"
-                  ]
+                  "required": ["items"]
                 }
               }
             }
@@ -775,10 +732,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           }
         ],
@@ -791,10 +745,7 @@
                   "type": "object",
                   "properties": {
                     "nextPageCursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "items": {
                       "type": "array",
@@ -803,9 +754,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "items"
-                  ]
+                  "required": ["items"]
                 }
               }
             }
@@ -851,10 +800,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           }
         ],
@@ -867,10 +813,7 @@
                   "type": "object",
                   "properties": {
                     "nextPageCursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "items": {
                       "type": "array",
@@ -879,9 +822,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "items"
-                  ]
+                  "required": ["items"]
                 }
               }
             }
@@ -927,10 +868,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           }
         ],
@@ -943,10 +881,7 @@
                   "type": "object",
                   "properties": {
                     "nextPageCursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "items": {
                       "type": "array",
@@ -955,9 +890,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "items"
-                  ]
+                  "required": ["items"]
                 }
               }
             }
@@ -1009,38 +942,23 @@
                     "type": "object",
                     "properties": {
                       "name": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "My Company"
                       },
                       "domain": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "mycompany.com"
                       },
                       "owner_id": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "9f3e97fd-4d5d-4efc-959d-bbebfac079f5"
                       },
                       "account_id": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "ae4be028-9078-4850-a0bf-d2112b7c4d11"
                       },
                       "custom_fields": {
-                        "type": [
-                          "object",
-                          "null"
-                        ],
+                        "type": ["object", "null"],
                         "additionalProperties": {}
                       }
                     }
@@ -1059,10 +977,7 @@
                     }
                   }
                 },
-                "required": [
-                  "record",
-                  "upsert_on"
-                ]
+                "required": ["record", "upsert_on"]
               }
             }
           }
@@ -1082,9 +997,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id"
-                      ]
+                      "required": ["id"]
                     }
                   }
                 }
@@ -1128,64 +1041,37 @@
                     "type": "object",
                     "properties": {
                       "first_name": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "James"
                       },
                       "last_name": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "Smith"
                       },
                       "job_title": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "CEO"
                       },
                       "address": {
                         "type": "object",
                         "properties": {
                           "city": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
+                            "type": ["string", "null"]
                           },
                           "country": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
+                            "type": ["string", "null"]
                           },
                           "postal_code": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
+                            "type": ["string", "null"]
                           },
                           "state": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
+                            "type": ["string", "null"]
                           },
                           "street_1": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
+                            "type": ["string", "null"]
                           },
                           "street_2": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
+                            "type": ["string", "null"]
                           }
                         },
                         "example": {
@@ -1206,20 +1092,11 @@
                               "type": "string"
                             },
                             "email_address_type": {
-                              "type": [
-                                "string",
-                                "null"
-                              ],
-                              "enum": [
-                                "primary",
-                                "personal",
-                                "work"
-                              ]
+                              "type": ["string", "null"],
+                              "enum": ["primary", "personal", "work"]
                             }
                           },
-                          "required": [
-                            "email_address"
-                          ]
+                          "required": ["email_address"]
                         },
                         "example": [
                           {
@@ -1247,10 +1124,7 @@
                               ]
                             }
                           },
-                          "required": [
-                            "phone_number",
-                            "phone_number_type"
-                          ]
+                          "required": ["phone_number", "phone_number_type"]
                         },
                         "example": [
                           {
@@ -1260,32 +1134,19 @@
                         ]
                       },
                       "owner_id": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "9f3e97fd-4d5d-4efc-959d-bbebfac079f5"
                       },
                       "account_id": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "ae4be028-9078-4850-a0bf-d2112b7c4d11"
                       },
                       "custom_fields": {
-                        "type": [
-                          "object",
-                          "null"
-                        ],
+                        "type": ["object", "null"],
                         "additionalProperties": {}
                       }
                     },
-                    "required": [
-                      "address",
-                      "email_addresses",
-                      "phone_numbers"
-                    ]
+                    "required": ["address", "email_addresses", "phone_numbers"]
                   },
                   "upsert_on": {
                     "type": "object",
@@ -1297,10 +1158,7 @@
                     }
                   }
                 },
-                "required": [
-                  "record",
-                  "upsert_on"
-                ]
+                "required": ["record", "upsert_on"]
               }
             }
           }
@@ -1320,9 +1178,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id"
-                      ]
+                      "required": ["id"]
                     }
                   }
                 }
@@ -1378,23 +1234,14 @@
                         "example": "b854e510-1c40-4ef6-ade4-8eb35f49d331"
                       },
                       "user_id": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": ["string", "null"],
                         "example": "c590dc63-8e43-48a4-8154-1fbb00ac936b"
                       }
                     },
-                    "required": [
-                      "contact_id",
-                      "mailbox_id",
-                      "sequence_id"
-                    ]
+                    "required": ["contact_id", "mailbox_id", "sequence_id"]
                   }
                 },
-                "required": [
-                  "record"
-                ]
+                "required": ["record"]
               }
             }
           }
@@ -1414,9 +1261,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id"
-                      ]
+                      "required": ["id"]
                     }
                   }
                 }
@@ -1471,9 +1316,7 @@
                       "type": "number"
                     }
                   },
-                  "required": [
-                    "count"
-                  ]
+                  "required": ["count"]
                 }
               }
             }
@@ -1519,10 +1362,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           },
           {
@@ -1542,10 +1382,7 @@
                   "type": "object",
                   "properties": {
                     "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "has_next_page": {
                       "type": "boolean"
@@ -1557,10 +1394,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "has_next_page",
-                    "items"
-                  ]
+                  "required": ["has_next_page", "items"]
                 }
               }
             }
@@ -1624,9 +1458,7 @@
                     },
                     "raw": {}
                   },
-                  "required": [
-                    "record"
-                  ]
+                  "required": ["record"]
                 }
               }
             }
@@ -1672,10 +1504,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           },
           {
@@ -1695,10 +1524,7 @@
                   "type": "object",
                   "properties": {
                     "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "has_next_page": {
                       "type": "boolean"
@@ -1710,10 +1536,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "has_next_page",
-                    "items"
-                  ]
+                  "required": ["has_next_page", "items"]
                 }
               }
             }
@@ -1777,9 +1600,7 @@
                     },
                     "raw": {}
                   },
-                  "required": [
-                    "record"
-                  ]
+                  "required": ["record"]
                 }
               }
             }
@@ -1825,10 +1646,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           },
           {
@@ -1848,10 +1666,7 @@
                   "type": "object",
                   "properties": {
                     "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "has_next_page": {
                       "type": "boolean"
@@ -1863,10 +1678,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "has_next_page",
-                    "items"
-                  ]
+                  "required": ["has_next_page", "items"]
                 }
               }
             }
@@ -1930,9 +1742,7 @@
                     },
                     "raw": {}
                   },
-                  "required": [
-                    "record"
-                  ]
+                  "required": ["record"]
                 }
               }
             }
@@ -1978,10 +1788,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           },
           {
@@ -2001,10 +1808,7 @@
                   "type": "object",
                   "properties": {
                     "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "has_next_page": {
                       "type": "boolean"
@@ -2016,10 +1820,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "has_next_page",
-                    "items"
-                  ]
+                  "required": ["has_next_page", "items"]
                 }
               }
             }
@@ -2083,9 +1884,7 @@
                     },
                     "raw": {}
                   },
-                  "required": [
-                    "record"
-                  ]
+                  "required": ["record"]
                 }
               }
             }
@@ -2131,10 +1930,7 @@
             "in": "query",
             "name": "cursor",
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           },
           {
@@ -2154,10 +1950,7 @@
                   "type": "object",
                   "properties": {
                     "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": ["string", "null"]
                     },
                     "has_next_page": {
                       "type": "boolean"
@@ -2169,10 +1962,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "has_next_page",
-                    "items"
-                  ]
+                  "required": ["has_next_page", "items"]
                 }
               }
             }
@@ -2236,9 +2026,7 @@
                     },
                     "raw": {}
                   },
-                  "required": [
-                    "record"
-                  ]
+                  "required": ["record"]
                 }
               }
             }
@@ -2276,29 +2064,31 @@
         }
       }
     },
-    "/crm/v2/custom/{id}": {
+    "/crm/v2/custom_objects/{object_name}": {
       "get": {
         "operationId": "crm-listCustomObjectRecords",
         "parameters": [
           {
-            "in": "query",
-            "name": "type",
+            "in": "path",
+            "name": "object_name",
             "schema": {
-              "type": "string",
-              "enum": [
-                "standard",
-                "custom"
-              ]
+              "type": "string"
             },
             "required": true
           },
           {
             "in": "query",
-            "name": "name",
+            "name": "cursor",
             "schema": {
-              "type": "string"
-            },
-            "required": true
+              "type": ["string", "null"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "number"
+            }
           }
         ],
         "responses": {
@@ -2307,10 +2097,20 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/crm.metaProperty"
-                  }
+                  "type": "object",
+                  "properties": {
+                    "next_cursor": {
+                      "type": ["string", "null"]
+                    },
+                    "has_next_page": {
+                      "type": "boolean"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  },
+                  "required": ["has_next_page", "items"]
                 }
               }
             }
@@ -2352,418 +2152,44 @@
         "parameters": [
           {
             "in": "path",
-            "name": "id",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "The ID of the custom object"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/crm.CustomObjectRecord"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/crm.CustomObjectRecord"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.NOT_FOUND"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/crm/v2/metadata/objects/standard": {
-      "get": {
-        "operationId": "crm-metadataListStandardObjects",
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/crm.metaStandardObject"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/crm/v2/metadata/objects/custom": {
-      "get": {
-        "operationId": "crm-metadataListCustomObjects",
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/crm.metaCustomObject"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "operationId": "crm-metadataCreateObjectsSchema",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/crm.metaCustomObject"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Custom object created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/crm.metaCustomObject"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "operationId": "crm-metadataUpdateCustomObject",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/crm.metaCustomObject"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Custom object updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/crm.metaCustomObject"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Custom object not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.NOT_FOUND"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
-                }
-              }
-            }
-          }
-        }
-      }
-      
-    },
-    "/crm/v2/metadata/properties": {
-      "get": {
-        "operationId": "crm-metadataListProperties",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "type",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "standard",
-                "custom"
-              ]
-            },
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "name",
+            "name": "object_name",
             "schema": {
               "type": "string"
             },
             "required": true
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/crm.metaProperty"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.NOT_FOUND"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/crm/v2/metadata/associations": {
-      "get": {
-        "operationId": "crm-metadataListProperties",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "type",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "standard",
-                "custom"
-              ]
-            },
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "name",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/crm.metaProperty"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.NOT_FOUND"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "operationId": "crm-metadataCreateAssociation",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["sourceObject", "targetObject", "id", "label"],
                 "properties": {
-                  "sourceObject": {
-                    "type": "string"
-                  },
-                  "targetObject": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
+                  "record": {
+                    "type": "object",
+                    "additionalProperties": {}
                   }
-                }
+                },
+                "required": ["record"]
               }
             }
           }
         },
         "responses": {
-          "201": {
-            "description": "Association created successfully",
+          "200": {
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "sourceObject": {
-                      "type": "string"
-                    },
-                    "targetObject": {
-                      "type": "string"
-                    },
-                    "label": {
-                      "type": "string"
+                    "record": {},
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/warning"
+                      }
                     }
                   }
                 }
@@ -2792,7 +2218,291 @@
           }
         }
       }
-    } 
+    },
+    "/crm/v2/metadata/objects": {
+      "get": {
+        "operationId": "crm-metadataListObjects",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": ["standard", "custom"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/crm.meta.object"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/v2/metadata/objects/{object_name}/properties": {
+      "get": {
+        "operationId": "crm-metadataListObjectProperties",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "object_name",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/crm.meta.property"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/v2/metadata/objects/custom": {
+      "post": {
+        "operationId": "crm-metadataCreateCustomObjectSchema",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": ["string", "null"]
+                  },
+                  "labels": {
+                    "type": "object",
+                    "properties": {
+                      "singular": {
+                        "type": "string"
+                      },
+                      "plural": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["singular", "plural"]
+                  },
+                  "primary_field_id": {
+                    "type": "string"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/crm.meta.custom_object_field"
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "labels",
+                  "primary_field_id",
+                  "fields"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/crm.meta.object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/v2/metadata/associations": {
+      "post": {
+        "operationId": "crm-metadataCreateAssociationSchema",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source_object": {
+                    "type": "string"
+                  },
+                  "target_object": {
+                    "type": "string"
+                  },
+                  "suggested_key_name": {
+                    "type": "string",
+                    "description": "The underlying provider may change this (e.g. adding `__c` for Salesforce)."
+                  },
+                  "display_name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "source_object",
+                  "target_object",
+                  "suggested_key_name",
+                  "display_name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "association_schema": {
+                      "$ref": "#/components/schemas/crm.meta.association_schema"
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/warning"
+                      }
+                    }
+                  },
+                  "required": ["association_schema"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   },
   "components": {
     "securitySchemes": {
@@ -2835,18 +2545,13 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "message"
-              ]
+              "required": ["message"]
             },
             "description": "An array of issues that were responsible for the error",
             "example": []
           }
         },
-        "required": [
-          "message",
-          "code"
-        ],
+        "required": ["message", "code"],
         "title": "Error",
         "description": "The error information",
         "example": {
@@ -2862,22 +2567,14 @@
             "type": "string"
           },
           "name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "email": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "format": "email"
           }
         },
-        "required": [
-          "customer_id"
-        ]
+        "required": ["customer_id"]
       },
       "error.BAD_REQUEST": {
         "type": "object",
@@ -2901,18 +2598,13 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "message"
-              ]
+              "required": ["message"]
             },
             "description": "An array of issues that were responsible for the error",
             "example": []
           }
         },
-        "required": [
-          "message",
-          "code"
-        ],
+        "required": ["message", "code"],
         "title": "Error",
         "description": "The error information",
         "example": {
@@ -2943,18 +2635,13 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "message"
-              ]
+              "required": ["message"]
             },
             "description": "An array of issues that were responsible for the error",
             "example": []
           }
         },
-        "required": [
-          "message",
-          "code"
-        ],
+        "required": ["message", "code"],
         "title": "Error",
         "description": "The error information",
         "example": {
@@ -2966,48 +2653,35 @@
       "connection": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "customer_id": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "provider_name": {
             "type": "string"
           }
         },
-        "required": [
-          "provider_name"
-        ]
+        "required": ["id", "provider_name"]
       },
       "connection_sync_config": {
         "type": "object",
         "properties": {
           "destination_config": {
-            "type": [
-              "object",
-              "null"
-            ],
+            "type": ["object", "null"],
             "properties": {
               "type": {
                 "type": "string"
               },
               "schema": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               }
             },
-            "required": [
-              "type"
-            ]
+            "required": ["type"]
           },
           "custom_objects": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "type": "object",
               "properties": {
@@ -3015,9 +2689,7 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "object"
-              ]
+              "required": ["object"]
             }
           }
         }
@@ -3142,17 +2814,10 @@
             },
             "email_address_type": {
               "type": "string",
-              "enum": [
-                "primary",
-                "personal",
-                "work"
-              ]
+              "enum": ["primary", "personal", "work"]
             }
           },
-          "required": [
-            "email_address",
-            "email_address_type"
-          ]
+          "required": ["email_address", "email_address_type"]
         }
       },
       "sales-engagement.phone_numbers": {
@@ -3165,19 +2830,10 @@
             },
             "phone_number_type": {
               "type": "string",
-              "enum": [
-                "primary",
-                "work",
-                "home",
-                "mobile",
-                "other"
-              ]
+              "enum": ["primary", "work", "home", "mobile", "other"]
             }
           },
-          "required": [
-            "phone_number",
-            "phone_number_type"
-          ]
+          "required": ["phone_number", "phone_number_type"]
         }
       },
       "sales-engagement.sequence": {
@@ -3434,15 +3090,125 @@
             "additionalProperties": {}
           },
           "name": {
-            "type": [
-              "string",
-              "null"
+            "type": ["string", "null"]
+          },
+          "is_deleted": {
+            "type": ["boolean", "null"]
+          },
+          "website": {
+            "type": ["string", "null"]
+          },
+          "industry": {
+            "type": ["string", "null"]
+          },
+          "number_of_employees": {
+            "type": ["number", "null"]
+          },
+          "owner_id": {
+            "type": ["string", "null"]
+          },
+          "created_at": {
+            "type": ["string", "null"]
+          },
+          "description": {
+            "type": ["string", "null"],
+            "example": "Integration API"
+          },
+          "last_activity_at": {
+            "type": ["string", "null"],
+            "description": "date-time"
+          },
+          "addresses": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/crm.address"
+            }
+          },
+          "phone_numbers": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object",
+              "properties": {
+                "phone_number": {
+                  "type": ["string", "null"]
+                },
+                "phone_number_type": {
+                  "$ref": "#/components/schemas/crm.phone_number_type"
+                }
+              },
+              "required": ["phone_number", "phone_number_type"]
+            }
+          },
+          "lifecycle_stage": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/crm.lifecycle_stage"
+              },
+              {
+                "type": "null"
+              }
             ]
+          },
+          "last_modified_at": {
+            "type": ["string", "null"]
+          }
+        },
+        "required": ["id", "updated_at"]
+      },
+      "crm.address": {
+        "type": "object",
+        "properties": {
+          "address_type": {
+            "$ref": "#/components/schemas/crm.address_type"
+          },
+          "city": {
+            "type": ["string", "null"]
+          },
+          "country": {
+            "type": ["string", "null"]
+          },
+          "postal_code": {
+            "type": ["string", "null"]
+          },
+          "state": {
+            "type": ["string", "null"]
+          },
+          "street_1": {
+            "type": ["string", "null"]
+          },
+          "street_2": {
+            "type": ["string", "null"]
           }
         },
         "required": [
-          "id",
-          "updated_at"
+          "address_type",
+          "city",
+          "country",
+          "postal_code",
+          "state",
+          "street_1",
+          "street_2"
+        ]
+      },
+      "crm.address_type": {
+        "type": "string",
+        "enum": ["primary", "mailing", "other", "billing", "shipping"]
+      },
+      "crm.phone_number_type": {
+        "type": "string",
+        "enum": ["primary", "mobile", "fax", "other"]
+      },
+      "crm.lifecycle_stage": {
+        "type": "string",
+        "enum": [
+          "subscriber",
+          "lead",
+          "marketingqualifiedlead",
+          "salesqualifiedlead",
+          "opportunity",
+          "customer",
+          "evangelist",
+          "other"
         ]
       },
       "crm.contact": {
@@ -3460,22 +3226,13 @@
             "additionalProperties": {}
           },
           "first_name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "last_name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         },
-        "required": [
-          "id",
-          "updated_at"
-        ]
+        "required": ["id", "updated_at"]
       },
       "crm.lead": {
         "type": "object",
@@ -3492,16 +3249,89 @@
             "additionalProperties": {}
           },
           "name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "owner_id": {
+            "type": ["string", "null"]
+          },
+          "title": {
+            "type": ["string", "null"]
+          },
+          "company": {
+            "type": ["string", "null"]
+          },
+          "converted_date": {
+            "type": ["string", "null"]
+          },
+          "lead_source": {
+            "type": ["string", "null"]
+          },
+          "converted_account_id": {
+            "type": ["string", "null"]
+          },
+          "converted_contact_id": {
+            "type": ["string", "null"]
+          },
+          "addresses": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/crm.address"
+            }
+          },
+          "email_addresses": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/crm.email_address"
+            }
+          },
+          "phone_numbers": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object",
+              "properties": {
+                "phone_number": {
+                  "type": ["string", "null"]
+                },
+                "phone_number_type": {
+                  "$ref": "#/components/schemas/crm.phone_number_type"
+                }
+              },
+              "required": ["phone_number", "phone_number_type"]
+            }
+          },
+          "created_at": {
+            "type": ["string", "null"]
+          },
+          "is_deleted": {
+            "type": ["boolean", "null"]
+          },
+          "last_modified_at": {
+            "type": ["string", "null"]
           }
         },
-        "required": [
-          "id",
-          "updated_at"
-        ]
+        "required": ["id", "updated_at"]
+      },
+      "crm.email_address": {
+        "type": "object",
+        "properties": {
+          "email_address": {
+            "type": "string"
+          },
+          "email_address_type": {
+            "$ref": "#/components/schemas/crm.email_address_type"
+          }
+        },
+        "required": ["email_address", "email_address_type"]
+      },
+      "crm.email_address_type": {
+        "type": "string",
+        "enum": ["primary", "work", "other"]
       },
       "crm.opportunity": {
         "type": "object",
@@ -3518,16 +3348,57 @@
             "additionalProperties": {}
           },
           "name": {
-            "type": [
-              "string",
-              "null"
+            "type": ["string", "null"]
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "owner_id": {
+            "type": ["string", "null"]
+          },
+          "status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/crm.opportunity_status"
+              },
+              {
+                "type": "null"
+              }
             ]
+          },
+          "stage": {
+            "type": ["string", "null"]
+          },
+          "close_date": {
+            "type": ["string", "null"]
+          },
+          "account_id": {
+            "type": ["string", "null"]
+          },
+          "pipeline": {
+            "type": ["string", "null"]
+          },
+          "amount": {
+            "type": ["number", "null"]
+          },
+          "last_activity_at": {
+            "type": ["string", "null"]
+          },
+          "created_at": {
+            "type": ["string", "null"]
+          },
+          "is_deleted": {
+            "type": ["boolean", "null"]
+          },
+          "last_modified_at": {
+            "type": ["string", "null"]
           }
         },
-        "required": [
-          "id",
-          "updated_at"
-        ]
+        "required": ["id", "updated_at"]
+      },
+      "crm.opportunity_status": {
+        "type": "string",
+        "enum": ["OPEN", "WON", "LOST"]
       },
       "crm.user": {
         "type": "object",
@@ -3544,29 +3415,41 @@
             "additionalProperties": {}
           },
           "name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "is_active": {
+            "type": ["boolean", "null"]
+          },
+          "created_at": {
+            "type": ["string", "null"]
+          },
+          "is_deleted": {
+            "type": ["boolean", "null"]
+          },
+          "last_modified_at": {
+            "type": ["string", "null"]
           }
         },
-        "required": [
-          "id",
-          "updated_at"
-        ]
+        "required": ["id", "updated_at"]
       },
-      "crm.metaStandardObject": {
+      "warning": {
         "type": "object",
         "properties": {
-          "name": {
+          "title": {
+            "type": "string"
+          },
+          "problem_type": {
+            "type": "string"
+          },
+          "detail": {
             "type": "string"
           }
-        },
-        "required": [
-          "name"
-        ]
+        }
       },
-      "crm.metaCustomObject": {
+      "crm.meta.object": {
         "type": "object",
         "properties": {
           "id": {
@@ -3576,12 +3459,9 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "name"
-        ]
+        "required": ["id", "name"]
       },
-      "crm.metaProperty": {
+      "crm.meta.property": {
         "type": "object",
         "properties": {
           "id": {
@@ -3606,10 +3486,128 @@
             "example": {}
           }
         },
-        "required": [
-          "id",
-          "label"
-        ]
+        "required": ["id", "label"]
+      },
+      "crm.meta.custom_object_field": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The machine name of the property as it appears in the third-party Provider. In Salesforce, this must end with `__c`."
+          },
+          "label": {
+            "type": "string",
+            "description": "The human-readable name of the property as provided by the third-party Provider."
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the field."
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "Whether or not this field is required. Must be false for Salesforce boolean fields."
+          },
+          "default_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "description": "The default value for the property. Only supported for Salesforce."
+          },
+          "group_name": {
+            "type": "string",
+            "description": "Only applicable for Hubspot. If specified, Supaglue will attempt to attach the field to this group if it exists, or create it if it doesn't.",
+            "example": "supaglue"
+          },
+          "type": {
+            "$ref": "#/components/schemas/crm.meta.property_type"
+          },
+          "precision": {
+            "type": "number",
+            "description": "Only applicable in Salesforce. If not given, will default to 18."
+          },
+          "scale": {
+            "type": "number",
+            "description": "Only applicable in Salesforce. If not given, will default to 0."
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/crm.meta.pick_list_option"
+            },
+            "description": "The list of options for a picklist/multipicklist field."
+          },
+          "raw_details": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "The raw details of the property as provided by the third-party Provider, if available."
+          }
+        },
+        "required": ["id", "label", "type"]
+      },
+      "crm.meta.property_type": {
+        "type": "string",
+        "enum": [
+          "text",
+          "textarea",
+          "number",
+          "picklist",
+          "multipicklist",
+          "date",
+          "datetime",
+          "boolean",
+          "url",
+          "other"
+        ],
+        "description": ":::note\n`picklist` and `multipicklist` property types are currently only supported in Salesforce and Hubspot\n:::\n\n:::note\n`url` property type currently is only natively supported in Salesforce.\n:::"
+      },
+      "crm.meta.pick_list_option": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "Option 1"
+          },
+          "value": {
+            "type": "string",
+            "example": "option_1"
+          },
+          "description": {
+            "type": "string"
+          },
+          "hidden": {
+            "type": "boolean",
+            "description": "Defaults to false."
+          }
+        },
+        "required": ["label", "value"]
+      },
+      "crm.meta.association_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source_object": {
+            "type": "string",
+            "example": "contact"
+          },
+          "target_object": {
+            "type": "string",
+            "example": "my_custom_object"
+          },
+          "display_name": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "source_object", "target_object", "display_name"]
       }
     }
   }

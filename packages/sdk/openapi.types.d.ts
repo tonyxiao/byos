@@ -91,14 +91,21 @@ export interface paths {
   '/crm/v2/user/{id}': {
     get: operations['crm-getUser']
   }
-  '/crm/v2/metadata/objects/standard': {
-    get: operations['crm-metadataListStandardObjects']
+  '/crm/v2/custom_objects/{object_name}': {
+    get: operations['crm-listCustomObjectRecords']
+    post: operations['crm-createCustomObjectRecord']
+  }
+  '/crm/v2/metadata/objects': {
+    get: operations['crm-metadataListObjects']
+  }
+  '/crm/v2/metadata/objects/{object_name}/properties': {
+    get: operations['crm-metadataListObjectProperties']
   }
   '/crm/v2/metadata/objects/custom': {
-    get: operations['crm-metadataListCustomObjects']
+    post: operations['crm-metadataCreateCustomObjectSchema']
   }
-  '/crm/v2/metadata/properties': {
-    get: operations['crm-metadataListProperties']
+  '/crm/v2/metadata/associations': {
+    post: operations['crm-metadataCreateAssociationSchema']
   }
 }
 
@@ -197,6 +204,7 @@ export interface components {
       }[]
     }
     connection: {
+      id: string
       customer_id?: string | null
       provider_name: string
     }
@@ -330,7 +338,49 @@ export interface components {
         [key: string]: unknown
       }
       name?: string | null
+      is_deleted?: boolean | null
+      website?: string | null
+      industry?: string | null
+      number_of_employees?: number | null
+      owner_id?: string | null
+      created_at?: string | null
+      /** @example Integration API */
+      description?: string | null
+      /** @description date-time */
+      last_activity_at?: string | null
+      addresses?: components['schemas']['crm.address'][] | null
+      phone_numbers?:
+        | {
+            phone_number: string | null
+            phone_number_type: components['schemas']['crm.phone_number_type']
+          }[]
+        | null
+      lifecycle_stage?: components['schemas']['crm.lifecycle_stage'] | null
+      last_modified_at?: string | null
     }
+    'crm.address': {
+      address_type: components['schemas']['crm.address_type']
+      city: string | null
+      country: string | null
+      postal_code: string | null
+      state: string | null
+      street_1: string | null
+      street_2: string | null
+    }
+    /** @enum {string} */
+    'crm.address_type': 'primary' | 'mailing' | 'other' | 'billing' | 'shipping'
+    /** @enum {string} */
+    'crm.phone_number_type': 'primary' | 'mobile' | 'fax' | 'other'
+    /** @enum {string} */
+    'crm.lifecycle_stage':
+      | 'subscriber'
+      | 'lead'
+      | 'marketingqualifiedlead'
+      | 'salesqualifiedlead'
+      | 'opportunity'
+      | 'customer'
+      | 'evangelist'
+      | 'other'
     'crm.contact': {
       id: string
       /** @description ISO8601 date string */
@@ -349,7 +399,33 @@ export interface components {
         [key: string]: unknown
       }
       name?: string | null
+      first_name?: string | null
+      last_name?: string | null
+      owner_id?: string | null
+      title?: string | null
+      company?: string | null
+      converted_date?: string | null
+      lead_source?: string | null
+      converted_account_id?: string | null
+      converted_contact_id?: string | null
+      addresses?: components['schemas']['crm.address'][] | null
+      email_addresses?: components['schemas']['crm.email_address'][] | null
+      phone_numbers?:
+        | {
+            phone_number: string | null
+            phone_number_type: components['schemas']['crm.phone_number_type']
+          }[]
+        | null
+      created_at?: string | null
+      is_deleted?: boolean | null
+      last_modified_at?: string | null
     }
+    'crm.email_address': {
+      email_address: string
+      email_address_type: components['schemas']['crm.email_address_type']
+    }
+    /** @enum {string} */
+    'crm.email_address_type': 'primary' | 'work' | 'other'
     'crm.opportunity': {
       id: string
       /** @description ISO8601 date string */
@@ -358,7 +434,21 @@ export interface components {
         [key: string]: unknown
       }
       name?: string | null
+      description?: string | null
+      owner_id?: string | null
+      status?: components['schemas']['crm.opportunity_status'] | null
+      stage?: string | null
+      close_date?: string | null
+      account_id?: string | null
+      pipeline?: string | null
+      amount?: number | null
+      last_activity_at?: string | null
+      created_at?: string | null
+      is_deleted?: boolean | null
+      last_modified_at?: string | null
     }
+    /** @enum {string} */
+    'crm.opportunity_status': 'OPEN' | 'WON' | 'LOST'
     'crm.user': {
       id: string
       /** @description ISO8601 date string */
@@ -367,15 +457,22 @@ export interface components {
         [key: string]: unknown
       }
       name?: string | null
+      email?: string | null
+      is_active?: boolean | null
+      created_at?: string | null
+      is_deleted?: boolean | null
+      last_modified_at?: string | null
     }
-    'crm.metaStandardObject': {
-      name: string
+    warning: {
+      title?: string
+      problem_type?: string
+      detail?: string
     }
-    'crm.metaCustomObject': {
+    'crm.meta.object': {
       id: string
       name: string
     }
-    'crm.metaProperty': {
+    'crm.meta.property': {
       /**
        * @description The machine name of the property as it appears in the third-party Provider
        * @example FirstName
@@ -398,6 +495,72 @@ export interface components {
       raw_details?: {
         [key: string]: unknown
       }
+    }
+    'crm.meta.custom_object_field': {
+      /** @description The machine name of the property as it appears in the third-party Provider. In Salesforce, this must end with `__c`. */
+      id: string
+      /** @description The human-readable name of the property as provided by the third-party Provider. */
+      label: string
+      /** @description A description of the field. */
+      description?: string
+      /** @description Whether or not this field is required. Must be false for Salesforce boolean fields. */
+      is_required?: boolean
+      /** @description The default value for the property. Only supported for Salesforce. */
+      default_value?: string | number | boolean
+      /**
+       * @description Only applicable for Hubspot. If specified, Supaglue will attempt to attach the field to this group if it exists, or create it if it doesn't.
+       * @example supaglue
+       */
+      group_name?: string
+      type: components['schemas']['crm.meta.property_type']
+      /** @description Only applicable in Salesforce. If not given, will default to 18. */
+      precision?: number
+      /** @description Only applicable in Salesforce. If not given, will default to 0. */
+      scale?: number
+      /** @description The list of options for a picklist/multipicklist field. */
+      options?: components['schemas']['crm.meta.pick_list_option'][]
+      /** @description The raw details of the property as provided by the third-party Provider, if available. */
+      raw_details?: {
+        [key: string]: unknown
+      }
+    }
+    /**
+     * @description :::note
+     * `picklist` and `multipicklist` property types are currently only supported in Salesforce and Hubspot
+     * :::
+     *
+     * :::note
+     * `url` property type currently is only natively supported in Salesforce.
+     * :::
+     * @enum {string}
+     */
+    'crm.meta.property_type':
+      | 'text'
+      | 'textarea'
+      | 'number'
+      | 'picklist'
+      | 'multipicklist'
+      | 'date'
+      | 'datetime'
+      | 'boolean'
+      | 'url'
+      | 'other'
+    'crm.meta.pick_list_option': {
+      /** @example Option 1 */
+      label: string
+      /** @example option_1 */
+      value: string
+      description?: string
+      /** @description Defaults to false. */
+      hidden?: boolean
+    }
+    'crm.meta.association_schema': {
+      id: string
+      /** @example contact */
+      source_object: string
+      /** @example my_custom_object */
+      target_object: string
+      display_name: string
     }
   }
   responses: never
@@ -1510,50 +1673,25 @@ export interface operations {
       }
     }
   }
-  'crm-metadataListStandardObjects': {
-    responses: {
-      /** @description Successful response */
-      200: {
-        content: {
-          'application/json': components['schemas']['crm.metaStandardObject'][]
-        }
-      }
-      /** @description Internal server error */
-      500: {
-        content: {
-          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
-        }
-      }
-    }
-  }
-  'crm-metadataListCustomObjects': {
-    responses: {
-      /** @description Successful response */
-      200: {
-        content: {
-          'application/json': components['schemas']['crm.metaCustomObject'][]
-        }
-      }
-      /** @description Internal server error */
-      500: {
-        content: {
-          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
-        }
-      }
-    }
-  }
-  'crm-metadataListProperties': {
+  'crm-listCustomObjectRecords': {
     parameters: {
-      query: {
-        type: 'standard' | 'custom'
-        name: string
+      query?: {
+        cursor?: string | null
+        page_size?: number
+      }
+      path: {
+        object_name: string
       }
     }
     responses: {
       /** @description Successful response */
       200: {
         content: {
-          'application/json': components['schemas']['crm.metaProperty'][]
+          'application/json': {
+            next_cursor?: string | null
+            has_next_page: boolean
+            items: unknown[]
+          }
         }
       }
       /** @description Invalid input data */
@@ -1566,6 +1704,183 @@ export interface operations {
       404: {
         content: {
           'application/json': components['schemas']['error.NOT_FOUND']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-createCustomObjectRecord': {
+    parameters: {
+      path: {
+        object_name: string
+      }
+    }
+    requestBody: {
+      content: {
+        'application/json': {
+          record: {
+            [key: string]: unknown
+          }
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': {
+            record?: unknown
+            warnings?: components['schemas']['warning'][]
+          }
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-metadataListObjects': {
+    parameters: {
+      query?: {
+        type?: 'standard' | 'custom'
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': components['schemas']['crm.meta.object'][]
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Not found */
+      404: {
+        content: {
+          'application/json': components['schemas']['error.NOT_FOUND']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-metadataListObjectProperties': {
+    parameters: {
+      path: {
+        object_name: string
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': components['schemas']['crm.meta.property'][]
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Not found */
+      404: {
+        content: {
+          'application/json': components['schemas']['error.NOT_FOUND']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-metadataCreateCustomObjectSchema': {
+    requestBody: {
+      content: {
+        'application/json': {
+          name: string
+          description: string | null
+          labels: {
+            singular: string
+            plural: string
+          }
+          primary_field_id: string
+          fields: components['schemas']['crm.meta.custom_object_field'][]
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': components['schemas']['crm.meta.object']
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-metadataCreateAssociationSchema': {
+    requestBody: {
+      content: {
+        'application/json': {
+          source_object: string
+          target_object: string
+          /** @description The underlying provider may change this (e.g. adding `__c` for Salesforce). */
+          suggested_key_name: string
+          display_name: string
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': {
+            association_schema: components['schemas']['crm.meta.association_schema']
+            warnings?: components['schemas']['warning'][]
+          }
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
         }
       }
       /** @description Internal server error */
