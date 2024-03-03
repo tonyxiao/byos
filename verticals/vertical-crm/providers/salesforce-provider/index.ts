@@ -81,19 +81,24 @@ function sdkExt(instance: SalesforceSDK) {
     listEntity,
     _listEntityThenMap: async <TIn, TOut extends BaseRecord>({
       entity,
-      fields,
+      mapper,
+      cursor: encodedCursor,
+      page_size,
       ...opts
     }: {
       entity: string
-      fields: Array<Extract<keyof TIn, string>>
       mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
       page_size?: number
       cursor?: string | null
+      // spreadable
+      fields: Array<Extract<keyof TIn, string>>
+      /** Default true */
+      includeCustomFields?: boolean
     }) => {
-      const limit = opts?.page_size ?? SFDC_SOQL_MAX_LIMIT
-      const cursor = LastUpdatedAtId.fromCursor(opts?.cursor)
-      const res = await listEntity<TIn>({entity, fields, cursor, limit})
-      const items = res.records.map(opts.mapper.parse)
+      const limit = page_size ?? SFDC_SOQL_MAX_LIMIT
+      const cursor = LastUpdatedAtId.fromCursor(encodedCursor)
+      const res = await listEntity<TIn>({...opts, entity, cursor, limit})
+      const items = res.records.map(mapper.parse)
       const lastItem = items[items.length - 1]
       return {
         items,
@@ -103,7 +108,7 @@ function sdkExt(instance: SalesforceSDK) {
               last_id: lastItem.id,
               last_updated_at: lastItem.updated_at,
             })
-          : opts?.cursor,
+          : encodedCursor,
       }
     },
   }
@@ -224,7 +229,7 @@ export const salesforceProvider = {
 
   listCustomObjectRecords: async ({instance, input}) =>
     sdkExt(instance)._listEntityThenMap({
-      entity: input.object_name,
+      entity: ensureCustomObjectSuffix(input.object_name),
       fields: ['Name'],
       mapper: mappers.customObject,
       cursor: input?.cursor,
@@ -232,9 +237,7 @@ export const salesforceProvider = {
     }),
 
   createCustomObjectRecord: async ({instance, input}) => {
-    const objectName = input.object_name.endsWith('__c')
-      ? input.object_name
-      : `${input.object_name}__c`
+    const objectName = ensureCustomObjectSuffix(input.object_name)
     const res = await instance.POST(`/sobjects/${objectName as 'Account'}`, {
       // sdc-salesforce already defaults to json. Would be good to not have to repeat it due to typing
       params: {header: {'Content-Type': 'application/json'}},
@@ -266,6 +269,7 @@ export const salesforceProvider = {
 
   metadataListObjectProperties: async ({instance, input}) => {
     const res = await instance.GET('/sobjects/{sObject}/describe', {
+      // should we ensure suffix here too?
       params: {path: {sObject: capitalizeFirstChar(input.object_name)}},
     })
     return (res.data.fields ?? [])
@@ -290,3 +294,7 @@ export const salesforceProvider = {
 } satisfies CRMProvider<SalesforceSDK>
 
 const COMPOUND_TYPES = ['location', 'address']
+
+function ensureCustomObjectSuffix(name: string) {
+  return name.endsWith('__c') ? name : `${name}__c`
+}

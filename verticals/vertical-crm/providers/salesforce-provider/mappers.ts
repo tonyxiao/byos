@@ -1,13 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-import {mapper, zCast} from '@supaglue/vdk'
+import {mapper, z, zBaseRecord, zCast} from '@supaglue/vdk'
 import type {SalesforceSDKTypes} from '@opensdks/sdk-salesforce'
 import {commonModels} from '../../router'
 
 // import {updateFieldPermissions} from './salesforce/updatePermissions'
 
 export type SFDC = SalesforceSDKTypes['oas']['components']['schemas']
+
+export const CustomSObject = z
+  .object({Id: z.string(), SystemModstamp: z.string()})
+  .passthrough()
 
 export const mappers = {
   contact: mapper(zCast<SFDC['ContactSObject']>(), commonModels.contact, {
@@ -119,29 +120,10 @@ export const mappers = {
     last_modified_at: (record) =>
       record.CreatedDate ? new Date(record.CreatedDate).toISOString() : '',
   }),
-
-  customObject: {
-    parse: (rawData: any) => ({
-      id: rawData.Id,
-      updated_at: rawData.SystemModstamp
-        ? new Date(rawData.SystemModstamp).toISOString()
-        : '',
-      name: rawData.Name,
-      createdAt: rawData.CreatedDate
-        ? new Date(rawData.CreatedDate).toISOString()
-        : '',
-      updatedAt: rawData.CreatedDate
-        ? new Date(rawData.CreatedDate).toISOString()
-        : '',
-      lastModifiedAt: rawData.CreatedDate
-        ? new Date(rawData.CreatedDate).toISOString()
-        : '',
-      raw_data: rawData,
-    }),
-    _in: {
-      Name: true,
-    },
-  },
+  customObject: mapper(CustomSObject, zBaseRecord, {
+    id: 'Id',
+    updated_at: 'SystemModstamp',
+  }),
 }
 
 /** Properties to fetch for common object */

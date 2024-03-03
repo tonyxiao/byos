@@ -1,4 +1,4 @@
-import {mapper, z, zCast} from '@supaglue/vdk'
+import {mapper, z, zBaseRecord, zCast} from '@supaglue/vdk'
 import type {Oas_crm_contacts, Oas_crm_owners} from '@opensdks/sdk-hubspot'
 import type {PipelineStageMapping} from '.'
 import {commonModels} from '../../router'
@@ -51,6 +51,7 @@ export const HSBase = z.object({
       hs_object_id: z.string(),
       createdate: z.string().optional(),
       lastmodifieddate: z.string().optional(),
+      hs_lastmodifieddate: z.string().optional(),
     })
     .passthrough(),
   createdAt: z.string(),
@@ -62,8 +63,9 @@ export const HSContact = z.object({
   properties: z
     .object({
       hs_object_id: z.string(),
+      hs_lastmodifieddate: z.string().optional(),
       createdate: z.string().nullish(),
-      lastmodifieddate: z.string(),
+      lastmodifieddate: z.string().optional(),
       // properties specific to contacts below...
       email: z.string().nullish(),
       firstname: z.string().nullish(),
@@ -262,5 +264,9 @@ export const mappers = {
     email: 'email',
     is_active: (record) => !record.archived, // Assuming archived is a boolean
     is_deleted: (record) => !!record.archived, // Assuming archived is a boolean
+  }),
+  customObject: mapper(HSBase, zBaseRecord, {
+    id: 'id',
+    updated_at: 'properties.hs_lastmodifieddate',
   }),
 }

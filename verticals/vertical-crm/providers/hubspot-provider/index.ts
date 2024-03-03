@@ -335,6 +335,14 @@ export const hubspotProvider = {
     }),
 
   // MARK: - Custom objects
+  listCustomObjectRecords: async ({instance, input}) =>
+    // TODO: Support both objectId and objectName in the input
+    _listEntityFullThenMap(instance, {
+      entity: input.object_name,
+      mapper: mappers.customObject,
+      page_size: input?.page_size,
+      cursor: input?.cursor,
+    }),
 
   // MARK: - Metadata endpoints
   metadataListObjects: async ({instance, input}) =>
