@@ -53,7 +53,8 @@ export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 //   )
 // }
 
-export async function scheduleSyncs({step}: RoutineInput<never>) {
+export async function scheduleSyncs({step, event}: RoutineInput<never>) {
+  console.log('[scheduleSyncs]', event)
   const supaglue = initSupaglueSDK({
     headers: {'x-api-key': env.SUPAGLUE_API_KEY!},
   })
@@ -63,15 +64,13 @@ export async function scheduleSyncs({step}: RoutineInput<never>) {
     supaglue.mgmt.GET('/customers').then((r) => r.data),
   ])
   const connections = await Promise.all(
-    customers
-      // .slice(0, 10) // TODO: comment me out in production
-      .map((c) =>
-        supaglue.mgmt
-          .GET('/customers/{customer_id}/connections', {
-            params: {path: {customer_id: c.customer_id}},
-          })
-          .then((r) => r.data),
-      ),
+    customers.map((c) =>
+      supaglue.mgmt
+        .GET('/customers/{customer_id}/connections', {
+          params: {path: {customer_id: c.customer_id}},
+        })
+        .then((r) => r.data),
+    ),
   ).then((nestedArr) => nestedArr.flat())
 
   await step.sendEvent(
@@ -81,6 +80,9 @@ export async function scheduleSyncs({step}: RoutineInput<never>) {
         if (c.category !== 'crm' && c.category !== 'engagement') {
           return null
         }
+        console.log(
+          `[scheduleSyncs] Will sendEvent for ${c.customer_id}:${c.provider_name}`,
+        )
         const syncConfig = syncConfigs.find(
           (sc) => sc.provider_name === c.provider_name,
         )?.config
@@ -94,6 +96,7 @@ export async function scheduleSyncs({step}: RoutineInput<never>) {
             standard_objects: syncConfig?.standard_objects?.map(
               (o) => o.object,
             ),
+            destination_schema: env.DESTINATION_SCHEMA,
           },
         } satisfies EventPayload
       })
@@ -311,7 +314,7 @@ export async function syncConnection({
       try {
         await syncStream(stream)
       } catch (err) {
-        console.error('[syncConnection] Error syncing', stream, err)
+        // console.error('[syncConnection] Error syncing', stream, err)
         errorInfo = parseErrorInfo(err)
         // No longer authenticated error means we should be able to break out of all other streams, it's unnecessary.
         // Will need to think more about how this works for parallel read scenarios though.

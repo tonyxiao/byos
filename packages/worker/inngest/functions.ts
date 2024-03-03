@@ -1,9 +1,9 @@
-import {inngest} from './client'
 import * as routines from '../routines'
+import {inngest} from './client'
 
 export const scheduleSyncs = inngest.createFunction(
   {id: 'schedule-syncs'},
-  {cron: '* * * * *'},
+  {cron: '0 * * * *'}, // Once an hour on the hour by default
   routines.scheduleSyncs,
 )
 
