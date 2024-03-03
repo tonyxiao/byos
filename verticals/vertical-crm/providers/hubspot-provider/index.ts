@@ -1,7 +1,13 @@
 import type {BaseRecord, z} from '@supaglue/vdk'
-import {LastUpdatedAtNextOffset, NotFoundError, uniqBy} from '@supaglue/vdk'
+import {
+  BadRequestError,
+  LastUpdatedAtNextOffset,
+  NotFoundError,
+  uniqBy,
+} from '@supaglue/vdk'
 import {LRUCache} from 'lru-cache'
 import * as RM from 'remeda'
+import type {Oas_crm_schemas} from '@opensdks/sdk-hubspot'
 import {initHubspotSDK, type HubspotSDK} from '@opensdks/sdk-hubspot'
 import type {CRMProvider} from '../../router'
 import type {HSDeal} from './mappers'
@@ -399,6 +405,7 @@ export const hubspotProvider = {
   },
 
   // MARK: - Metadata endpoints
+
   metadataListObjects: async ({instance, input}) =>
     uniqBy(
       [
@@ -425,6 +432,104 @@ export const hubspotProvider = {
       label: obj.label,
       type: obj.type,
     }))
+  },
+
+  metadataCreateCustomObjectSchema: async ({instance, input: params}) => {
+    const primaryField = params.fields.find(
+      (field) => field.id === params.primary_field_id,
+    )
+
+    if (!primaryField) {
+      throw new BadRequestError(
+        `Could not find primary field with key name ${params.primary_field_id}`,
+      )
+    }
+
+    if (primaryField.type !== 'text') {
+      throw new BadRequestError(
+        `Primary field must be of type text, but was ${primaryField.type} with key name ${params.primary_field_id}`,
+      )
+    }
+
+    if (!primaryField.is_required) {
+      throw new BadRequestError(
+        `Primary field must be required, but was not with key name ${params.primary_field_id}`,
+      )
+    }
+
+    const res = await instance.crm_schemas.POST('/crm/v3/schemas', {
+      body: {
+        name: params.name,
+        labels: params.labels,
+        primaryDisplayProperty: params.primary_field_id,
+        properties: params.fields.map(
+          (
+            field,
+          ): Oas_crm_schemas['components']['schemas']['ObjectTypePropertyCreate'] => ({
+            name: field.id,
+            label: field.label,
+            ...(() => {
+              switch (field.type) {
+                case 'text':
+                  return {type: 'string', fieldType: 'text'}
+                case 'textarea':
+                  return {type: 'string', fieldType: 'textarea'}
+                case 'number':
+                  return {type: 'number', fieldType: 'number'}
+                case 'picklist':
+                case 'multipicklist':
+                  return {
+                    type: 'enumeration',
+                    fieldType:
+                      field.type === 'picklist' ? 'select' : 'checkbox',
+                    options: field.options?.map((option, idx) => ({
+                      label: option.label,
+                      value: option.value,
+                      description: option.description,
+                      hidden: option.hidden ?? false,
+                      displayOrder: idx + 1,
+                    })),
+                  }
+                case 'date':
+                  return {type: 'date', fieldType: 'date'}
+                case 'datetime':
+                  return {type: 'datetime', fieldType: 'date'}
+                case 'boolean':
+                  return {
+                    type: 'bool',
+                    fieldType: 'booleancheckbox',
+                    options: [
+                      {
+                        label: 'Yes',
+                        value: 'true',
+                        displayOrder: 1,
+                        hidden: false,
+                      },
+                      {
+                        label: 'No',
+                        value: 'false',
+                        displayOrder: 2,
+                        hidden: false,
+                      },
+                    ],
+                  }
+                case 'url':
+                  throw new BadRequestError('url type is unsupported')
+                default:
+                  return {type: 'string', fieldType: 'text'}
+              }
+            })(),
+          }),
+        ),
+        requiredProperties: params.fields
+          .filter((field) => field.is_required)
+          .map((field) => field.id),
+        searchableProperties: [],
+        secondaryDisplayProperties: [],
+        associatedObjects: [],
+      },
+    })
+    return {id: res.data.id, name: res.data.name}
   },
   // metadataCreateObjectsSchema: async ({instance, input}) => {
   //   const res = await instance.crm_schemas.POST('/crm/v3/schemas', {
