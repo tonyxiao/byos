@@ -74,35 +74,37 @@ export async function scheduleSyncs({step, event}: RoutineInput<never>) {
     ),
   ).then((nestedArr) => nestedArr.flat())
 
-  await step.sendEvent(
-    'emit-connection-sync-events',
-    connections
-      .map((c) => {
-        if (c.category !== 'crm' && c.category !== 'engagement') {
-          return null
-        }
-        console.log(
-          `[scheduleSyncs] Will sendEvent for ${c.customer_id}:${c.provider_name}`,
-        )
-        const syncConfig = syncConfigs.find(
-          (sc) => sc.provider_name === c.provider_name,
-        )?.config
-        return {
-          name: 'connection/sync',
-          data: {
-            customer_id: c.customer_id,
-            provider_name: c.provider_name,
-            vertical: c.category,
-            common_objects: syncConfig?.common_objects?.map((o) => o.object),
-            standard_objects: syncConfig?.standard_objects?.map(
-              (o) => o.object,
-            ),
-            destination_schema: env.DESTINATION_SCHEMA,
-          },
-        } satisfies EventPayload
-      })
-      .filter((c): c is NonNullable<typeof c> => !!c),
-  )
+  const events = connections
+    .map((c) => {
+      if (c.category !== 'crm' && c.category !== 'engagement') {
+        return null
+      }
+      console.log(
+        `[scheduleSyncs] Will sendEvent for ${c.customer_id}:${c.provider_name}`,
+      )
+      const syncConfig = syncConfigs.find(
+        (sc) => sc.provider_name === c.provider_name,
+      )?.config
+      return {
+        name: 'connection/sync',
+        data: {
+          customer_id: c.customer_id,
+          provider_name: c.provider_name,
+          vertical: c.category,
+          common_objects: syncConfig?.common_objects?.map((o) => o.object),
+          standard_objects: syncConfig?.standard_objects?.map((o) => o.object),
+          destination_schema: env.DESTINATION_SCHEMA,
+        },
+      } satisfies EventPayload
+    })
+    .filter((c): c is NonNullable<typeof c> => !!c)
+
+  await step.sendEvent('emit-connection-sync-events', events)
+  // make it easier to see...
+  return events.map((e) => ({
+    customer_id: e.data.customer_id,
+    provider_name: e.data.provider_name,
+  }))
 }
 
 const sqlNow = sql`now()`
@@ -352,6 +354,8 @@ export async function syncConnection({
     error: errorInfo,
     final_state: overallState,
   })
+  // Return metrics to make it easier to debug in inngest
+  return {syncRunId, metrics}
 }
 
 // Later...
