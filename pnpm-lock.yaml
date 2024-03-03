@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  zod-openapi: 2.14.0
+
 patchedDependencies:
   '@jsonurl/jsonurl@1.1.7':
     hash: wymar43eprx3gdqsv4laq3u2ei
@@ -2687,7 +2690,7 @@ packages:
       node-mocks-http: 1.14.1
       openapi3-ts: 4.2.1
       zod: 3.22.4
-      zod-openapi: 2.11.0(zod@3.22.4)
+      zod-openapi: 2.14.0(zod@3.22.4)
 
   /@nangohq/frontend@0.36.89:
     resolution: {integrity: sha512-Di1JeQCVIh1yiIMWZzcAVHgXidDRQOTBq+HzwNsjfiWq6UPGYxU1Yzme7IygQMTgrAt0ZFRtnE38plB3/DutCg==}
@@ -2879,7 +2882,7 @@ packages:
     resolution: {integrity: sha512-CHyk/ay5yKNFBZKDfGcJQGZ4ZhScfNhGe6xon6XjqbhP+AYv4tYJl1GTbTqJdN2N15KnG3vuXjbi6SX0SGwbhw==}
     dependencies:
       zod: 3.22.4
-      zod-openapi: 2.12.0(zod@3.22.4)
+      zod-openapi: 2.14.0(zod@3.22.4)
     dev: false
 
   /@pkgjs/parseargs@0.11.0:
@@ -11510,22 +11513,13 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /zod-openapi@2.11.0(zod@3.22.4):
-    resolution: {integrity: sha512-nG/l7AzEguGnnWrLmVLZfk80c6G79LQFlIVG3oby203DLcQ1X8lged82pkxPZoD6ytdutoKTyKLles760+mZUw==}
+  /zod-openapi@2.14.0(zod@3.22.4):
+    resolution: {integrity: sha512-TywDpZKfbNSMspWtT152DaO+/cK0xqK/bv7Kt4ZMHhzEZS1rCFYxxFwDZdQd4Nrq5g4kX/R1SKI+FkYg4QkBlw==}
     engines: {node: '>=16.11'}
     peerDependencies:
       zod: ^3.21.4
     dependencies:
       zod: 3.22.4
-
-  /zod-openapi@2.12.0(zod@3.22.4):
-    resolution: {integrity: sha512-vTjUNJN7COtV36w5kVaKMpX6Anwn8fDWOBWkpJMnfbNJMjjM5IO8I//2N4cQbvB3EKOdX4ym/4Laa7lrtrWYLg==}
-    engines: {node: '>=16.11'}
-    peerDependencies:
-      zod: ^3.21.4
-    dependencies:
-      zod: 3.22.4
-    dev: false
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}

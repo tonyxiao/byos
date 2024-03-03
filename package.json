@@ -61,6 +61,9 @@
   "pnpm": {
     "patchedDependencies": {
       "@jsonurl/jsonurl@1.1.7": "patches/@jsonurl__jsonurl@1.1.7.patch"
+    },
+    "overrides": {
+      "zod-openapi": "2.14.0"
     }
   }
 }
