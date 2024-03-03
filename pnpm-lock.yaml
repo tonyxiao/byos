@@ -300,6 +300,9 @@ importers:
       '@opensdks/sdk-supaglue':
         specifier: 0.0.3
         version: 0.0.3
+      '@supaglue/api':
+        specifier: workspace:*
+        version: link:../api
       '@supaglue/db':
         specifier: workspace:*
         version: link:../db
