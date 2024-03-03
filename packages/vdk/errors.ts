@@ -29,6 +29,11 @@ export class NotFoundError extends TRPCError {
     super({code: 'NOT_FOUND', message, cause})
   }
 }
+export class InternalServerError extends TRPCError {
+  constructor(message?: string, cause?: unknown) {
+    super({code: 'INTERNAL_SERVER_ERROR', message, cause})
+  }
+}
 
 /** Refreshing token failed / access revoked */
 export class NotAuthenticatedError extends TRPCError {

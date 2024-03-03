@@ -1,6 +1,7 @@
 import type {BaseRecord, z} from '@supaglue/vdk'
 import {
   BadRequestError,
+  InternalServerError,
   LastUpdatedAtNextOffset,
   NotFoundError,
   uniqBy,
@@ -531,46 +532,43 @@ export const hubspotProvider = {
     })
     return {id: res.data.id, name: res.data.name}
   },
-  // metadataCreateObjectsSchema: async ({instance, input}) => {
-  //   const res = await instance.crm_schemas.POST('/crm/v3/schemas', {
-  //     body: {
-  //       name: input.name,
-  //       labels: input.label.singular,
-  //       description: input.description || '',
-  //       properties: input.fields.map((p) => ({
-  //         type: p.type || 'string',
-  //         label: p.label,
-  //         name: p.label,
-  //         fieldType: p.type || 'string',
-  //       })),
-  //       primaryFieldId: input.primaryFieldId,
-  //     },
-  //   })
-  //   console.log('input:', input)
-  //   // console.log('res:', res)
-  //   return [{id: '123', name: input.name}]
-  // },
-  // metadataCreateAssociation: async ({instance, input}) => {
-  //   const res = await instance.crm_associations.POST(
-  //     '/crm/v3/associations/{fromObjectType}/{toObjectType}/batch/create',
-  //     {
-  //       params: {
-  //         path: {
-  //           fromObjectType: input.sourceObject,
-  //           toObjectType: input.targetObject,
-  //         },
-  //       },
-  //       body: {
-  //         inputs: [
-  //           {
-  //             from: {id: input.sourceObject},
-  //             to: {id: input.targetObject},
-  //             type: `${input.sourceObject}_${input.targetObject}`,
-  //           },
-  //         ],
-  //       },
-  //     },
-  //   )
-  //   return res.data
-  // },
+  metadataCreateAssociationSchema: async ({instance, input}) => {
+    const [fromObjectType, toObjectType] = await Promise.all([
+      getObjectTypeFromNameOrId(instance, input.source_object),
+      getObjectTypeFromNameOrId(instance, input.target_object),
+    ])
+
+    // Would be great to have a way to annotate sdk-hubspot that crm_crm_associations corresponds to the v4 associations API
+    // while crm_associations corresponds to the v3 associations API
+    // The path is also super misleading here as it includes `labels`. but it corresponds to `hubspot.crm.associations.v4.schema.definitionsApi.create`
+    await instance.crm_crm_associations.POST(
+      '/{fromObjectType}/{toObjectType}/labels',
+      {
+        params: {path: {fromObjectType, toObjectType}},
+        body: {label: input.display_name, name: input.suggested_key_name},
+      },
+    )
+    // > tony: It's not super clear to me why we need a separate GET request and then filter by label
+    // however this is what Supaglue did so keeping it for now
+    const res = await instance.crm_crm_associations.GET(
+      '/{fromObjectType}/{toObjectType}/labels',
+      {params: {path: {fromObjectType, toObjectType}}},
+    )
+
+    const created = res.data.results.find(
+      (result) => result.label === input.display_name,
+    )
+    if (!created) {
+      throw new InternalServerError('Unable to create association schema')
+    }
+
+    return {
+      association_schema: {
+        id: created.typeId.toString(),
+        target_object: toObjectType,
+        source_object: fromObjectType,
+        display_name: input.display_name,
+      },
+    }
+  },
 } satisfies CRMProvider<HubspotSDK>
