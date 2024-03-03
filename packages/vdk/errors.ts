@@ -14,8 +14,13 @@ export const zErrorType = z.enum([
 export type ErrorType = z.infer<typeof zErrorType>
 
 export class BadRequestError extends TRPCError {
-  constructor(message: string, cause?: unknown) {
+  constructor(message?: string, cause?: unknown) {
     super({code: 'BAD_REQUEST', message, cause})
+  }
+}
+export class NotImplementedError extends TRPCError {
+  constructor(message?: string, cause?: unknown) {
+    super({code: 'NOT_IMPLEMENTED', message, cause})
   }
 }
 

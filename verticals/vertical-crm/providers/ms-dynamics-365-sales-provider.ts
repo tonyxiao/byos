@@ -1,10 +1,11 @@
-import {PLACEHOLDER_BASE_URL} from '@supaglue/vdk'
+import {NotImplementedError, PLACEHOLDER_BASE_URL} from '@supaglue/vdk'
 import {initPipedriveSDK, type PipedriveSDK} from '@opensdks/sdk-pipedrive'
 import type {CRMProvider} from '../router'
 import {MS_DYNAMICS_365_SALES_STANDARD_OBJECTS} from './ms-dynamics-365-sales/constants'
 
 export const msDynamics365SalesProvider = {
   __init__: ({proxyLinks}) =>
+    // FIXME: This is a placeholder, we need an actual msdynamics sdk!
     initPipedriveSDK({
       baseUrl: PLACEHOLDER_BASE_URL,
       headers: {authorization: 'Bearer ...'}, // This will be populated by Nango, or you can populate your own...
@@ -14,6 +15,15 @@ export const msDynamics365SalesProvider = {
   getAccount: async ({}) => {
     throw new Error('Not implemented yet')
   },
-  metadataListObjects: () =>
-    MS_DYNAMICS_365_SALES_STANDARD_OBJECTS.map((name) => ({name})),
+  metadataListObjects: ({input}) => {
+    if (input.type === 'custom') {
+      throw new NotImplementedError(
+        'MS Dynamics 365 Sales does not support custom objects yet',
+      )
+    }
+    return MS_DYNAMICS_365_SALES_STANDARD_OBJECTS.map((name) => ({
+      id: name,
+      name,
+    }))
+  },
 } satisfies CRMProvider<PipedriveSDK>

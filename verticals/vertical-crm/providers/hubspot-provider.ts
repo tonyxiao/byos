@@ -1,5 +1,5 @@
 import type {BaseRecord} from '@supaglue/vdk'
-import {LastUpdatedAtNextOffset, mapper, z, zCast} from '@supaglue/vdk'
+import {LastUpdatedAtNextOffset, mapper, uniqBy, z, zCast} from '@supaglue/vdk'
 import {LRUCache} from 'lru-cache'
 import * as RM from 'remeda'
 import type {Oas_crm_contacts, Oas_crm_owners} from '@opensdks/sdk-hubspot'
@@ -593,12 +593,22 @@ export const hubspotProvider = {
       page_size: input?.page_size,
       cursor: input?.cursor,
     }),
-  metadataListObjects: () =>
-    HUBSPOT_STANDARD_OBJECTS.map((name) => ({name})),
-  metadataListCustomObjects: async ({instance}) => {
-    const res = await instance.crm_schemas.GET('/crm/v3/schemas')
-    return res.data.results.map((obj) => ({id: obj.id, name: obj.name}))
-  },
+  metadataListObjects: async ({instance, input}) =>
+    uniqBy(
+      [
+        ...(!input.type || input.type === 'standard'
+          ? HUBSPOT_STANDARD_OBJECTS.map((obj) => ({id: obj, name: obj}))
+          : []),
+        ...(!input.type || input.type === 'custom'
+          ? await instance.crm_schemas
+              .GET('/crm/v3/schemas')
+              .then((res) =>
+                res.data.results.map((obj) => ({id: obj.id, name: obj.name})),
+              )
+          : []),
+      ],
+      (o) => o.id,
+    ),
   metadataListObjectProperties: async ({instance, input}) => {
     const res = await instance.crm_properties.GET(
       '/crm/v3/properties/{objectType}',
