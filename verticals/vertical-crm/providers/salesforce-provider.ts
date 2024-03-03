@@ -11,7 +11,10 @@ import {
   type SalesforceSDK as _SalesforceSDK,
 } from '@opensdks/sdk-salesforce'
 import type {CRMProvider} from '../router'
-import {SALESFORCE_STANDARD_OBJECTS} from './salesforce/constants'
+import {
+  SALESFORCE_API_VERSION,
+  SALESFORCE_STANDARD_OBJECTS,
+} from './salesforce/constants'
 import {listFields, mappers} from './salesforce/mapper'
 import {salesforceProviderJsForce} from './salesforce/salesforce-provider-jsforce'
 
@@ -29,7 +32,6 @@ type SalesforceSDK = _SalesforceSDK & {
  * 2) Allow it to be configured on a per request basis via a `x-salesforce-api-version` header.
  * Simpler but we would be forcing the consumer to have to worry about it.
  */
-export const API_VERSION = '59.0'
 
 /** SOQL FIELDS function must have a LIMIT of at most 200 */
 export const SFDC_SOQL_MAX_LIMIT = 200
@@ -119,7 +121,9 @@ export const salesforceProvider = {
             modifyRequest(req, {
               url: req.url.replace(
                 PLACEHOLDER_BASE_URL,
-                PLACEHOLDER_BASE_URL + '/services/data/v' + API_VERSION,
+                PLACEHOLDER_BASE_URL +
+                  '/services/data/v' +
+                  SALESFORCE_API_VERSION,
               ),
             }),
           ),
@@ -136,7 +140,7 @@ export const salesforceProvider = {
       const conn = new jsforce.Connection({
         instanceUrl: creds.instance_url,
         accessToken: creds.access_token,
-        version: API_VERSION,
+        version: SALESFORCE_API_VERSION,
         maxRequest: 10,
       })
       return conn

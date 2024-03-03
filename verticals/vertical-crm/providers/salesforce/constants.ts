@@ -1,3 +1,8 @@
+export const SALESFORCE_API_VERSION = '59.0'
+
+/** SOQL FIELDS function must have a LIMIT of at most 200 */
+export const SFDC_SOQL_MAX_LIMIT = 200
+
 export const SALESFORCE_STANDARD_OBJECTS = [
   'AcceptedEventRelation',
   'Account',

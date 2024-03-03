@@ -1,5 +1,5 @@
 import type * as jsforce from 'jsforce'
-import {API_VERSION} from '../salesforce-provider'
+import {SALESFORCE_API_VERSION} from '../salesforce-provider'
 
 export async function updateFieldPermissions(
   sfdc: jsforce.Connection,
@@ -60,7 +60,7 @@ export async function updateFieldPermissions(
 
   const {compositeResponse} = await sfdc.requestPost<{
     compositeResponse: {httpStatusCode: number}[]
-  }>(`/services/data/v${API_VERSION}/composite`, {
+  }>(`/services/data/v${SALESFORCE_API_VERSION}/composite`, {
     // We're doing this for all fields, not just the added ones, in case the previous
     // call to this endpoint succeeded creating additional fields but failed to
     // add permissions for them.
@@ -68,7 +68,7 @@ export async function updateFieldPermissions(
       permissionSetIds.map((permissionSetId) => ({
         referenceId: `${field}_${permissionSetId}`,
         method: 'POST',
-        url: `/services/data/v${API_VERSION}/sobjects/FieldPermissions/`,
+        url: `/services/data/v${SALESFORCE_API_VERSION}/sobjects/FieldPermissions/`,
         body: {
           ParentId: permissionSetId,
           SobjectType: objectName,

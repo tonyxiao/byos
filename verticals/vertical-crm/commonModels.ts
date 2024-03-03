@@ -186,7 +186,8 @@ export const metaStandardObject = z
 
 export const metaCustomObject = z
   .object({
-    id: z.string(),
+    // Custom object does not always have an id
+    // id: z.string(),
     name: z.string(),
   })
   .openapi({ref: 'crm.metaCustomObject'})
@@ -215,3 +216,28 @@ export const metaProperty = z
     }),
   })
   .openapi({ref: 'crm.metaProperty'})
+
+export const property_type = z
+  .enum([
+    'text',
+    'textarea',
+    'number',
+    'picklist',
+    'multipicklist',
+    'date',
+    'datetime',
+    'boolean',
+    'url',
+    'other',
+  ])
+  .openapi({
+    ref: 'crm.property_type',
+    description: `
+:::note
+\`picklist\` and \`multipicklist\` property types are currently only supported in Salesforce and Hubspot
+:::
+
+:::note
+\`url\` property type currently is only natively supported in Salesforce.
+:::`.trim(),
+  })

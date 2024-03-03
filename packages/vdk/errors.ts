@@ -11,6 +11,12 @@ export const zErrorType = z.enum([
 
 export type ErrorType = z.infer<typeof zErrorType>
 
+export class BadRequestError extends TRPCError {
+  constructor(message: string, cause?: unknown) {
+    super({code: 'BAD_REQUEST', message, cause})
+  }
+}
+
 /** Refreshing token failed / access revoked */
 export class NotAuthenticatedError extends TRPCError {
   // Cannot modify the name as it is used by trpc internals to determine if it's a trpc error...

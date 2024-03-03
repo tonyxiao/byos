@@ -124,14 +124,14 @@ export const crmRouter = trpc.router({
           singular: z.string(),
           plural: z.string(),
         }),
-        primaryFieldId: z.string(),
+        primary_field_id: z.string(),
         fields: z.array(
           z.object({
             id: z.string(),
             description: z.string().optional(),
-            type: z.string(),
+            type: commonModels.property_type,
             label: z.string(),
-            isRequired: z.boolean(),
+            is_required: z.boolean(),
             default_value: z.string().optional(),
             group_name: z.string().optional(),
           }),
@@ -140,32 +140,7 @@ export const crmRouter = trpc.router({
     )
     .output(commonModels.metaCustomObject)
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
-  metadataUpdateCustomObjectSchema: remoteProcedure
-    .meta(oapi({method: 'PUT', path: '/metadata/objects/custom/{name}'}))
-    .input(
-      z.object({
-        name: z.string(),
-        description: z.string().nullable(),
-        labels: z.object({
-          singular: z.string(),
-          plural: z.string(),
-        }),
-        primaryFieldId: z.string(),
-        fields: z.array(
-          z.object({
-            id: z.string(),
-            description: z.string().optional(),
-            type: z.string(),
-            label: z.string(),
-            isRequired: z.boolean(),
-            default_value: z.string().optional(),
-            group_name: z.string().optional(),
-          }),
-        ),
-      }),
-    )
-    .output(commonModels.metaCustomObject)
-    .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+  // Update custom object schema didn't work within Supaglue anyways...
   createCustomObjectRecord: remoteProcedure
     .meta(oapi({method: 'POST', path: '/custom/{id}'}))
     .input(
