@@ -1,24 +1,7 @@
-import {
-  appRouter,
-  createContext,
-  createOpenApiFetchHandler,
-} from '@supaglue/api'
+import {createAppHandler} from '@supaglue/api'
 import {env} from '@/env'
 
-const handler = (req: Request) =>
-  createOpenApiFetchHandler({
-    endpoint: '/api',
-    req,
-    router: appRouter,
-    createContext: () =>
-      createContext({
-        headers: req.headers,
-        nangoSecretKey: env.NANGO_SECRET_KEY,
-        supaglueApiKey: env.SUPAGLUE_API_KEY,
-      }),
-    // onError, // from trpc, cannot modify
-    // responseMeta // From trpc-openapi, might not work for plain trpc
-  })
+const handler = createAppHandler({env, endpoint: '/api'})
 
 export {
   handler as DELETE,

@@ -1,3 +1,4 @@
+import {createAppHandler} from '@supaglue/api'
 import {
   db,
   dbUpsert,
@@ -166,6 +167,10 @@ export async function syncConnection({
       'x-customer-id': customer_id, // This relies on customer-id mapping 1:1 to connection_id
       'x-provider-name': provider_name, // This relies on provider_config_key mapping 1:1 to provider-name
     },
+    // Bypass the normal fetch link http round-tripping back to our server and handle the BYOS request directly!
+    // Though we are losing the ability to debug using Proxyman and others... So maybe make this configurable in
+    // development
+    links: [createAppHandler({env})],
   })
 
   const overallState = (syncState.state ?? {}) as Record<
