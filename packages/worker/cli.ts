@@ -43,6 +43,9 @@ switch (cmd) {
               : ['account', 'contact', 'opportunity', 'lead', 'user'],
             sync_mode: process.env['SYNC_MODE']! as 'incremental',
             destination_schema: process.env['DESTINATION_SCHEMA'],
+            page_size: process.env['PAGE_SIZE']
+              ? Number.parseInt(process.env['PAGE_SIZE'])
+              : undefined,
           },
         },
         step,

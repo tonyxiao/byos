@@ -120,6 +120,7 @@ export async function syncConnection({
       common_objects = [],
       sync_mode = 'incremental',
       destination_schema,
+      page_size,
     },
   } = event
   console.log('[syncConnection] Start', {
@@ -202,7 +203,7 @@ export async function syncConnection({
     try {
       const res = await byos.GET(
         `/${vertical}/v2/${stream}` as '/crm/v2/contact',
-        {params: {query: {cursor: state.cursor}}}, // We let each provider determine the page size rather than hard-coding
+        {params: {query: {cursor: state.cursor, page_size}}},
       )
       const count = incrementMetric(`${stream}_count`, res.data.items.length)
       incrementMetric(`${stream}_page_count`)
@@ -321,13 +322,13 @@ export async function syncConnection({
       try {
         await syncStream(stream)
       } catch (err) {
-        // console.error('[syncConnection] Error syncing', stream, err)
         errorInfo = parseErrorInfo(err)
         // No longer authenticated error means we should be able to break out of all other streams, it's unnecessary.
         // Will need to think more about how this works for parallel read scenarios though.
         if (errorInfo?.error_type === 'USER_ERROR') {
           break
         }
+        console.error('[syncConnection] Error syncing stream', stream, err)
       }
     }
   } catch (err) {

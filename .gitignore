@@ -142,3 +142,6 @@ types
 
 .env.*
 .env*.local
+
+debug.ts
+debug*.json
