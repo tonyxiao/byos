@@ -7,6 +7,7 @@ import * as schema from './schema'
 
 export * from './upsert'
 export * from './schema-dynamic'
+export * from './stripeNullByte'
 
 export {schema, env}
 

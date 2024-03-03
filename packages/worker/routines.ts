@@ -5,6 +5,7 @@ import {
   ensureSchema,
   getCommonObjectTable,
   schema,
+  stripNullByte,
 } from '@supaglue/db'
 import {initBYOSupaglueSDK} from '@supaglue/sdk'
 import {and, eq, sql} from 'drizzle-orm'
@@ -225,8 +226,8 @@ export async function syncConnection({
             last_modified_at: sqlNow, // TODO: Fix me...
             is_deleted: false,
             // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
-            raw_data: sql`${raw_data ?? ''}::jsonb`,
-            _supaglue_unified_data: sql`${item}::jsonb`,
+            raw_data: sql`${stripNullByte(raw_data) ?? null}::jsonb`,
+            _supaglue_unified_data: sql`${stripNullByte(item)}::jsonb`,
           })),
           {
             insertOnlyColumns: ['created_at'],
