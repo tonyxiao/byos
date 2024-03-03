@@ -1,5 +1,5 @@
 import JsonURL from '@jsonurl/jsonurl'
-import {z} from '@opensdks/util-zod'
+import {extendZodWithOpenApi, z} from '@opensdks/util-zod'
 
 export const zPaginationParams = z.object({
   cursor: z.string().nullish(),
@@ -95,6 +95,10 @@ export const zBaseRecord = z.object({
 
 export type BaseRecord = z.infer<typeof zBaseRecord>
 
+// HACK ALERt: For whatever reason calling .openapi here causes issue, @see https://gist.github.com/tonyxiao/0b078ab06411dc29fc3248892956887f
+// Therefore we explicitly call extendZodWithOpenApi(z) again to make sure it is called beforehand.
+// Perhaps next.js re-orders imports & side effects in a way that causes this issue when building for production
+extendZodWithOpenApi(z)
 export const zWarning = z
   .object({
     title: z.string().optional(),
