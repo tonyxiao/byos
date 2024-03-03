@@ -12,7 +12,7 @@ export const zErrorType = z.enum([
 export type ErrorType = z.infer<typeof zErrorType>
 
 /** Refreshing token failed / access revoked */
-export class NoLongerAuthenticatedError extends TRPCError {
+export class NotAuthenticatedError extends TRPCError {
   // Cannot modify the name as it is used by trpc internals to determine if it's a trpc error...
   // the alternative is to use error.constructor.name instead which works out ok.
   // override name = 'NoLongerAuthenticatedError'
@@ -25,6 +25,21 @@ export class NoLongerAuthenticatedError extends TRPCError {
   ) {
     super({
       code: 'UNAUTHORIZED',
+      message: `${customerId}/${providerName}: ${description}`,
+    })
+  }
+}
+
+/** e.g. OAuth Scope & mismatch */
+export class NotAuthorizedError extends TRPCError {
+  constructor(
+    public readonly customerId: string,
+    public readonly providerName: string,
+    public readonly description: string,
+    public readonly extraInfo: unknown,
+  ) {
+    super({
+      code: 'FORBIDDEN',
       message: `${customerId}/${providerName}: ${description}`,
     })
   }
@@ -58,7 +73,8 @@ export function parseErrorInfo(err: unknown):
     return {
       error_type:
         // TODO: separate remote provider error from platform error from client error
-        ourError.data.class === NoLongerAuthenticatedError.name
+        ourError.data.class === NotAuthenticatedError.name ||
+        ourError.data.class === NotAuthorizedError.name
           ? 'USER_ERROR'
           : 'INTERNAL_ERROR',
       error_detail: [ourError.data.message, `\t-> ${err}`].join('\n'),
@@ -66,7 +82,10 @@ export function parseErrorInfo(err: unknown):
   }
 
   // Error from hitting external servers, including those returned by fetch middlewares
-  if (err instanceof NoLongerAuthenticatedError) {
+  if (
+    err instanceof NotAuthenticatedError ||
+    err instanceof NotAuthorizedError
+  ) {
     return {error_type: 'USER_ERROR', error_detail: err.message}
   }
 

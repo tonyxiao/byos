@@ -13,6 +13,7 @@ import type {RemoteProcedureContext} from './trpc'
 
 type _Provider = {
   __init__: (opts: {
+    ctx: RemoteProcedureContext
     proxyLinks: FetchLink[]
     /** Used to get the raw credentails in case proxyLink doesn't work (e.g. SOAP calls). Hard coded to rest for now... */
     getCredentials: () => Promise<{
@@ -62,6 +63,7 @@ export async function proxyCallProvider({
   ctx: RemoteProcedureContext
 }) {
   const instance = ctx.provider.__init__({
+    ctx,
     getCredentials: async () => {
       if (featureFlags.mode === 'nango') {
         throw new Error('Nango getCredentials not implemented')

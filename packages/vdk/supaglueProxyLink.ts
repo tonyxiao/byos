@@ -1,7 +1,7 @@
 import type {Link as FetchLink} from '@opensdks/fetch-links'
 import {mergeHeaders, modifyRequest} from '@opensdks/fetch-links'
 import {z} from '@opensdks/util-zod'
-import {NoLongerAuthenticatedError} from './errors'
+import {NotAuthenticatedError} from './errors'
 
 interface SupaglueHeaders {
   'x-api-key': string
@@ -53,7 +53,7 @@ export function supaglueProxyLink(opts: {
         )
 
       if (authError) {
-        throw new NoLongerAuthenticatedError(
+        throw new NotAuthenticatedError(
           opts.customerId,
           opts.providerName,
           authError.status,

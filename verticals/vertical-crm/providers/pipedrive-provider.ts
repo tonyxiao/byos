@@ -1,5 +1,5 @@
 import type {BaseRecord, PathsWithMethod, ResponseFrom} from '@supaglue/vdk'
-import {mapper, zCast} from '@supaglue/vdk'
+import {mapper, NotAuthorizedError, z, zCast} from '@supaglue/vdk'
 import type {PipedriveSDKTypes} from '@opensdks/sdk-pipedrive'
 import {initPipedriveSDK, type PipedriveSDK} from '@opensdks/sdk-pipedrive'
 import type {CRMProvider} from '../router'
@@ -47,6 +47,21 @@ const mappers = {
   }),
 }
 
+/**
+ * {
+  "success": false,
+  "error": "Scope and URL mismatch",
+  "errorCode": 403,
+  "error_info": "Please check developers.pipedrive.com"
+}
+ */
+const zErrorPayload = z.object({
+  success: z.boolean(),
+  error: z.string().optional(),
+  errorCode: z.number().optional(),
+  error_info: z.string().optional(),
+})
+
 const _listEntityFullThenMap = async <TIn, TOut extends BaseRecord>(
   instance: PipedriveSDK,
   {
@@ -86,10 +101,31 @@ const _listEntityFullThenMap = async <TIn, TOut extends BaseRecord>(
 }
 
 export const pipedriveProvider = {
-  __init__: ({proxyLinks}) =>
+  __init__: ({proxyLinks, ctx}) =>
     initPipedriveSDK({
       headers: {authorization: 'Bearer ...'}, // This will be populated by Nango, or you can populate your own...
-      links: (defaultLinks) => [...proxyLinks, ...defaultLinks],
+      links: (defaultLinks) => [
+        async (req, next) => {
+          const res = await next(req)
+          if (res.status === 403) {
+            const parsed = zErrorPayload.safeParse(await res.clone().json())
+            if (
+              parsed.success &&
+              parsed.data.error === 'Scope and URL mismatch'
+            ) {
+              throw new NotAuthorizedError(
+                ctx.customerId,
+                ctx.providerName,
+                `${parsed.data.error}: ${parsed.data.error_info}`,
+                parsed.data,
+              )
+            }
+          }
+          return res
+        },
+        ...proxyLinks,
+        ...defaultLinks,
+      ],
     }),
   listAccounts: async ({instance, input}) =>
     _listEntityFullThenMap(instance, {
