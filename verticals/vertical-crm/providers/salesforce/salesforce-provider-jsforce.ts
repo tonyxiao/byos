@@ -319,10 +319,12 @@ export const salesforceProviderJsForce = {
       }
     }
     return {
-      id: `${sourceObject}.${keyName}`,
-      source_object: sourceObject,
-      target_object: targetObject,
-      display_name: label,
+      association_schema: {
+        id: `${sourceObject}.${keyName}`,
+        source_object: sourceObject,
+        target_object: targetObject,
+        display_name: label,
+      },
     }
   },
 } satisfies Omit<CRMProvider<jsforce.Connection>, '__init__'>

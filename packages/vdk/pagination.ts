@@ -84,6 +84,8 @@ export const LastUpdatedAtNextOffset = {
 // updated_since + id ideally
 // page increment pagination
 
+// TODO: Move these out to a separate file
+
 export const zBaseRecord = z.object({
   id: z.string(),
   /** z.string().datetime() does not work for simple things like `2023-07-19T23:46:48.000+0000`  */
@@ -92,3 +94,18 @@ export const zBaseRecord = z.object({
 })
 
 export type BaseRecord = z.infer<typeof zBaseRecord>
+
+export const zWarning = z
+  .object({
+    title: z.string().optional(),
+    problem_type: z.string().optional(),
+    detail: z.string().optional(),
+  })
+  .openapi({ref: 'warning'})
+
+export function responseWithWarnings<T extends z.ZodRawShape>(shape: T) {
+  return z.object({
+    ...shape,
+    warnings: z.array(zWarning).optional(),
+  })
+}

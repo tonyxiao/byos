@@ -3,6 +3,8 @@ import {TRPCError} from '@trpc/server'
 import {HTTPError} from '@opensdks/runtime'
 import {z} from '@opensdks/util-zod'
 
+export {HTTPError}
+
 export const zErrorType = z.enum([
   'USER_ERROR', // authentication & configuration issue for user to fix...
   'REMOTE_ERROR', // remote provider error, corresponds to 5xx codes
@@ -114,5 +116,3 @@ export const zTrpcErrorShape = z.object({
   message: z.string(),
   data: z.unknown(),
 })
-
-export {HTTPError}

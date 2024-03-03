@@ -2,6 +2,7 @@ import type {ProviderFromRouter, RouterMeta} from '@supaglue/vdk'
 import {
   proxyCallProvider,
   remoteProcedure,
+  responseWithWarnings,
   trpc,
   z,
   zPaginatedResult,
@@ -168,7 +169,11 @@ export const crmRouter = trpc.router({
         display_name: z.string(),
       }),
     )
-    .output(commonModels.association_schema)
+    .output(
+      responseWithWarnings({
+        association_schema: commonModels.association_schema,
+      }),
+    )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   // Update custom object schema didn't work within Supaglue anyways...
 })
