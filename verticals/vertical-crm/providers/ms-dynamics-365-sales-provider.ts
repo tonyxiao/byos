@@ -10,13 +10,6 @@ export const msDynamics365SalesProvider = {
       headers: {authorization: 'Bearer ...'}, // This will be populated by Nango, or you can populate your own...
       links: (defaultLinks) => [...proxyLinks, ...defaultLinks],
     }),
-  listContacts: async ({instance}) => {
-    await instance.request('GET', '/contacts')
-    return {
-      has_next_page: true,
-      items: [],
-    }
-  },
   // eslint-disable-next-line @typescript-eslint/require-await
   getAccount: async ({}) => {
     throw new Error('Not implemented yet')

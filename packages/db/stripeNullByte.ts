@@ -1,6 +1,6 @@
-
 /**
  * Workaround for postgres not accepting null byte in jsonb / json / text columns as it uses it to terminate text
+ * It's a good idea to do this sanitization in the application level to reduce load on the database anyways.
  * @see https://vladimir.varank.in/notes/2021/01/you-dont-insert-unicode-null-character-as-postgres-jsonb/
  * https://github.com/sequelize/sequelize/issues/6485#issuecomment-241675496
  * https://github.com/brianc/node-postgres/issues/2080
