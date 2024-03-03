@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "typecheck": "tsc --project ./ --noEmit",
+    "typecheck": "run-s typecheck:*",
+    "typecheck:root": "tsc --project ./ --noEmit",
+    "typecheck:main": "tsc --project ./main --noEmit",
     "lint": "eslint --ext .js,.ts,.tsx,.mdx --cache .",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test::ci": "pnpm run test --ci --forceExit --detectOpenHandles --runInBand",

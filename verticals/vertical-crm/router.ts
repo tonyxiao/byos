@@ -116,7 +116,7 @@ export const crmRouter = trpc.router({
     .meta(
       oapi({method: 'GET', path: '/metadata/objects/{object_name}/properties'}),
     )
-    // type: z.enum(['standard', 'custom']),
+    // type: z.enum(['standard', 'custom']), // Does not seem to be needed
     .input(z.object({object_name: z.string()}))
     .output(z.array(commonModels.meta_property))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
