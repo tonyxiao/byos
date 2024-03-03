@@ -1,3 +1,4 @@
+import util from 'node:util'
 import {TRPCError} from '@trpc/server'
 import {HTTPError} from '@opensdks/runtime'
 import {z} from '@opensdks/util-zod'
@@ -71,7 +72,12 @@ export function parseErrorInfo(err: unknown):
 
   // Anything else non-null would be considered internal error.
   if (err != null) {
-    return {error_type: 'INTERNAL_ERROR', error_detail: `${err}`}
+    return {
+      error_type: 'INTERNAL_ERROR',
+      // Let's give stack details for unknown errors like this to help with debugging
+      // However this locks us a bit into node js... So would be good to find a replacement at some point
+      error_detail: util.format(err),
+    }
   }
   return undefined
 }
