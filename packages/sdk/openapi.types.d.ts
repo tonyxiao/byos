@@ -97,15 +97,14 @@ export interface paths {
   }
   '/crm/v2/metadata/objects': {
     get: operations['crm-metadataListObjects']
+    /** @description Create custom object schema */
+    post: operations['crm-metadataCreateObject']
   }
   '/crm/v2/metadata/objects/{object_name}/properties': {
     get: operations['crm-metadataListObjectProperties']
   }
-  '/crm/v2/metadata/objects/custom': {
-    post: operations['crm-metadataCreateCustomObjectSchema']
-  }
   '/crm/v2/metadata/associations': {
-    post: operations['crm-metadataCreateAssociationSchema']
+    post: operations['crm-metadataCreateAssociation']
   }
 }
 
@@ -472,30 +471,6 @@ export interface components {
       id: string
       name: string
     }
-    'crm.meta.property': {
-      /**
-       * @description The machine name of the property as it appears in the third-party Provider
-       * @example FirstName
-       */
-      id: string
-      /**
-       * @description The human-readable name of the property as provided by the third-party Provider.
-       * @example First Name
-       */
-      label: string
-      /**
-       * @description The type of the property as provided by the third-party Provider. These types are not unified by Supaglue. For Intercom, this is string, integer, boolean, or object. For Outreach, this is integer, boolean, number, array, or string.
-       * @example string
-       */
-      type?: string
-      /**
-       * @description The raw details of the property as provided by the third-party Provider, if available.
-       * @example {}
-       */
-      raw_details?: {
-        [key: string]: unknown
-      }
-    }
     'crm.meta.custom_object_field': {
       /** @description The machine name of the property as it appears in the third-party Provider. In Salesforce, this must end with `__c`. */
       id: string
@@ -553,6 +528,30 @@ export interface components {
       description?: string
       /** @description Defaults to false. */
       hidden?: boolean
+    }
+    'crm.meta.property': {
+      /**
+       * @description The machine name of the property as it appears in the third-party Provider
+       * @example FirstName
+       */
+      id: string
+      /**
+       * @description The human-readable name of the property as provided by the third-party Provider.
+       * @example First Name
+       */
+      label: string
+      /**
+       * @description The type of the property as provided by the third-party Provider. These types are not unified by Supaglue. For Intercom, this is string, integer, boolean, or object. For Outreach, this is integer, boolean, number, array, or string.
+       * @example string
+       */
+      type?: string
+      /**
+       * @description The raw details of the property as provided by the third-party Provider, if available.
+       * @example {}
+       */
+      raw_details?: {
+        [key: string]: unknown
+      }
     }
     'crm.meta.association_schema': {
       id: string
@@ -1786,40 +1785,8 @@ export interface operations {
       }
     }
   }
-  'crm-metadataListObjectProperties': {
-    parameters: {
-      path: {
-        object_name: string
-      }
-    }
-    responses: {
-      /** @description Successful response */
-      200: {
-        content: {
-          'application/json': components['schemas']['crm.meta.property'][]
-        }
-      }
-      /** @description Invalid input data */
-      400: {
-        content: {
-          'application/json': components['schemas']['error.BAD_REQUEST']
-        }
-      }
-      /** @description Not found */
-      404: {
-        content: {
-          'application/json': components['schemas']['error.NOT_FOUND']
-        }
-      }
-      /** @description Internal server error */
-      500: {
-        content: {
-          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
-        }
-      }
-    }
-  }
-  'crm-metadataCreateCustomObjectSchema': {
+  /** @description Create custom object schema */
+  'crm-metadataCreateObject': {
     requestBody: {
       content: {
         'application/json': {
@@ -1855,7 +1822,40 @@ export interface operations {
       }
     }
   }
-  'crm-metadataCreateAssociationSchema': {
+  'crm-metadataListObjectProperties': {
+    parameters: {
+      path: {
+        object_name: string
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': components['schemas']['crm.meta.property'][]
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Not found */
+      404: {
+        content: {
+          'application/json': components['schemas']['error.NOT_FOUND']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-metadataCreateAssociation': {
     requestBody: {
       content: {
         'application/json': {

@@ -7,6 +7,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "typecheck": "run-s typecheck:*",
+    "gen": "pnpm --dir packages/sdk gen && pnpm prettier --write $(git diff --name-only --diff-filter d)",
     "typecheck:root": "tsc --project ./ --noEmit",
     "typecheck:main": "tsc --project ./main --noEmit",
     "lint": "eslint --ext .js,.ts,.tsx,.mdx --cache .",

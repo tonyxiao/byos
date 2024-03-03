@@ -2277,71 +2277,10 @@
             }
           }
         }
-      }
-    },
-    "/crm/v2/metadata/objects/{object_name}/properties": {
-      "get": {
-        "operationId": "crm-metadataListObjectProperties",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "object_name",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/crm.meta.property"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.NOT_FOUND"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/crm/v2/metadata/objects/custom": {
+      },
       "post": {
-        "operationId": "crm-metadataCreateCustomObjectSchema",
+        "operationId": "crm-metadataCreateObject",
+        "description": "Create custom object schema",
         "requestBody": {
           "required": true,
           "content": {
@@ -2423,9 +2362,69 @@
         }
       }
     },
+    "/crm/v2/metadata/objects/{object_name}/properties": {
+      "get": {
+        "operationId": "crm-metadataListObjectProperties",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "object_name",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/crm.meta.property"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/crm/v2/metadata/associations": {
       "post": {
-        "operationId": "crm-metadataCreateAssociationSchema",
+        "operationId": "crm-metadataCreateAssociation",
         "requestBody": {
           "required": true,
           "content": {
@@ -2750,7 +2749,6 @@
           },
           "raw_data": {
             "type": "object",
-            "properties": {},
             "additionalProperties": {}
           }
         },
@@ -2871,7 +2869,6 @@
           },
           "metrics": {
             "type": "object",
-            "properties": {},
             "additionalProperties": {}
           },
           "is_enabled": {
@@ -2879,7 +2876,6 @@
           },
           "raw_data": {
             "type": "object",
-            "properties": {},
             "additionalProperties": {}
           }
         },
@@ -2930,7 +2926,6 @@
           },
           "raw_data": {
             "type": "object",
-            "properties": {},
             "additionalProperties": {}
           }
         },
@@ -2976,7 +2971,6 @@
           },
           "raw_data": {
             "type": "object",
-            "properties": {},
             "additionalProperties": {}
           }
         },
@@ -3020,7 +3014,6 @@
           },
           "raw_data": {
             "type": "object",
-            "properties": {},
             "additionalProperties": {}
           }
         },
@@ -3061,7 +3054,6 @@
           },
           "raw_data": {
             "type": "object",
-            "properties": {},
             "additionalProperties": {}
           }
         },
@@ -3461,33 +3453,6 @@
         },
         "required": ["id", "name"]
       },
-      "crm.meta.property": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The machine name of the property as it appears in the third-party Provider",
-            "example": "FirstName"
-          },
-          "label": {
-            "type": "string",
-            "description": "The human-readable name of the property as provided by the third-party Provider.",
-            "example": "First Name"
-          },
-          "type": {
-            "type": "string",
-            "description": "The type of the property as provided by the third-party Provider. These types are not unified by Supaglue. For Intercom, this is string, integer, boolean, or object. For Outreach, this is integer, boolean, number, array, or string.",
-            "example": "string"
-          },
-          "raw_details": {
-            "type": "object",
-            "additionalProperties": {},
-            "description": "The raw details of the property as provided by the third-party Provider, if available.",
-            "example": {}
-          }
-        },
-        "required": ["id", "label"]
-      },
       "crm.meta.custom_object_field": {
         "type": "object",
         "properties": {
@@ -3588,6 +3553,33 @@
           }
         },
         "required": ["label", "value"]
+      },
+      "crm.meta.property": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The machine name of the property as it appears in the third-party Provider",
+            "example": "FirstName"
+          },
+          "label": {
+            "type": "string",
+            "description": "The human-readable name of the property as provided by the third-party Provider.",
+            "example": "First Name"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of the property as provided by the third-party Provider. These types are not unified by Supaglue. For Intercom, this is string, integer, boolean, or object. For Outreach, this is integer, boolean, number, array, or string.",
+            "example": "string"
+          },
+          "raw_details": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "The raw details of the property as provided by the third-party Provider, if available.",
+            "example": {}
+          }
+        },
+        "required": ["id", "label"]
       },
       "crm.meta.association_schema": {
         "type": "object",
