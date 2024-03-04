@@ -43,14 +43,15 @@ export class NotAuthenticatedError extends TRPCError {
   // override name = 'NoLongerAuthenticatedError'
 
   constructor(
-    public readonly customerId: string,
-    public readonly providerName: string,
-    public readonly description: string,
-    public readonly extraInfo: unknown,
+    message?: string, cause?: unknown,
+    // public readonly customerId: string,
+    // public readonly providerName: string,
+    // public readonly description: string,
+    // public readonly extraInfo: unknown,
   ) {
     super({
       code: 'UNAUTHORIZED',
-      message: `${customerId}/${providerName}: ${description}`,
+      message, cause
     })
   }
 }

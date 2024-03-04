@@ -54,10 +54,12 @@ export function supaglueProxyLink(opts: {
 
       if (authError) {
         throw new NotAuthenticatedError(
-          opts.customerId,
-          opts.providerName,
-          authError.status,
-          resBody.data,
+          `${opts.customerId}/${opts.providerName}: ${authError.status}`,
+          {
+            customerId: opts.customerId,
+            providerName: opts.providerName,
+            ...resBody.data,
+          },
         )
       }
     }

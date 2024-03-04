@@ -39,3 +39,4 @@ export const connection_sync_config = z
     custom_objects: z.array(z.object({object: z.string()})).nullish(),
   })
   .openapi({ref: 'connection_sync_config'})
+export type ConnectionSyncConfig = z.infer<typeof connection_sync_config>
