@@ -1,10 +1,11 @@
 // Inngest related exports
-import {serve} from 'inngest/next'
-import * as functions from './inngest/functions'
+import { serve } from 'inngest/next'
 import * as routines from './routines'
 
-export {serve as nextServe, functions}
 export * from './inngest/client'
+export * from './inngest/functions'
+export { serve as nextServe }
 
 // Non-Inngest exports
-export {routines}
+export { routines }
+

@@ -390,9 +390,12 @@ export async function sendWebhook({event}: RoutineInput<keyof Events>) {
   }
 
   // We shall let inngest handle the retries and backoff for now
+  // Would be nice to have a openSDK for sending webhook payloads that are typed actually, after all it has
+  // the exact same shape as paths.
   const res = await fetch(env.WEBHOOK_URL, {
     method: 'POST',
     body: JSON.stringify(event),
+    // TODO: Adopt standardwebhooks and implement actual signing rather than simple secret.
     headers: {'x-webhook-secret': env.WEBHOOK_SECRET ?? ''},
   })
   return responseToJson(res)
