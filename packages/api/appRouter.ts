@@ -57,7 +57,7 @@ export function oasWebhooksEventsMap(
   const components = {
     schemas: mapKeys(
       mapValues(eMap, (shape, name): Schemas[string] =>
-        z.object({...shape, name: z.literal(name)}),
+        z.object({...shape, name: z.literal(name), id: z.string().optional()}),
       ),
       (name) => `webhooks.${name}`,
     ),

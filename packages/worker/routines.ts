@@ -21,7 +21,8 @@ import type {Events} from './events'
  * on top of postgres / redis / pubsub / whatever.
  */
 export type RoutineInput<T extends keyof Events> = {
-  event: {data: Events[T]['data']; id?: string}
+  // NOTE: This is not the full set of fields exposed by Inngest. there are more...
+  event: {data: Events[T]['data']; id?: string; name: T}
   step: {
     run: <T>(name: string, fn: () => Promise<T>) => Promise<T> | T
     sendEvent: (
@@ -111,7 +112,8 @@ export async function scheduleSyncs({step, event}: RoutineInput<never>) {
 const sqlNow = sql`now()`
 
 export async function syncConnection({
-  event, // step,
+  event,
+  step,
 }: RoutineInput<'sync.requested'>) {
   const {
     data: {
@@ -122,6 +124,8 @@ export async function syncConnection({
       sync_mode = 'incremental',
       destination_schema,
       page_size,
+      custom_objects = [],
+      standard_objects = [],
     },
   } = event
   console.log('[syncConnection] Start', {
@@ -347,6 +351,26 @@ export async function syncConnection({
   }
 
   const status = errorInfo?.error_type ?? 'SUCCESS'
+  await step.sendEvent('sync.completed', {
+    name: 'sync.completed',
+    data: {
+      customer_id,
+      provider_name,
+      vertical,
+      common_objects,
+      sync_mode,
+      destination_schema,
+      page_size,
+      custom_objects,
+      standard_objects,
+      //
+      request_event_id: event.id,
+      run_id: syncRunId,
+      metrics,
+      result: status,
+      error_detail: errorInfo?.error_detail,
+    },
+  })
   console.log(`[syncConnection] Complete ${status}`, {
     customer_id,
     provider_name,
@@ -360,5 +384,33 @@ export async function syncConnection({
   return {syncRunId, metrics}
 }
 
-// Later...
-// Need to figure out if stepFunction behaves as expected...
+export async function sendWebhook({event}: RoutineInput<keyof Events>) {
+  if (!env.WEBHOOK_URL) {
+    return false
+  }
+
+  // We shall let inngest handle the retries and backoff for now
+  const res = await fetch(env.WEBHOOK_URL, {
+    method: 'POST',
+    body: JSON.stringify(event),
+    headers: {'x-webhook-secret': env.WEBHOOK_SECRET ?? ''},
+  })
+  return responseToJson(res)
+}
+
+async function responseToJson(res: Response) {
+  return {
+    headers: Object.fromEntries(res.headers.entries()),
+    status: res.status,
+    statusText: res.statusText,
+    body: safeJsonParse(await res.text()),
+  }
+}
+
+function safeJsonParse(str: string) {
+  try {
+    return JSON.parse(str) as unknown
+  } catch {
+    return str
+  }
+}

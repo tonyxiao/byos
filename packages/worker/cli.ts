@@ -26,13 +26,14 @@ const {
 switch (cmd) {
   case 'scheduleSyncs':
     void routines
-      .scheduleSyncs({event: {data: {} as never}, step})
+      .scheduleSyncs({event: {data: {} as never, name: '' as never}, step})
       .finally(() => pgClient.end())
     break
   case 'syncConnection':
     void routines
       .syncConnection({
         event: {
+          name: 'sync.requested',
           data: {
             // customer_id: 'outreach1', provider_name: 'outreach'
             customer_id: process.env['CUSTOMER_ID']!,
@@ -63,7 +64,7 @@ switch (cmd) {
 async function runBackfill() {
   const syncEvents: Array<Events['sync.requested']> = []
   await routines.scheduleSyncs({
-    event: {data: {} as never},
+    event: {data: {} as never, name: '' as never},
     step: {
       ...step,
       sendEvent(_stepId, _events) {

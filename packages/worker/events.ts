@@ -33,7 +33,7 @@ export const eventsMap = {
     // We merge syncRequestData top level as things like sync_mode etc. can be modified during
     // the sync and it is therefore not accurate to call it request_data anymore.
     data: syncRequestedData.extend({
-      request_event_id: z.string(),
+      request_event_id: z.string().optional(),
       run_id: z.string(),
       metrics: z.record(z.unknown()),
       result: z.enum(['SUCCESS', ...zErrorType.options]),

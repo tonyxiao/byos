@@ -11,6 +11,9 @@ export const env = createEnv({
     // Required on production, but optional on dev
     INNGEST_SIGNING_KEY: z.string().optional(),
     INNGEST_EVENT_KEY: z.string().optional(),
+    // webhook related
+    WEBHOOK_URL: z.string().optional(),
+    WEBHOOK_SECRET: z.string().optional(),
   },
   runtimeEnv: process.env,
 })
