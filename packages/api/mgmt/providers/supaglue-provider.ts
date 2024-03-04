@@ -2,7 +2,7 @@
 import {BadRequestError} from '@supaglue/vdk'
 import type {SupaglueSDK} from '@opensdks/sdk-supaglue'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
-import type {MgmtProvider} from '../mgmtRouter'
+import type {MgmtProvider} from '../router'
 
 export const supaglueProvider = {
   __init__: ({ctx}) => {

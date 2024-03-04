@@ -7,7 +7,7 @@ import {eventsMap} from '@supaglue/events'
 import {mapKeys, mapValues, publicProcedure, trpc, z} from '@supaglue/vdk'
 import {crmRouter} from '@supaglue/vertical-crm'
 import {salesEngagementRouter} from '@supaglue/vertical-sales-engagement'
-import {mgmtRouter} from './mgmt/mgmtRouter'
+import {mgmtRouter} from './mgmt/router'
 
 const publicRouter = trpc.router({
   health: publicProcedure

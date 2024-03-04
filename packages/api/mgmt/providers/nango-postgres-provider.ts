@@ -1,9 +1,40 @@
 import {db as _db, dbUpsert, eq, schema, sql} from '@supaglue/db'
+import type {PathsWithMethod, ResponseFrom} from '@supaglue/vdk'
 import {BadRequestError} from '@supaglue/vdk'
 import {TRPCError} from '@trpc/server'
-import type {NangoSDK} from '@opensdks/sdk-nango'
+import type {NangoSDK, NangoSDKTypes} from '@opensdks/sdk-nango'
 import {initNangoSDK} from '@opensdks/sdk-nango'
-import {models, type MgmtProvider} from '../mgmtRouter'
+import type {commonModels} from '../router'
+import {type MgmtProvider} from '../router'
+
+type NangoPaths = NangoSDKTypes['oas']['paths']
+
+type GETResponse<P extends PathsWithMethod<NangoPaths, 'get'>> = ResponseFrom<
+  NangoPaths,
+  'get',
+  P
+>
+type NangoConnection = GETResponse<'/connection'>['configs'][number]
+
+export function toNangoProvider(provider: string) {
+  return provider === 'ms_dynamics_365_sales'
+    ? 'microsoft-tenant-specific'
+    : provider
+}
+
+export function fromNangoProvider(provider: string) {
+  return provider === 'microsoft-tenant-specific'
+    ? 'ms_dynamics_365_sales'
+    : provider
+}
+
+export function fromNangoConnection(c: NangoConnection): commonModels.Connection {
+  return {
+    id: `${c.id}`,
+    customer_id: `${c.connection_id}`,
+    provider_name: fromNangoProvider(c.provider),
+  }
+}
 
 export async function getCustomerOrFail(db: typeof _db, id: string) {
   const cus = await db.query.customer.findFirst({
@@ -49,6 +80,6 @@ export const nangoPostgresProvider = {
       .GET('/connection', {
         params: {query: {connectionId: input.customer_id}},
       })
-      .then((r) => r.data.configs.map(models.fromNangoConnection)),
+      .then((r) => r.data.configs.map(fromNangoConnection)),
   // Maybe having a way to specify required methods could be nice for providers
 } satisfies MgmtProvider<{nango: NangoSDK; db: typeof _db}>

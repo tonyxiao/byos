@@ -1,11 +1,11 @@
 import type {_Provider, ProviderFromRouter} from '@supaglue/vdk'
 import {publicProcedure, trpc, z} from '@supaglue/vdk'
 import {TRPCError} from '@trpc/server'
-import * as models from '../models'
+import * as commonModels from './commonModels'
 import {nangoPostgresProvider} from './providers/nango-postgres-provider'
 import {supaglueProvider} from './providers/supaglue-provider'
 
-export {models}
+export {commonModels}
 
 export const mgmtProcedure = publicProcedure.use(async ({next, ctx, path}) => {
   const useNewBackend =
@@ -33,23 +33,26 @@ type MgmtProcedure = ReturnType<
 
 type InitOpts = {ctx: {headers: Headers}}
 
+// Should the mgmt router be refactored into its own package outside of API?
 export const mgmtRouter = trpc.router({
   // Customer management
   listCustomers: mgmtProcedure
     .meta({openapi: {method: 'GET', path: '/customers'}})
     .input(z.void())
-    .output(z.array(models.customer))
+    .output(z.array(commonModels.customer))
     .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
 
   getCustomer: mgmtProcedure
     .meta({openapi: {method: 'GET', path: '/customers/{id}'}})
     .input(z.object({id: z.string()}))
-    .output(models.customer)
+    .output(commonModels.customer)
     .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
   upsertCustomer: mgmtProcedure
     .meta({openapi: {method: 'PUT', path: '/customers/{customer_id}'}})
-    .input(models.customer.pick({customer_id: true, name: true, email: true}))
-    .output(models.customer)
+    .input(
+      commonModels.customer.pick({customer_id: true, name: true, email: true}),
+    )
+    .output(commonModels.customer)
     .mutation(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
 
   // Connection management
@@ -59,7 +62,7 @@ export const mgmtRouter = trpc.router({
       openapi: {method: 'GET', path: '/customers/{customer_id}/connections'},
     })
     .input(z.object({customer_id: z.string()}))
-    .output(z.array(models.connection))
+    .output(z.array(commonModels.connection))
     .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
 
   getConnection: mgmtProcedure
@@ -70,7 +73,7 @@ export const mgmtRouter = trpc.router({
       },
     })
     .input(z.object({customer_id: z.string(), provider_name: z.string()}))
-    .output(models.connection)
+    .output(commonModels.connection)
     .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
   deleteConnection: mgmtProcedure
     .meta({
@@ -93,7 +96,7 @@ export const mgmtRouter = trpc.router({
       },
     })
     .input(z.void())
-    .output(models.connection_sync_config)
+    .output(commonModels.connection_sync_config)
     .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
 
   upsertConnectionSyncConfig: mgmtProcedure
@@ -103,8 +106,8 @@ export const mgmtRouter = trpc.router({
         path: '/connection_sync_configs',
       },
     })
-    .input(models.connection_sync_config)
-    .output(models.connection_sync_config)
+    .input(commonModels.connection_sync_config)
+    .output(commonModels.connection_sync_config)
     .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
 })
 

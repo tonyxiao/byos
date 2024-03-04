@@ -1,5 +1,5 @@
 // import {createClient, fetchLink} from '@opensdks/runtime'
-import {supaglueProviderToNangoProvider} from '@supaglue/api'
+import {toNangoProvider} from '@supaglue/api/mgmt/providers/nango-postgres-provider'
 import {db, dbUpsert, pgClient, schema, sql} from '@supaglue/db'
 import {
   isHttpError,
@@ -84,7 +84,7 @@ async function migrateConfigs() {
   const providers = await supaglue.mgmt.GET('/providers').then((r) => r.data)
   // await nango.GET('/config')
   for (const provider of providers) {
-    const nangoProviderName = supaglueProviderToNangoProvider(provider.name)
+    const nangoProviderName = toNangoProvider(provider.name)
     const body: NangoPUTBody<'/config'> = {
       provider_config_key: toNangoProviderConfigKey(provider),
       provider: nangoProviderName,
