@@ -1,6 +1,5 @@
 import type {_Provider, ProviderFromRouter} from '@supaglue/vdk'
-import {publicProcedure, trpc, z} from '@supaglue/vdk'
-import {TRPCError} from '@trpc/server'
+import {NotImplementedError, publicProcedure, trpc, z} from '@supaglue/vdk'
 import * as commonModels from './commonModels'
 import {nangoPostgresProvider} from './providers/nango-postgres-provider'
 import {supaglueProvider} from './providers/supaglue-provider'
@@ -131,10 +130,9 @@ async function mgmtProxyCallProvider({
   const implementation = ctx.provider?.[methodName as '__init__'] as Function
 
   if (typeof implementation !== 'function') {
-    throw new TRPCError({
-      code: 'NOT_IMPLEMENTED',
-      message: `${ctx.providerName} provider does not implement ${ctx.path}`,
-    })
+    throw new NotImplementedError(
+      `${ctx.providerName} provider does not implement ${ctx.path}`,
+    )
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

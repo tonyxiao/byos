@@ -1,7 +1,6 @@
 import {db as _db, dbUpsert, eq, schema, sql} from '@supaglue/db'
 import type {PathsWithMethod, ResponseFrom} from '@supaglue/vdk'
-import {BadRequestError} from '@supaglue/vdk'
-import {TRPCError} from '@trpc/server'
+import {BadRequestError, NotFoundError} from '@supaglue/vdk'
 import type {NangoSDK, NangoSDKTypes} from '@opensdks/sdk-nango'
 import {initNangoSDK} from '@opensdks/sdk-nango'
 import type {commonModels} from '../router'
@@ -43,10 +42,7 @@ export async function getCustomerOrFail(db: typeof _db, id: string) {
     where: eq(schema.customer.id, id),
   })
   if (!cus) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: `Customer not found even after upsert. id: ${id}`,
-    })
+    throw new NotFoundError(`Customer not found even after upsert. id: ${id}`)
   }
   return {...cus, customer_id: cus.id}
 }
@@ -83,5 +79,11 @@ export const nangoPostgresProvider = {
         params: {query: {connectionId: input.customer_id}},
       })
       .then((r) => r.data.configs.map(fromNangoConnection)),
+
+  deleteConnection: async ({instance, input}) => {
+    await instance.nango.DELETE('/connection/{connectionId}', {
+      params: {path: {connectionId: ''}, query: {provider_config_key: ''}},
+    })
+  },
   // Maybe having a way to specify required methods could be nice for providers
 } satisfies MgmtProvider<{nango: NangoSDK; db: typeof _db}>

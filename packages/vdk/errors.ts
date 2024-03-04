@@ -35,6 +35,7 @@ export class InternalServerError extends TRPCError {
   }
 }
 
+
 /** Refreshing token failed / access revoked */
 export class NotAuthenticatedError extends TRPCError {
   // Cannot modify the name as it is used by trpc internals to determine if it's a trpc error...
