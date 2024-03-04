@@ -293,7 +293,13 @@ export const salesforceProvider = {
     }),
 } satisfies CRMProvider<SalesforceSDK>
 
-const COMPOUND_TYPES = ['location', 'address']
+const COMPOUND_TYPES = [
+  'location',
+  'address',
+  'textarea',
+  'string',
+  'reference',
+]
 
 function ensureCustomObjectSuffix(name: string) {
   return name.endsWith('__c') ? name : `${name}__c`
