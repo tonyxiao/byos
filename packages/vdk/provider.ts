@@ -11,9 +11,32 @@ import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
 import {nangoProxyLink} from './nangoProxyLink'
 import type {RemoteProcedureContext} from './trpc'
 
-type _Provider = {
-  __init__: (opts: {
-    ctx: RemoteProcedureContext
+export type _Provider<TInitOpts, TInstance = unknown> = {
+  __init__: (opts: TInitOpts) => TInstance
+}
+export type Provider = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [k: string]: (...args: any[]) => any
+  // TODO: Solve duplication issues
+} & _Provider<{
+  ctx: RemoteProcedureContext
+  proxyLinks: FetchLink[]
+  /** Used to get the raw credentails in case proxyLink doesn't work (e.g. SOAP calls). Hard coded to rest for now... */
+  getCredentials: () => Promise<{
+    access_token: string
+    refresh_token: string
+    expires_at: string
+    /** For salesforce */
+    instance_url: string | null | undefined
+  }>
+}>
+
+export type ProviderFromRouter<
+  TRouter extends AnyRouter,
+  TInstance = {},
+  TCtx = RemoteProcedureContext,
+  TInitOpts = {
+    ctx: TCtx
     proxyLinks: FetchLink[]
     /** Used to get the raw credentails in case proxyLink doesn't work (e.g. SOAP calls). Hard coded to rest for now... */
     getCredentials: () => Promise<{
@@ -23,17 +46,7 @@ type _Provider = {
       /** For salesforce */
       instance_url: string | null | undefined
     }>
-  }) => unknown
-}
-export type Provider = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [k: string]: (...args: any[]) => any
-} & _Provider
-
-export type ProviderFromRouter<
-  TRouter extends AnyRouter,
-  TInstance = {},
-  TCtx = RemoteProcedureContext,
+  },
 > = {
   [k in keyof TRouter as TRouter[k] extends AnyProcedure
     ? k
@@ -44,7 +57,7 @@ export type ProviderFromRouter<
         input: inferProcedureInput<TRouter[k]>
       }) => MaybePromise<inferProcedureOutput<TRouter[k]>>
     : never
-} & _Provider
+} & _Provider<TInitOpts, TInstance>
 
 /**
  * Workaround for situation where we do not want to set an override of the base url

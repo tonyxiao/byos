@@ -218,6 +218,9 @@ importers:
       '@supaglue/events':
         specifier: workspace:*
         version: link:../events
+      '@supaglue/vdk':
+        specifier: workspace:*
+        version: link:../vdk
       '@supaglue/vertical-crm':
         specifier: workspace:*
         version: link:../../verticals/vertical-crm
@@ -227,10 +230,6 @@ importers:
       '@trpc/server':
         specifier: 10.40.0
         version: 10.40.0
-    devDependencies:
-      '@supaglue/vdk':
-        specifier: workspace:*
-        version: link:../vdk
 
   packages/db:
     dependencies:
