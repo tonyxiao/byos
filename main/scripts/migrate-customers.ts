@@ -1,10 +1,10 @@
 // import {createClient, fetchLink} from '@opensdks/runtime'
+import {supaglueProviderToNangoProvider} from '@supaglue/api'
 import {db, dbUpsert, pgClient, schema, sql} from '@supaglue/db'
 import {
   isHttpError,
   OperationRequestBodyContent,
   PathsWithMethod,
-  ResponseFrom,
 } from '@supaglue/vdk'
 import {initNangoSDK, NangoSDKTypes} from '@opensdks/sdk-nango'
 import {initSupaglueSDK, Oas_mgmt} from '@opensdks/sdk-supaglue'
@@ -84,10 +84,7 @@ async function migrateConfigs() {
   const providers = await supaglue.mgmt.GET('/providers').then((r) => r.data)
   // await nango.GET('/config')
   for (const provider of providers) {
-    const nangoProviderName =
-      provider.name === 'ms_dynamics_365_sales'
-        ? 'microsoft-tenant-specific'
-        : provider.name
+    const nangoProviderName = supaglueProviderToNangoProvider(provider.name)
     const body: NangoPUTBody<'/config'> = {
       provider_config_key: toNangoProviderConfigKey(provider),
       provider: nangoProviderName,

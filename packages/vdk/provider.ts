@@ -30,12 +30,16 @@ export type Provider = {
   [k: string]: (...args: any[]) => any
 } & _Provider
 
-export type ProviderFromRouter<TRouter extends AnyRouter, TInstance = {}> = {
+export type ProviderFromRouter<
+  TRouter extends AnyRouter,
+  TInstance = {},
+  TCtx = RemoteProcedureContext,
+> = {
   [k in keyof TRouter as TRouter[k] extends AnyProcedure
     ? k
     : never]?: TRouter[k] extends AnyProcedure
     ? (opts: {
-        ctx: RemoteProcedureContext
+        ctx: TCtx
         instance: TInstance
         input: inferProcedureInput<TRouter[k]>
       }) => MaybePromise<inferProcedureOutput<TRouter[k]>>

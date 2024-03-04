@@ -1,6 +1,7 @@
-import {db as _db, eq, schema} from '@supaglue/db'
+import {db as _db, dbUpsert, eq, schema, sql} from '@supaglue/db'
 import {publicProcedure, trpc, z} from '@supaglue/vdk'
 import {TRPCError} from '@trpc/server'
+import {initNangoSDK} from '@opensdks/sdk-nango'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
 import * as models from './models'
 
@@ -14,7 +15,14 @@ export const mgmtProcedure = publicProcedure.use(async ({next, ctx}) => {
     })
   }
   const supaglue = initSupaglueSDK({headers: {'x-api-key': supaglueApiKey}})
-  return next({ctx: {...ctx, db: _db, supaglue}})
+  const nango = initNangoSDK({
+    headers: {authorization: `Bearer ${ctx.headers.get('nango-secret-key')}`},
+  })
+
+  const useNewBackend =
+    ctx.headers.get('x-use-new-backend')?.toLowerCase() === 'true'
+
+  return next({ctx: {...ctx, db: _db, supaglue, nango, useNewBackend}})
 })
 
 export async function getCustomerOrFail(db: typeof _db, id: string) {
@@ -27,7 +35,7 @@ export async function getCustomerOrFail(db: typeof _db, id: string) {
       message: `Customer not found even after upsert. id: ${id}`,
     })
   }
-  return cus
+  return {...cus, customer_id: cus.id}
 }
 
 export const mgmtRouter = trpc.router({
@@ -37,53 +45,52 @@ export const mgmtRouter = trpc.router({
     .input(z.void())
     .output(z.array(models.customer))
     .query(async ({ctx}) =>
-      ctx.supaglue.mgmt.GET('/customers').then((r) => r.data),
+      ctx.useNewBackend
+        ? ctx.db.query.customer
+            .findMany()
+            .then((rows) => rows.map((r) => ({...r, customer_id: r.id})))
+        : ctx.supaglue.mgmt.GET('/customers').then((r) => r.data),
     ),
-  // .query(async ({ctx}) => ({
-  //   records: await ctx.db.query.customer.findMany(),
-  // })),
 
   getCustomer: mgmtProcedure
     .meta({openapi: {method: 'GET', path: '/customers/{id}'}})
     .input(z.object({id: z.string()}))
     .output(models.customer)
     .query(async ({ctx, input}) =>
-      ctx.supaglue.mgmt
-        .GET('/customers/{customer_id}', {
-          params: {path: {customer_id: input.id}},
-        })
-        .then((r) => r.data),
+      ctx.useNewBackend
+        ? getCustomerOrFail(ctx.db, input.id)
+        : ctx.supaglue.mgmt
+            .GET('/customers/{customer_id}', {
+              params: {path: {customer_id: input.id}},
+            })
+            .then((r) => r.data),
     ),
-  // .query(async ({ctx, input}) => ({
-  //   record: await getCustomerOrFail(ctx.db, input.id),
-  // })),
   upsertCustomer: mgmtProcedure
     .meta({openapi: {method: 'PUT', path: '/customers/{customer_id}'}})
     .input(models.customer.pick({customer_id: true, name: true, email: true}))
     .output(models.customer)
-    .mutation(
-      async ({ctx, input}) =>
-        ctx.supaglue.mgmt
-          .PUT('/customers', {
-            body: {
-              customer_id: input.customer_id,
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              email: input.email!,
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              name: input.name!,
-            },
-          })
-          .then((r) => r.data),
-      // await dbUpsert(
-      //   ctx.db,
-      //   schema.customer,
-      //   [{...input, updated_at: sql.raw('now()')}],
-      //   {
-      //     noDiffColumns: ['updated_at'],
-      //   },
-      // )
-      // return {record: await getCustomerOrFail(ctx.db, input.id)}
-    ),
+    .mutation(async ({ctx, input}) => {
+      if (ctx.useNewBackend) {
+        await dbUpsert(
+          ctx.db,
+          schema.customer,
+          [{...input, id: input.customer_id, updated_at: sql.raw('now()')}],
+          {noDiffColumns: ['updated_at']},
+        )
+        return getCustomerOrFail(ctx.db, input.customer_id)
+      }
+      return ctx.supaglue.mgmt
+        .PUT('/customers', {
+          body: {
+            customer_id: input.customer_id,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            email: input.email!,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            name: input.name!,
+          },
+        })
+        .then((r) => r.data)
+    }),
 
   // Connection management
 
@@ -94,11 +101,17 @@ export const mgmtRouter = trpc.router({
     .input(z.object({customer_id: z.string()}))
     .output(z.array(models.connection))
     .query(async ({ctx, input}) =>
-      ctx.supaglue.mgmt
-        .GET('/customers/{customer_id}/connections', {
-          params: {path: {customer_id: input.customer_id}},
-        })
-        .then((r) => r.data),
+      ctx.useNewBackend
+        ? ctx.nango
+            .GET('/connection', {
+              params: {query: {connectionId: input.customer_id}},
+            })
+            .then((r) => r.data.configs.map(models.fromNangoConnection))
+        : ctx.supaglue.mgmt
+            .GET('/customers/{customer_id}/connections', {
+              params: {path: {customer_id: input.customer_id}},
+            })
+            .then((r) => r.data),
     ),
 
   getConnection: mgmtProcedure

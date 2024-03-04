@@ -1,4 +1,6 @@
+import type {PathsWithMethod, ResponseFrom} from '@supaglue/vdk'
 import {z} from '@supaglue/vdk'
+import type {NangoSDKTypes} from '@opensdks/sdk-nango'
 
 /** workaround the issue that we get back date from db... need to figure out how to just get string */
 // const zTimestamp = z
@@ -27,6 +29,7 @@ export const connection = z
     provider_name: z.string(),
   })
   .openapi({ref: 'connection'})
+export type Connection = z.infer<typeof connection>
 
 /** @deprecated but still needed */
 export const connection_sync_config = z
@@ -38,3 +41,33 @@ export const connection_sync_config = z
     custom_objects: z.array(z.object({object: z.string()})).nullish(),
   })
   .openapi({ref: 'connection_sync_config'})
+
+// MARK: - Nango stuff
+type NangoPaths = NangoSDKTypes['oas']['paths']
+
+type GETResponse<P extends PathsWithMethod<NangoPaths, 'get'>> = ResponseFrom<
+  NangoPaths,
+  'get',
+  P
+>
+type NangoConnection = GETResponse<'/connection'>['configs'][number]
+
+export function toNangoProvider(provider: string) {
+  return provider === 'ms_dynamics_365_sales'
+    ? 'microsoft-tenant-specific'
+    : provider
+}
+
+export function fromNangoProvider(provider: string) {
+  return provider === 'microsoft-tenant-specific'
+    ? 'ms_dynamics_365_sales'
+    : provider
+}
+
+export function fromNangoConnection(c: NangoConnection): Connection {
+  return {
+    id: `${c.id}`,
+    customer_id: `${c.connection_id}`,
+    provider_name: fromNangoProvider(c.provider),
+  }
+}
