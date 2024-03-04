@@ -49,9 +49,9 @@ export const HSBase = z.object({
   properties: z
     .object({
       hs_object_id: z.string(),
-      createdate: z.string().optional(),
-      lastmodifieddate: z.string().optional(),
-      hs_lastmodifieddate: z.string().optional(),
+      createdate: z.string().nullish(),
+      lastmodifieddate: z.string().nullish(),
+      hs_lastmodifieddate: z.string().nullish(),
     })
     .passthrough(),
   createdAt: z.string(),
@@ -63,9 +63,9 @@ export const HSContact = z.object({
   properties: z
     .object({
       hs_object_id: z.string(),
-      hs_lastmodifieddate: z.string().optional(),
+      hs_lastmodifieddate: z.string().nullish(),
       createdate: z.string().nullish(),
-      lastmodifieddate: z.string().optional(),
+      lastmodifieddate: z.string().nullish(),
       // properties specific to contacts below...
       email: z.string().nullish(),
       firstname: z.string().nullish(),
