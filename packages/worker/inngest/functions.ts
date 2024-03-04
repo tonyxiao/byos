@@ -17,7 +17,7 @@ export const syncConnection = inngest.createFunction(
 // MARK: - Workaround for not having support for
 function webhookFunctionForEvent<T extends keyof Events>(name: T) {
   return inngest.createFunction(
-    {id: `send-webhook/${event}`},
+    {id: `send-webhook/${name}`},
     {event: name},
     routines.sendWebhook,
   )
