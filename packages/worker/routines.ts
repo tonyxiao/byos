@@ -48,7 +48,7 @@ export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 //     connections
 //       .filter((c) => c.provider === 'outreach')
 //       .map((c) => ({
-//         name: 'connection/sync',
+//         name: 'sync.requested',
 //         // c.provider is the providerConfigKey, very confusing of nango
 //         data: {connection_id: c.connection_id, provider_config_key: c.provider},
 //       })),
@@ -87,7 +87,7 @@ export async function scheduleSyncs({step, event}: RoutineInput<never>) {
         (sc) => sc.provider_name === c.provider_name,
       )?.config
       return {
-        name: 'connection/sync',
+        name: 'sync.requested',
         data: {
           customer_id: c.customer_id,
           provider_name: c.provider_name,
@@ -112,7 +112,7 @@ const sqlNow = sql`now()`
 
 export async function syncConnection({
   event, // step,
-}: RoutineInput<'connection/sync'>) {
+}: RoutineInput<'sync.requested'>) {
   const {
     data: {
       customer_id,

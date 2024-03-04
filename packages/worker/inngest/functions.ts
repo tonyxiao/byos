@@ -9,6 +9,6 @@ export const scheduleSyncs = inngest.createFunction(
 
 export const syncConnection = inngest.createFunction(
   {id: 'sync-connection'},
-  {event: 'connection/sync'},
+  {event: 'sync.requested'},
   routines.syncConnection,
 )

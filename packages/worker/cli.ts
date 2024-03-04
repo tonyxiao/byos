@@ -61,13 +61,19 @@ switch (cmd) {
 }
 
 async function runBackfill() {
-  const syncEvents: Array<Events['connection/sync']> = []
+  const syncEvents: Array<Events['sync.requested']> = []
   await routines.scheduleSyncs({
     event: {data: {} as never},
     step: {
       ...step,
-      sendEvent(_stepId, events) {
-        syncEvents.push(...(Array.isArray(events) ? events : [events]))
+      sendEvent(_stepId, _events) {
+        const events = Array.isArray(_events) ? _events : [_events]
+        syncEvents.push(
+          ...events.filter(
+            (e): e is Events['sync.requested'] =>
+              e.name === 'connection.created',
+          ),
+        )
         return Promise.resolve()
       },
     },
