@@ -7,13 +7,13 @@ import {
   schema,
   stripNullByte,
 } from '@supaglue/db'
+import type {Events} from '@supaglue/events'
 import {initBYOSupaglueSDK} from '@supaglue/sdk'
 import {and, eq, sql} from 'drizzle-orm'
 import type {SendEventPayload} from 'inngest/helpers/types'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
 import {HTTPError, parseErrorInfo} from '../vdk/errors'
 import {env} from './env'
-import type {Events} from './events'
 
 /**
  * Unlike functions, routines are designed to run without dependency on Inngest

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {parseArgs} from 'node:util'
 import {and, db, desc, eq, pgClient, schema} from '@supaglue/db'
-import type {Events} from './events'
+import type {Events} from '@supaglue/events'
 import * as routines from './routines'
 
 /** Mimic subset of Inngest StepTools UI */

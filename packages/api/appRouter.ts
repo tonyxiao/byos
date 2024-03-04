@@ -1,12 +1,12 @@
 import {generateOpenApiDocument} from '@lilyrose2798/trpc-openapi'
-import {
+import type {
   ZodOpenApiComponentsObject,
   ZodOpenApiPathsObject,
 } from '@lilyrose2798/trpc-openapi/dist/generator'
+import {eventsMap} from '@supaglue/events'
 import {mapKeys, mapValues, publicProcedure, trpc, z} from '@supaglue/vdk'
 import {crmRouter} from '@supaglue/vertical-crm'
 import {salesEngagementRouter} from '@supaglue/vertical-sales-engagement'
-import {eventsMap} from '../worker/events'
 import {mgmtRouter} from './mgmtRouter'
 
 const publicRouter = trpc.router({

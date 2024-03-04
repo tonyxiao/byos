@@ -15,6 +15,7 @@
     "@opensdks/sdk-nango": "0.0.4",
     "@opensdks/sdk-supaglue": "0.0.3",
     "@supaglue/db": "workspace:*",
+    "@supaglue/events": "workspace:*",
     "@supaglue/vertical-crm": "workspace:*",
     "@supaglue/vertical-sales-engagement": "workspace:*",
     "@trpc/server": "10.40.0"

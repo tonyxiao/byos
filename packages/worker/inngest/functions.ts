@@ -1,4 +1,4 @@
-import type {Events} from '../events'
+import type {Events} from '@supaglue/events'
 import * as routines from '../routines'
 import {inngest} from './client'
 

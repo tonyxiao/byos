@@ -8,4 +8,3 @@ export * from './inngest/client'
 
 // Non-Inngest exports
 export {routines}
-export * from './events'

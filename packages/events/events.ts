@@ -4,8 +4,15 @@ import type {
   EventSchemas,
   ZodToStandardSchema,
 } from 'inngest/components/EventSchemas'
-import {z} from 'zod'
-import {zErrorType} from '../vdk/errors'
+import {z} from '@opensdks/util-zod'
+
+export const zResult = z.enum([
+  'SUCCESS',
+  // ...zErrorType.options, Cannot import due to outside package tho
+  'USER_ERROR',
+  'REMOTE_ERROR',
+  'INTERNAL_ERROR',
+])
 
 const syncRequestedData = z.object({
   customer_id: z.string(),
@@ -36,7 +43,7 @@ export const eventsMap = {
       request_event_id: z.string().optional(),
       run_id: z.string(),
       metrics: z.record(z.unknown()),
-      result: z.enum(['SUCCESS', ...zErrorType.options]),
+      result: zResult,
       error_detail: z.string().optional(),
     }),
   },
@@ -45,7 +52,7 @@ export const eventsMap = {
       customer_id: z.string(),
       provider_name: z.string(),
       connection_id: z.string(),
-      result: z.enum(['SUCCESS', ...zErrorType.options]),
+      result: zResult,
     }),
   },
 }
