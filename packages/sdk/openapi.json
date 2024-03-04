@@ -2503,6 +2503,50 @@
       }
     }
   },
+  "webhooks": {
+    "sync.requested": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/webhooks.sync.requested"
+              }
+            }
+          }
+        },
+        "responses": {}
+      }
+    },
+    "sync.completed": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/webhooks.sync.completed"
+              }
+            }
+          }
+        },
+        "responses": {}
+      }
+    },
+    "connection.created": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/webhooks.connection.created"
+              }
+            }
+          }
+        },
+        "responses": {}
+      }
+    }
+  },
   "components": {
     "securitySchemes": {
       "apiKey": {
@@ -2522,6 +2566,185 @@
       }
     },
     "schemas": {
+      "webhooks.sync.requested": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "customer_id": {
+                "type": "string"
+              },
+              "provider_name": {
+                "type": "string"
+              },
+              "vertical": {
+                "type": "string",
+                "enum": ["crm", "engagement"]
+              },
+              "common_objects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "standard_objects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "custom_objects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "sync_mode": {
+                "type": "string",
+                "enum": ["full", "incremental"],
+                "description": "Incremental by default"
+              },
+              "destination_schema": {
+                "type": "string"
+              },
+              "page_size": {
+                "type": "number"
+              }
+            },
+            "required": ["customer_id", "provider_name", "vertical"]
+          },
+          "name": {
+            "type": "string",
+            "enum": ["sync.requested"]
+          }
+        },
+        "required": ["data", "name"]
+      },
+      "webhooks.sync.completed": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "customer_id": {
+                "type": "string"
+              },
+              "provider_name": {
+                "type": "string"
+              },
+              "vertical": {
+                "type": "string",
+                "enum": ["crm", "engagement"]
+              },
+              "common_objects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "standard_objects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "custom_objects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "sync_mode": {
+                "type": "string",
+                "enum": ["full", "incremental"],
+                "description": "Incremental by default"
+              },
+              "destination_schema": {
+                "type": "string"
+              },
+              "page_size": {
+                "type": "number"
+              },
+              "request_event_id": {
+                "type": "string"
+              },
+              "run_id": {
+                "type": "string"
+              },
+              "metrics": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "result": {
+                "type": "string",
+                "enum": [
+                  "SUCCESS",
+                  "USER_ERROR",
+                  "REMOTE_ERROR",
+                  "INTERNAL_ERROR"
+                ]
+              },
+              "error_detail": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "customer_id",
+              "provider_name",
+              "vertical",
+              "request_event_id",
+              "run_id",
+              "metrics",
+              "result"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "enum": ["sync.completed"]
+          }
+        },
+        "required": ["data", "name"]
+      },
+      "webhooks.connection.created": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "customer_id": {
+                "type": "string"
+              },
+              "provider_name": {
+                "type": "string"
+              },
+              "connection_id": {
+                "type": "string"
+              },
+              "result": {
+                "type": "string",
+                "enum": [
+                  "SUCCESS",
+                  "USER_ERROR",
+                  "REMOTE_ERROR",
+                  "INTERNAL_ERROR"
+                ]
+              }
+            },
+            "required": [
+              "customer_id",
+              "provider_name",
+              "connection_id",
+              "result"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "enum": ["connection.created"]
+          }
+        },
+        "required": ["data", "name"]
+      },
       "error.INTERNAL_SERVER_ERROR": {
         "type": "object",
         "properties": {

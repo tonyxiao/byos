@@ -1,0 +1,36 @@
+diff --git a/dist/generator/index.d.ts b/dist/generator/index.d.ts
+index f9c5debf7b030e154e4846ff37548ca70d6e89d6..27c48c76f50995f33085a54f97410bfb70023f1d 100644
+--- a/dist/generator/index.d.ts
++++ b/dist/generator/index.d.ts
+@@ -1,5 +1,5 @@
+ import { OpenAPIObject, SecuritySchemeObject } from 'openapi3-ts/dist/oas31';
+-import { ZodOpenApiObject, ZodOpenApiPathsObject } from 'zod-openapi';
++import { ZodOpenApiObject, ZodOpenApiPathsObject, ZodOpenApiComponentsObject } from 'zod-openapi';
+ import { OpenApiRouter } from '../types';
+ export type GenerateOpenApiDocumentOptions = {
+     title: string;
+@@ -11,6 +11,9 @@ export type GenerateOpenApiDocumentOptions = {
+     tags?: string[];
+     securitySchemes?: Record<string, SecuritySchemeObject>;
+     paths?: ZodOpenApiPathsObject;
++    webhooks?: ZodOpenApiPathsObject;
++    components?: ZodOpenApiComponentsObject;
+ };
+ export declare const generateOpenApiDocument: (appRouter: OpenApiRouter, opts: GenerateOpenApiDocumentOptions) => OpenAPIObject;
++export type { ZodOpenApiComponentsObject, ZodOpenApiObject, ZodOpenApiPathsObject }
+ //# sourceMappingURL=index.d.ts.map
+\ No newline at end of file
+diff --git a/dist/generator/index.js b/dist/generator/index.js
+index adc1cc5705706b118233dfe0dcf7893479768baa..c33d9194ec414cf6f122159e3442b5a90659549a 100644
+--- a/dist/generator/index.js
++++ b/dist/generator/index.js
+@@ -24,7 +24,9 @@ const generateOpenApiDocument = (appRouter, opts) => {
+             },
+         ],
+         paths: (0, paths_1.mergePaths)((0, paths_1.getOpenApiPathsObject)(appRouter, Object.keys(securitySchemes)), opts.paths),
++        webhooks: opts.webhooks,
+         components: {
++            ...opts.components,
+             securitySchemes,
+         },
+         tags: (_b = opts.tags) === null || _b === void 0 ? void 0 : _b.map((tag) => ({ name: tag })),

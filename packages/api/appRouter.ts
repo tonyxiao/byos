@@ -1,7 +1,12 @@
 import {generateOpenApiDocument} from '@lilyrose2798/trpc-openapi'
-import {publicProcedure, trpc, z} from '@supaglue/vdk'
+import {
+  ZodOpenApiComponentsObject,
+  ZodOpenApiPathsObject,
+} from '@lilyrose2798/trpc-openapi/dist/generator'
+import {mapKeys, mapValues, publicProcedure, trpc, z} from '@supaglue/vdk'
 import {crmRouter} from '@supaglue/vertical-crm'
 import {salesEngagementRouter} from '@supaglue/vertical-sales-engagement'
+import {eventsMap} from '../worker/events'
 import {mgmtRouter} from './mgmtRouter'
 
 const publicRouter = trpc.router({
@@ -30,7 +35,38 @@ export const appRouter = trpc.router({
   crm: crmRouter,
 })
 
+export function oasWebhooksEventsMap(
+  eMap: Record<string, {data: z.AnyZodObject}>,
+) {
+  const webhooks = mapValues(
+    eMap,
+    (_, name): ZodOpenApiPathsObject[string] => ({
+      post: {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {$ref: `#/components/schemas/webhooks.${name}`},
+            },
+          },
+        },
+        responses: {},
+      },
+    }),
+  )
+  type Schemas = NonNullable<ZodOpenApiComponentsObject['schemas']>
+  const components = {
+    schemas: mapKeys(
+      mapValues(eMap, (shape, name): Schemas[string] =>
+        z.object({...shape, name: z.literal(name)}),
+      ),
+      (name) => `webhooks.${name}`,
+    ),
+  }
+  return {webhooks, components}
+}
+
 export function getOpenAPISpec() {
+  const {webhooks, components} = oasWebhooksEventsMap(eventsMap)
   const oas = generateOpenApiDocument(appRouter, {
     openApiVersion: '3.1.0', // Want jsonschema
     title: 'Bulid your own Supaglue',
@@ -43,6 +79,8 @@ export function getOpenAPISpec() {
       customerId: {name: 'x-customer-id', type: 'apiKey', in: 'header'},
       providerName: {name: 'x-provider-name', type: 'apiKey', in: 'header'},
     },
+    webhooks,
+    components,
   })
   return oas
 }

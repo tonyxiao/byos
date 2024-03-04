@@ -108,10 +108,100 @@ export interface paths {
   }
 }
 
-export type webhooks = Record<string, never>
+export interface webhooks {
+  'sync.requested': {
+    post: {
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['webhooks.sync.requested']
+        }
+      }
+      responses: {}
+    }
+  }
+  'sync.completed': {
+    post: {
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['webhooks.sync.completed']
+        }
+      }
+      responses: {}
+    }
+  }
+  'connection.created': {
+    post: {
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['webhooks.connection.created']
+        }
+      }
+      responses: {}
+    }
+  }
+}
 
 export interface components {
   schemas: {
+    'webhooks.sync.requested': {
+      data: {
+        customer_id: string
+        provider_name: string
+        /** @enum {string} */
+        vertical: 'crm' | 'engagement'
+        common_objects?: string[]
+        standard_objects?: string[]
+        custom_objects?: string[]
+        /**
+         * @description Incremental by default
+         * @enum {string}
+         */
+        sync_mode?: 'full' | 'incremental'
+        destination_schema?: string
+        page_size?: number
+      }
+      /** @enum {string} */
+      name: 'sync.requested'
+    }
+    'webhooks.sync.completed': {
+      data: {
+        customer_id: string
+        provider_name: string
+        /** @enum {string} */
+        vertical: 'crm' | 'engagement'
+        common_objects?: string[]
+        standard_objects?: string[]
+        custom_objects?: string[]
+        /**
+         * @description Incremental by default
+         * @enum {string}
+         */
+        sync_mode?: 'full' | 'incremental'
+        destination_schema?: string
+        page_size?: number
+        request_event_id: string
+        run_id: string
+        metrics: {
+          [key: string]: unknown
+        }
+        /** @enum {string} */
+        result: 'SUCCESS' | 'USER_ERROR' | 'REMOTE_ERROR' | 'INTERNAL_ERROR'
+        error_detail?: string
+      }
+      /** @enum {string} */
+      name: 'sync.completed'
+    }
+    'webhooks.connection.created': {
+      data: {
+        customer_id: string
+        provider_name: string
+        connection_id: string
+        /** @enum {string} */
+        result: 'SUCCESS' | 'USER_ERROR' | 'REMOTE_ERROR' | 'INTERNAL_ERROR'
+      }
+      /** @enum {string} */
+      name: 'connection.created'
+    }
     /**
      * Error
      * @description The error information

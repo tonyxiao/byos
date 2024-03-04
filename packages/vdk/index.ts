@@ -36,7 +36,6 @@ export type ResponseFrom<
 
 export * from './errors'
 
-
 // re-exporting utiltities
 
-export {uniq, uniqBy} from 'remeda'
+export {uniq, uniqBy, mapValues, mapKeys} from 'remeda'
