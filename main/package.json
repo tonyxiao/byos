@@ -17,6 +17,7 @@
     "@supaglue/db": "workspace:*",
     "@supaglue/sdk": "workspace:*",
     "@supaglue/vdk": "workspace:*",
+    "@supaglue/mgmt": "workspace:*",
     "@supaglue/worker": "workspace:*",
     "@t3-oss/env-nextjs": "0.7.3",
     "jsforce": "^2.0.0-beta.29",

@@ -1,0 +1,14 @@
+{
+  "name": "@supaglue/mgmt",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "module": "./index.ts",
+  "scripts": {},
+  "dependencies": {
+    "@opensdks/sdk-nango": "0.0.4",
+    "@opensdks/sdk-supaglue": "0.0.3",
+    "@supaglue/db": "workspace:*",
+    "@supaglue/vdk": "workspace:*"
+  }
+}

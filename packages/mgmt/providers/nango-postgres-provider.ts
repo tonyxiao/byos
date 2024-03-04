@@ -28,7 +28,9 @@ export function fromNangoProvider(provider: string) {
     : provider
 }
 
-export function fromNangoConnection(c: NangoConnection): commonModels.Connection {
+export function fromNangoConnection(
+  c: NangoConnection,
+): commonModels.Connection {
   return {
     id: `${c.id}`,
     customer_id: `${c.connection_id}`,

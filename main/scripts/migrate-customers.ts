@@ -1,6 +1,6 @@
 // import {createClient, fetchLink} from '@opensdks/runtime'
-import {toNangoProvider} from '@supaglue/api/mgmt/providers/nango-postgres-provider'
 import {db, dbUpsert, pgClient, schema, sql} from '@supaglue/db'
+import {toNangoProvider} from '@supaglue/mgmt/providers/nango-postgres-provider'
 import {
   isHttpError,
   OperationRequestBodyContent,

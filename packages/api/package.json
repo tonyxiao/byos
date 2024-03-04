@@ -11,17 +11,13 @@
   },
   "dependencies": {
     "@lilyrose2798/trpc-openapi": "1.3.10",
-    "@opensdks/runtime": "0.0.19",
-    "@opensdks/sdk-nango": "0.0.4",
-    "@opensdks/sdk-supaglue": "0.0.3",
-    "@supaglue/db": "workspace:*",
+    "@opensdks/util-zod": "0.0.15",
     "@supaglue/events": "workspace:*",
+    "@supaglue/mgmt": "workspace:*",
     "@supaglue/vdk": "workspace:*",
     "@supaglue/vertical-crm": "workspace:*",
     "@supaglue/vertical-sales-engagement": "workspace:*",
-    "@trpc/server": "10.40.0"
+    "remeda": "^1.46.0"
   },
-  "devDependencies": {
-    "@supaglue/vdk": "workspace:*"
-  }
+  "devDependencies": {}
 }

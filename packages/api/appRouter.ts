@@ -4,10 +4,13 @@ import type {
   ZodOpenApiPathsObject,
 } from '@lilyrose2798/trpc-openapi/dist/generator'
 import {eventsMap} from '@supaglue/events'
-import {mapKeys, mapValues, publicProcedure, trpc, z} from '@supaglue/vdk'
+import {mgmtRouter} from '@supaglue/mgmt'
+import {publicProcedure, trpc} from '@supaglue/vdk'
 import {crmRouter} from '@supaglue/vertical-crm'
 import {salesEngagementRouter} from '@supaglue/vertical-sales-engagement'
-import {mgmtRouter} from './mgmt/router'
+import {mapKeys, mapValues} from 'remeda'
+// not sure about directly depending on vdk from api, but anyways
+import {z} from '@opensdks/util-zod'
 
 const publicRouter = trpc.router({
   health: publicProcedure
