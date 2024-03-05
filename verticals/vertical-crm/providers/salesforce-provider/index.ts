@@ -273,7 +273,7 @@ export const salesforceProvider = {
       params: {path: {sObject: capitalizeFirstChar(input.object_name)}},
     })
     return (res.data.fields ?? [])
-      .filter((field) => COMPOUND_TYPES.includes(field.type ?? ''))
+      .filter((field) => !COMPOUND_TYPES.includes(field.type ?? ''))
       .map((field) => ({
         id: field.name ?? '',
         label: field.label ?? '',
@@ -293,13 +293,7 @@ export const salesforceProvider = {
     }),
 } satisfies CRMProvider<SalesforceSDK>
 
-const COMPOUND_TYPES = [
-  'location',
-  'address',
-  'textarea',
-  'string',
-  'reference',
-]
+const COMPOUND_TYPES = ['location', 'address']
 
 function ensureCustomObjectSuffix(name: string) {
   return name.endsWith('__c') ? name : `${name}__c`
