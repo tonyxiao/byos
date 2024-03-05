@@ -27,6 +27,9 @@ export interface paths {
     get: operations['mgmt-getConnection']
     delete: operations['mgmt-deleteConnection']
   }
+  '/sync_configs': {
+    get: operations['mgmt-listSyncConfigs']
+  }
   '/connection_sync_configs': {
     get: operations['mgmt-getConnectionSyncConfig']
     put: operations['mgmt-upsertConnectionSyncConfig']
@@ -162,6 +165,7 @@ export interface components {
       }
       /** @enum {string} */
       name: 'sync.requested'
+      id?: string
     }
     'webhooks.sync.completed': {
       data: {
@@ -179,7 +183,7 @@ export interface components {
         sync_mode?: 'full' | 'incremental'
         destination_schema?: string
         page_size?: number
-        request_event_id: string
+        request_event_id?: string
         run_id: string
         metrics: {
           [key: string]: unknown
@@ -190,6 +194,7 @@ export interface components {
       }
       /** @enum {string} */
       name: 'sync.completed'
+      id?: string
     }
     'webhooks.connection.created': {
       data: {
@@ -201,6 +206,7 @@ export interface components {
       }
       /** @enum {string} */
       name: 'connection.created'
+      id?: string
     }
     /**
      * Error
@@ -294,14 +300,29 @@ export interface components {
     }
     connection: {
       id: string
-      customer_id?: string | null
+      customer_id: string
       provider_name: string
+    }
+    sync_config: components['schemas']['connection_sync_config'] & {
+      provider_name: string
+      /** @description If true, the sync will start automatically when the connection is created. */
+      auto_start_on_connection?: boolean | null
     }
     connection_sync_config: {
       destination_config?: {
         type: string
         schema?: string | null
       } | null
+      common_objects?:
+        | {
+            object: string
+          }[]
+        | null
+      standard_objects?:
+        | {
+            object: string
+          }[]
+        | null
       custom_objects?:
         | {
             object: string
@@ -889,6 +910,22 @@ export interface operations {
       }
     }
   }
+  'mgmt-listSyncConfigs': {
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': components['schemas']['sync_config'][]
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
   'mgmt-getConnectionSyncConfig': {
     responses: {
       /** @description Successful response */
@@ -913,6 +950,16 @@ export interface operations {
             type: string
             schema?: string | null
           } | null
+          common_objects?:
+            | {
+                object: string
+              }[]
+            | null
+          standard_objects?:
+            | {
+                object: string
+              }[]
+            | null
           custom_objects?:
             | {
                 object: string

@@ -160,6 +160,31 @@ export const nangoPostgresProvider = {
     })
   },
 
+  // MARK: -
+
+  listSyncConfigs: () =>
+    // instance.nango
+    //   .GET('/environment-variables')
+    //   .then(
+    //     (res) =>
+    //       JSON.parse(
+    //         res.data.find((v) => v.name === 'sync-configs')?.value || '[]',
+    //       ) as commonModels.SyncConfig[],
+    //   ),
+    // hard-coding for now, as nango does not have a way to store this and putting it inside env var
+    // feels more hacky than helpful for the time being...
+    ['hubspot', 'salesforce', 'pipedrive', 'ms_dynamics_365_sales'].map(
+      (provider_name): commonModels.SyncConfig => ({
+        provider_name,
+        common_objects: [
+          'account',
+          'contact',
+          'opportunity',
+          'lead',
+          'user',
+        ].map((object) => ({object})),
+      }),
+    ),
   getConnectionSyncConfig: async ({instance}) =>
     getConnection(
       instance.nango,

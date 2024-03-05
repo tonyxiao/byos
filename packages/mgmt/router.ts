@@ -85,7 +85,13 @@ export const mgmtRouter = trpc.router({
     .output(z.void())
     .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
 
-  // MARK: - connection sync config
+  // MARK: - Sync config management
+
+  listSyncConfigs: mgmtProcedure
+    .meta({openapi: {method: 'GET', path: '/sync_configs'}})
+    .input(z.void())
+    .output(z.array(commonModels.sync_config))
+    .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
 
   getConnectionSyncConfig: mgmtProcedure
     .meta({

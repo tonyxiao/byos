@@ -2,7 +2,7 @@
 import {BadRequestError} from '@supaglue/vdk'
 import type {SupaglueSDK} from '@opensdks/sdk-supaglue'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
-import type {MgmtProvider} from '../router'
+import type {commonModels, MgmtProvider} from '../router'
 
 export const supaglueProvider = {
   __init__: ({ctx}) => {
@@ -58,6 +58,20 @@ export const supaglueProvider = {
         },
       })
       .then((r) => r.data),
+
+  // MARK: -
+
+  listSyncConfigs: async ({instance}) =>
+    instance.mgmt.GET('/sync_configs').then((r) =>
+      r.data.map(
+        (sc): commonModels.SyncConfig => ({
+          provider_name: sc.provider_name,
+          custom_objects: sc.config.custom_objects,
+          common_objects: sc.config.common_objects,
+          standard_objects: sc.config.standard_objects,
+        }),
+      ),
+    ),
   getConnectionSyncConfig: async ({instance, ctx}) =>
     instance.mgmt
       .GET('/connection_sync_configs', {

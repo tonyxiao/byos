@@ -5,5 +5,5 @@ const nango = initNangoSDK({
 })
 
 void nango.GET('/environment-variables').then((r) => {
-  console.log(r.data)
+  console.log(r.data[0].name)
 })

@@ -23,20 +23,37 @@ export const customer = z
 export const connection = z
   .object({
     id: z.string(),
-    customer_id: z.string().nullish(),
+    customer_id: z.string(),
     provider_name: z.string(),
   })
   .openapi({ref: 'connection'})
 export type Connection = z.infer<typeof connection>
 
-/** @deprecated but still needed */
 export const connection_sync_config = z
   .object({
     destination_config: z
       .object({type: z.string(), schema: z.string().nullish()})
       .nullish(),
 
+    common_objects: z.array(z.object({object: z.string()})).nullish(),
+    standard_objects: z.array(z.object({object: z.string()})).nullish(),
     custom_objects: z.array(z.object({object: z.string()})).nullish(),
   })
   .openapi({ref: 'connection_sync_config'})
 export type ConnectionSyncConfig = z.infer<typeof connection_sync_config>
+
+export const sync_config = z
+  .intersection(
+    connection_sync_config,
+    z.object({
+      provider_name: z.string(),
+      auto_start_on_connection: z
+        .boolean()
+        .nullish()
+        .describe(
+          'If true, the sync will start automatically when the connection is created.',
+        ),
+    }),
+  )
+  .openapi({ref: 'sync_config'})
+export type SyncConfig = z.infer<typeof sync_config>

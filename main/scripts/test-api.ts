@@ -11,6 +11,7 @@ const supaglue = initBYOSupaglueSDK({
 })
 
 async function main() {
+  await supaglue.GET('/sync_configs')
   // let cursor: string | undefined = undefined
   //
   // while (true) {
@@ -27,16 +28,15 @@ async function main() {
   //   body: {record: {domain: 'examplebob.com', }, upsert_on: {name: 'Jacob'}},
   // })
   // console.log('Success', res.data)
-  const res = await supaglue.GET(
-    '/crm/v2/metadata/objects/{object_name}/properties',
-    {params: {path: {object_name: process.env['OBJECT'] ?? 'Account'}}},
-  )
+  // const res = await supaglue.GET(
+  //   '/crm/v2/metadata/objects/{object_name}/properties',
+  //   {params: {path: {object_name: process.env['OBJECT'] ?? 'Account'}}},
+  // )
   // console.log('Success', res.data)
   // const res = await supaglue.GET('/crm/v2/contacts/{id}', {
   //   params: {path: {id: '0033x00003D6SBOAA3'}},
   // })
   // console.log('Success', res.data)
-
   // const res = await supaglue.GET('/crm/v2/companies/{id}', {
   //   params: {path: {id: '0033x00003D6SBOAA3'}},
   // })
@@ -59,7 +59,7 @@ async function main() {
   // const res = await supaglue.GET('/customers', {
   //   // params: {query: {name: 'MyStuff', type: 'custom'}},
   // })
-  console.log('Success', res.data)
+  // console.log('Success', res.data)
   // res.data.record.name
 }
 

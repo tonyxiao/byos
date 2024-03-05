@@ -11,7 +11,6 @@ import type {Events} from '@supaglue/events'
 import {initBYOSupaglueSDK} from '@supaglue/sdk'
 import {and, eq, sql} from 'drizzle-orm'
 import type {SendEventPayload} from 'inngest/helpers/types'
-import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
 import {HTTPError, parseErrorInfo} from '../vdk/errors'
 import {env} from './env'
 
@@ -58,17 +57,22 @@ export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 
 export async function scheduleSyncs({step, event}: RoutineInput<never>) {
   console.log('[scheduleSyncs]', event)
-  const supaglue = initSupaglueSDK({
-    headers: {'x-api-key': env.SUPAGLUE_API_KEY!},
+
+  const byos = initBYOSupaglueSDK({
+    headers: {'x-api-key': env.SUPAGLUE_API_KEY},
+    // Bypass the normal fetch link http round-tripping back to our server and handle the BYOS request directly!
+    // Though we are losing the ability to debug using Proxyman and others... So maybe make this configurable in
+    // development
+    links: [createAppHandler({env})],
   })
 
   const [syncConfigs, customers] = await Promise.all([
-    supaglue.mgmt.GET('/sync_configs').then((r) => r.data),
-    supaglue.mgmt.GET('/customers').then((r) => r.data),
+    byos.GET('/sync_configs').then((r) => r.data),
+    byos.GET('/customers').then((r) => r.data),
   ])
   const connections = await Promise.all(
     customers.map((c) =>
-      supaglue.mgmt
+      byos
         .GET('/customers/{customer_id}/connections', {
           params: {path: {customer_id: c.customer_id}},
         })
@@ -78,7 +82,17 @@ export async function scheduleSyncs({step, event}: RoutineInput<never>) {
 
   const events = connections
     .map((c) => {
-      if (c.category !== 'crm' && c.category !== 'engagement') {
+      if (
+        ![
+          'salesforce',
+          'hubspot',
+          'pipedrive',
+          'outreach',
+          'salesloft',
+          'apollo',
+        ].includes(c.provider_name)
+      ) {
+        // Only sync these for now...
         return null
       }
       console.log(
@@ -86,13 +100,13 @@ export async function scheduleSyncs({step, event}: RoutineInput<never>) {
       )
       const syncConfig = syncConfigs.find(
         (sc) => sc.provider_name === c.provider_name,
-      )?.config
+      )
       return {
         name: 'sync.requested',
         data: {
           customer_id: c.customer_id,
           provider_name: c.provider_name,
-          vertical: c.category,
+          vertical: 'crm',
           common_objects: syncConfig?.common_objects?.map((o) => o.object),
           standard_objects: syncConfig?.standard_objects?.map((o) => o.object),
           destination_schema: env.DESTINATION_SCHEMA,

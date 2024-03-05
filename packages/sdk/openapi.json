@@ -412,6 +412,36 @@
         }
       }
     },
+    "/sync_configs": {
+      "get": {
+        "operationId": "mgmt-listSyncConfigs",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/sync_config"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/connection_sync_configs": {
       "get": {
         "operationId": "mgmt-getConnectionSyncConfig",
@@ -458,6 +488,30 @@
                       }
                     },
                     "required": ["type"]
+                  },
+                  "common_objects": {
+                    "type": ["array", "null"],
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "object": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["object"]
+                    }
+                  },
+                  "standard_objects": {
+                    "type": ["array", "null"],
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "object": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["object"]
+                    }
                   },
                   "custom_objects": {
                     "type": ["array", "null"],
@@ -2617,6 +2671,9 @@
           "name": {
             "type": "string",
             "enum": ["sync.requested"]
+          },
+          "id": {
+            "type": "string"
           }
         },
         "required": ["data", "name"]
@@ -2693,7 +2750,6 @@
               "customer_id",
               "provider_name",
               "vertical",
-              "request_event_id",
               "run_id",
               "metrics",
               "result"
@@ -2702,6 +2758,9 @@
           "name": {
             "type": "string",
             "enum": ["sync.completed"]
+          },
+          "id": {
+            "type": "string"
           }
         },
         "required": ["data", "name"]
@@ -2741,6 +2800,9 @@
           "name": {
             "type": "string",
             "enum": ["connection.created"]
+          },
+          "id": {
+            "type": "string"
           }
         },
         "required": ["data", "name"]
@@ -2879,13 +2941,33 @@
             "type": "string"
           },
           "customer_id": {
-            "type": ["string", "null"]
+            "type": "string"
           },
           "provider_name": {
             "type": "string"
           }
         },
-        "required": ["id", "provider_name"]
+        "required": ["id", "customer_id", "provider_name"]
+      },
+      "sync_config": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/connection_sync_config"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "provider_name": {
+                "type": "string"
+              },
+              "auto_start_on_connection": {
+                "type": ["boolean", "null"],
+                "description": "If true, the sync will start automatically when the connection is created."
+              }
+            },
+            "required": ["provider_name"]
+          }
+        ]
       },
       "connection_sync_config": {
         "type": "object",
@@ -2901,6 +2983,30 @@
               }
             },
             "required": ["type"]
+          },
+          "common_objects": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object",
+              "properties": {
+                "object": {
+                  "type": "string"
+                }
+              },
+              "required": ["object"]
+            }
+          },
+          "standard_objects": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object",
+              "properties": {
+                "object": {
+                  "type": "string"
+                }
+              },
+              "required": ["object"]
+            }
           },
           "custom_objects": {
             "type": ["array", "null"],
