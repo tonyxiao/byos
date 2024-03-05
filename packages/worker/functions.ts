@@ -398,6 +398,8 @@ export async function triggerImmediateSync({
     ...event.data,
     vertical: 'crm',
     unified_objects: ['account', 'contact', 'opportunity', 'lead', 'user'],
+    // TODO: Dedupe with this scheduleSyncs
+    destination_schema: env.DESTINATION_SCHEMA,
   } satisfies Events['sync.requested']['data']
   await step.sendEvent('sync.requested', {name: 'sync.requested', data})
 
