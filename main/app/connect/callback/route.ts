@@ -6,11 +6,11 @@ const zCookie = z.object({
   state: z.string().optional(),
 })
 
-export function fromNangoProviderConfigKey(provider: string) {
+function fromNangoProviderConfigKey(provider: string) {
   return provider.replace(/^ccfg_/, '')
 }
 
-export function fromNangoConnectionId(connectionId: string) {
+function fromNangoConnectionId(connectionId: string) {
   return connectionId.replace(/^cus_/, '')
 }
 

@@ -6,6 +6,6 @@ const nango = initNangoSDK({
 
 void nango
   .GET('/connection/{connectionId}', {
-    params: {path: {connectionId: 'cus_64a350c383ea68001832fd8a'}, query: {provider_config_key: 'ccfg_hubspot'}},
+    params: {path: {connectionId: 'cus_65ca441598f972a94d97e1bb'}, query: {provider_config_key: 'ccfg_salesforce'}},
   })
   
