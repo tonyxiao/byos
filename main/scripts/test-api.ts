@@ -2,16 +2,17 @@ import {initBYOSupaglueSDK} from '@supaglue/sdk'
 
 const supaglue = initBYOSupaglueSDK({
   headers: {
-    'x-api-key': process.env['SUPAGLUE_API_KEY']!,
-    'x-customer-id': process.env['CUSTOMER_ID']!, // '64a350c383ea68001832fd8a',
-    'x-provider-name': process.env['PROVIDER_NAME']!, // 'hubspot',
+    // 'x-api-key': process.env['SUPAGLUE_API_KEY']!,
+    // 'x-customer-id': process.env['CUSTOMER_ID']!, // '64a350c383ea68001832fd8a',
+    // 'x-provider-name': process.env['PROVIDER_NAME']!, // 'hubspot',
     // 'x-customer-id': 'test-connection-id',
     // 'x-provider-name': 'salesforce',
   },
 })
 
 async function main() {
-  await supaglue.GET('/sync_configs')
+  await supaglue.GET('/customers')
+  // await supaglue.GET('/sync_configs')
   // let cursor: string | undefined = undefined
   //
   // while (true) {

@@ -89,18 +89,12 @@ async function authenticateOrFail(nango: NangoSDK) {
 }
 
 export const nangoPostgresProvider = {
-  __init__: ({ctx}) => {
-    const nango = initNangoSDK({
+  __init__: ({ctx}) => ({
+    nango: initNangoSDK({
       headers: {authorization: `Bearer ${ctx.required['x-nango-secret-key']}`},
-    })
-    function getCustomerIdAndProviderNameFromHeaders() {
-      return {
-        customer_id: ctx.required['x-customer-id'],
-        provider_name: ctx.required['x-provider-name'],
-      }
-    }
-    return {nango, db: _db, getCustomerIdAndProviderNameFromHeaders}
-  },
+    }),
+    db: _db,
+  }),
   // TODO: consider separating nango provider from postgres provider... And then have user compose together a nangoPostgres provider
   listCustomers: async ({instance}) => {
     await authenticateOrFail(instance.nango)
@@ -171,21 +165,19 @@ export const nangoPostgresProvider = {
         ].map((object) => ({object})),
       }),
     ),
-  getConnectionSyncConfig: async ({instance}) =>
-    getConnection(
-      instance.nango,
-      instance.getCustomerIdAndProviderNameFromHeaders(),
-    ).then((conn) => conn.metadata as commonModels.ConnectionSyncConfig),
+  getConnectionSyncConfig: async ({instance, ctx}) =>
+    getConnection(instance.nango, {
+      customer_id: ctx.required['x-customer-id'],
+      provider_name: ctx.required['x-provider-name'],
+    }).then((conn) => conn.metadata as commonModels.ConnectionSyncConfig),
 
-  upsertConnectionSyncConfig: async ({instance, input}) => {
-    const {customer_id, provider_name} =
-      instance.getCustomerIdAndProviderNameFromHeaders()
+  upsertConnectionSyncConfig: async ({instance, input, ctx}) => {
+    const {'x-customer-id': customerId, 'x-provider-name': providerName} =
+      ctx.required
     await instance.nango.POST('/connection/{connectionId}/metadata', {
       params: {
-        path: {connectionId: toNangoConnectionId(customer_id)},
-        header: {
-          'Provider-Config-Key': toNangoProviderConfigKey(provider_name),
-        },
+        path: {connectionId: toNangoConnectionId(customerId)},
+        header: {'Provider-Config-Key': toNangoProviderConfigKey(providerName)},
       },
       body: input as Record<string, never>,
     })
@@ -194,13 +186,9 @@ export const nangoPostgresProvider = {
 
   // Maybe having a way to specify required methods could be nice for providers
 } satisfies MgmtProvider<{
-  nango: NangoSDK
-  db: typeof _db
   // Would be great to separate the __init__ from rest of the methods
   // so we don't have to repeat ourselves like this and can use result of __init__ in other methods
   // via typescript inference
-  getCustomerIdAndProviderNameFromHeaders: () => {
-    customer_id: string
-    provider_name: string
-  }
+  nango: NangoSDK
+  db: typeof _db
 }>
