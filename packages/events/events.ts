@@ -51,8 +51,9 @@ export const eventsMap = {
     data: z.object({
       customer_id: z.string(),
       provider_name: z.string(),
-      connection_id: z.string(),
-      result: zResult,
+      // TODO: Add more fields later...
+      // connection_id: z.string(),
+      // result: zResult,
     }),
   },
 }

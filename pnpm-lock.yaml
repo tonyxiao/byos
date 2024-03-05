@@ -270,6 +270,9 @@ importers:
       '@supaglue/db':
         specifier: workspace:*
         version: link:../db
+      '@supaglue/events':
+        specifier: workspace:*
+        version: link:../events
       '@supaglue/vdk':
         specifier: workspace:*
         version: link:../vdk

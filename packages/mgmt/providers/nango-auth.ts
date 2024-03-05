@@ -1,3 +1,4 @@
+import {Events, inngest} from '@supaglue/events'
 import {z} from '@supaglue/vdk'
 import cookie from 'cookie'
 import {
@@ -109,25 +110,51 @@ export async function nangoAuthCallbackHandler(req: Request) {
     .then((res) => res.text())
     .then(parseNangoOauthCallbackPage)
 
-  const returnUrl = initParams.return_url
-    ? new URL(initParams.return_url)
-    : null
-
   const returnParams = {
     result:
       event?.eventType === 'AUTHORIZATION_SUCEEDED'
         ? ('SUCCESS' as const)
         : ('ERROR' as const),
-    ...(event?.eventType === 'AUTHORIZATION_SUCEEDED' && {
-      customer_id: fromNangoConnectionId(event.data.connectionId),
-      provider_name: fromNangoProviderConfigKey(event.data.providerConfigKey),
-    }),
-    ...(event?.eventType === 'AUTHORIZATION_FAILED' && {
-      error_type: event.data.authErrorType,
-      error_detail: event.data.authErrorDesc,
-    }),
     state: initParams.state,
   }
+
+  if (event?.eventType === 'AUTHORIZATION_SUCEEDED') {
+    const data = {
+      customer_id: fromNangoConnectionId(event.data.connectionId),
+      provider_name: fromNangoProviderConfigKey(event.data.providerConfigKey),
+    }
+    Object.assign(returnParams, data)
+
+    // Is there a way we can do this asynchronously AFTER the response is sent on Vercel?
+    await inngest.send([
+      // Fire webhook
+      {name: 'connection.created', data},
+      // Trigger immediate sync
+      {
+        name: 'sync.requested',
+        data: {
+          ...data,
+          vertical: 'crm',
+          unified_objects: [
+            'account',
+            'contact',
+            'opportunity',
+            'lead',
+            'user',
+          ],
+        } satisfies Events['sync.requested']['data'],
+      },
+    ])
+  } else if (event?.eventType === 'AUTHORIZATION_FAILED') {
+    Object.assign(returnParams, {
+      error_type: event.data.authErrorType,
+      error_detail: event.data.authErrorDesc,
+    })
+  }
+
+  const returnUrl = initParams.return_url
+    ? new URL(initParams.return_url)
+    : null
 
   Object.entries(returnParams).forEach(([key, value]) => {
     if (value) {
