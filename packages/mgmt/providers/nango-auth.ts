@@ -1,4 +1,4 @@
-import {Events, inngest} from '@supaglue/events'
+import {inngest} from '@supaglue/events'
 import {z} from '@supaglue/vdk'
 import cookie from 'cookie'
 import {
