@@ -7,7 +7,7 @@ import {
   toNangoProviderConfigKey,
 } from './nango-postgres-provider'
 
-const zParams = z.object({
+const zOauthInitParams = z.object({
   customer_id: z.string(),
   provider_name: z.string(),
   scope: z.string().optional(),
@@ -16,8 +16,9 @@ const zParams = z.object({
   // we don't need application_id here for now
 })
 
-const zCookie = zParams.pick({state: true, return_url: true})
+export type OAuthInitParams = z.infer<typeof zOauthInitParams>
 
+const zCookie = zOauthInitParams.pick({state: true, return_url: true})
 
 // TODO: Put helpers for how to construct a connect url into a published SDK
 // even if it's just a standalone package
@@ -31,7 +32,7 @@ export function nangoAuthCreateInitHandler({
 }) {
   return async function GET(req: Request) {
     const reqUrl = new URL(req.url)
-    const params = zParams.parse(
+    const params = zOauthInitParams.parse(
       Object.fromEntries(reqUrl.searchParams.entries()),
     )
 
@@ -69,7 +70,8 @@ export function nangoAuthCreateInitHandler({
       )
     }
     // Override default scope set by Nango
-    if (params.scope) {
+    if (params.scope && params.scope !== 'undefined') {
+      // catch undefined from bad consumer redirects
       oauthUrl.searchParams.set('scope', params.scope)
     }
     // Persist state for later retrieval
