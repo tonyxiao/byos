@@ -5,6 +5,7 @@
     "@jsonurl/jsonurl": "^1.1.7",
     "@opensdks/fetch-links": "0.0.18",
     "@opensdks/sdk-supaglue": "0.0.3",
+    "@opensdks/sdk-nango": "0.0.4",
     "@opensdks/util-zod": "0.0.15",
     "@trpc/server": "10.40.0",
     "remeda": "^1.46.0"

@@ -1,5 +1,6 @@
 import type {Link as FetchLink} from '@opensdks/fetch-links'
 import {mergeHeaders, modifyRequest} from '@opensdks/fetch-links'
+import {z} from '@opensdks/util-zod'
 
 const kBaseUrlOverride = 'base-url-override'
 
@@ -60,3 +61,70 @@ export function getBaseUrl(urlStr: string) {
   const url = new URL(urlStr)
   return `${url.protocol}//${url.host}/`
 }
+
+// TODO: move this into sdk-nango
+
+/**
+ * e.g. {
+  "id": 1231,
+  "created_at": "2024-03-05T01:07:40.038Z",
+  "updated_at": "2024-03-05T01:07:40.038Z",
+  "provider_config_key": "ccfg_hubspot",
+  "connection_id": "cus_64a350c383ea68001832fd8a",
+  "credentials": {
+    "type": "OAUTH2",
+    "access_token": "....,
+    "expires_at": "2024-03-05T07:05:45.162Z",
+    "raw": {
+      "token_type": "bearer",
+      "access_token": "....,
+      "expires_in": 1800,
+      "expires_at": "2024-03-05T07:05:45.162Z"
+    }
+  },
+  "connection_config": {
+    "portalId": 12123,
+    "instance_url": "https://$salesforce_instance_url"
+  },
+  "metadata": null,
+  "credentials_iv": "iMx2dfda4dZZRcaca+wTtT",
+  "credentials_tag": "j0TONTfdabadfa/E69eQ==",
+  "environment_id": 512,
+  "deleted": false,
+  "deleted_at": null,
+  "last_fetched_at": "2024-03-05T01:15:34.538Z",
+  "config_id": 235
+}
+ */
+export const nangoConnectionWithCredentials = z.object({
+  id: z.number(),
+  created_at: z.string().nullish(),
+  updated_at: z.string().nullish(),
+  provider_config_key: z.string(),
+  connection_id: z.string(),
+  credentials: z.object({
+    type: z.string().nullish(),
+    access_token: z.string(),
+    expires_at: z.string().nullish(),
+    raw: z.object({
+      token_type: z.string().nullish(),
+      access_token: z.string().nullish(),
+      expires_in: z.number().nullish(),
+      expires_at: z.string().nullish(),
+    }),
+  }),
+  connection_config: z
+    .object({
+      portalId: z.number().nullish(),
+      instance_url: z.string().nullish(),
+    })
+    .nullish(),
+  metadata: z.record(z.unknown()).nullish(),
+  credentials_iv: z.string().nullish(),
+  credentials_tag: z.string().nullish(),
+  environment_id: z.number().nullish(),
+  deleted: z.boolean().nullish(),
+  deleted_at: z.string().nullish(),
+  last_fetched_at: z.string().nullish(),
+  config_id: z.number().nullish(),
+})

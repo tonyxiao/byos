@@ -1,12 +1,9 @@
 import type {OpenApiMeta} from '@lilyrose2798/trpc-openapi'
-import {initTRPC, TRPCError} from '@trpc/server'
-import {nangoProxyLink} from './nangoProxyLink'
+import {initTRPC} from '@trpc/server'
+import {BadRequestError} from './errors'
 import type {Provider} from './provider'
-import {supaglueProxyLink} from './supaglueProxyLink'
 
 export type RouterContext = {
-  nangoSecretKey?: string
-  supaglueApiKey?: string
   headers: Headers
   providerByName: Record<string, Provider>
 }
@@ -53,70 +50,39 @@ export const trpc = initTRPC
     // },
   })
 
-export const publicProcedure = trpc.procedure
+// All the headers we accept here...
+export const publicProcedure = trpc.procedure.use(async ({next, ctx, path}) => {
+  const optional = {
+    'x-customer-id': ctx.headers.get('x-customer-id'),
+    'x-provider-name': ctx.headers.get('x-provider-name'),
+    'x-use-new-backend': ctx.headers.get('x-use-new-backend'),
+    'x-nango-secret-key': ctx.headers.get('x-nango-secret-key'),
+    'x-api-key': ctx.headers.get('x-api-key'),
+  }
+  const required = new Proxy(optional, {
+    get(target, p) {
+      const value = target[p as keyof typeof target]
+      if (value == null) {
+        throw new BadRequestError(`${p as string} header is required`)
+      }
+      return value
+    },
+  }) as {[k in keyof typeof optional]: NonNullable<(typeof optional)[k]>}
 
-// TODO: Dedupe me
-function toNangoProviderConfigKey(provider: string) {
-  return `ccfg_${provider}`
-}
+  const useNewBackend = optional['x-use-new-backend'] === 'true'
 
-function toNangoConnectionId(customerId: string) {
-  return `cus_${customerId}`
-}
+  return next({ctx: {...ctx, path, optional, required, useNewBackend}})
+})
 
-export const remoteProcedure = publicProcedure.use(
-  async ({next, ctx, path}) => {
-    const customerId = ctx.headers.get('x-customer-id')
-    if (!customerId) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'x-customer-id header is required',
-      })
-    }
-    const providerName = ctx.headers.get('x-provider-name')
-    if (!providerName) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'x-provider-name header is required',
-      })
-    }
-
-    const provider = ctx.providerByName[providerName]
-    if (!provider) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: `Provider ${providerName} not found`,
-      })
-    }
-
-    const nangoLink = ctx.nangoSecretKey
-      ? nangoProxyLink({
-          secretKey: ctx.nangoSecretKey,
-          connectionId: toNangoConnectionId(customerId),
-          providerConfigKey: toNangoProviderConfigKey(providerName),
-        })
-      : undefined
-
-    const supaglueLink = supaglueProxyLink({
-      // TODO: Should this be required?
-      apiKey: ctx.headers.get('x-api-key') ?? ctx.supaglueApiKey ?? '',
-      customerId,
-      providerName,
-    })
-
-    return next({
-      ctx: {
-        ...ctx,
-        path,
-        customerId,
-        providerName,
-        provider,
-        nangoLink,
-        supaglueLink,
-      },
-    })
-  },
-)
+export const remoteProcedure = publicProcedure.use(async ({next, ctx}) => {
+  const {'x-customer-id': customerId, 'x-provider-name': providerName} =
+    ctx.required
+  const provider = ctx.providerByName[ctx.required['x-provider-name']]
+  if (!provider) {
+    throw new BadRequestError(`Provider ${providerName} not found`)
+  }
+  return next({ctx: {...ctx, customerId, providerName, provider}})
+})
 
 export type RemoteProcedureContext = ReturnType<
   (typeof remoteProcedure)['query']

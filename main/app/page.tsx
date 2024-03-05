@@ -1,4 +1,3 @@
-import {featureFlags} from '@supaglue/vdk'
 import {initNangoSDK} from '@opensdks/sdk-nango'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
 import {env} from '@/env'

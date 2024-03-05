@@ -1,10 +1,6 @@
 import {db as _db, dbUpsert, eq, schema, sql} from '@supaglue/db'
 import type {PathsWithMethod, ResponseFrom} from '@supaglue/vdk'
-import {
-  BadRequestError,
-  NotAuthenticatedError,
-  NotFoundError,
-} from '@supaglue/vdk'
+import {NotAuthenticatedError, NotFoundError} from '@supaglue/vdk'
 import type {NangoSDK, NangoSDKTypes} from '@opensdks/sdk-nango'
 import {initNangoSDK} from '@opensdks/sdk-nango'
 import type {commonModels} from '../router'
@@ -94,24 +90,13 @@ async function authenticateOrFail(nango: NangoSDK) {
 
 export const nangoPostgresProvider = {
   __init__: ({ctx}) => {
-    const nangoSecretKey = ctx.headers.get('x-nango-secret-key')
-    if (!nangoSecretKey) {
-      throw new BadRequestError('x-nango-secret-key header is required')
-    }
     const nango = initNangoSDK({
-      headers: {authorization: `Bearer ${nangoSecretKey}`},
+      headers: {authorization: `Bearer ${ctx.required['x-nango-secret-key']}`},
     })
-    function getHeaderOrFail(name: string) {
-      const value = ctx.headers.get(name)
-      if (!value) {
-        throw new BadRequestError(`${name} header is required`)
-      }
-      return value
-    }
     function getCustomerIdAndProviderNameFromHeaders() {
       return {
-        customer_id: getHeaderOrFail('x-customer-id'),
-        provider_name: getHeaderOrFail('x-provider-name'),
+        customer_id: ctx.required['x-customer-id'],
+        provider_name: ctx.required['x-provider-name'],
       }
     }
     return {nango, db: _db, getCustomerIdAndProviderNameFromHeaders}

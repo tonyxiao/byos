@@ -24,10 +24,10 @@ type NangoPUTBody<P extends PathsWithMethod<NangoPaths, 'put'>> =
   OperationRequestBodyContent<NangoPaths[P]['put']>
 
 const supaglue = initSupaglueSDK({
-  headers: {'x-api-key': env.SUPAGLUE_API_KEY!},
+  headers: {'x-api-key': process.env['SUPAGLUE_API_KEY']!},
 })
 const nango = initNangoSDK({
-  headers: {authorization: `Bearer ${env.NANGO_SECRET_KEY}`},
+  headers: {authorization: `Bearer ${process.env['NANGO_SECRET_KEY']}`},
 })
 
 async function migrateCustomers() {

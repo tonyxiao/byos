@@ -1,7 +1,6 @@
 import {createAppHandler} from '@supaglue/api'
-import {env} from '@/env'
 
-const handler = createAppHandler({env, endpoint: '/api'})
+const handler = createAppHandler({endpoint: '/api'})
 
 export {
   handler as DELETE,

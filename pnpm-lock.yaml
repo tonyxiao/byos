@@ -293,6 +293,9 @@ importers:
       '@opensdks/fetch-links':
         specifier: 0.0.18
         version: 0.0.18
+      '@opensdks/sdk-nango':
+        specifier: 0.0.4
+        version: 0.0.4
       '@opensdks/sdk-supaglue':
         specifier: 0.0.3
         version: 0.0.3

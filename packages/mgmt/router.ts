@@ -6,31 +6,27 @@ import {supaglueProvider} from './providers/supaglue-provider'
 
 export {commonModels}
 
-export const mgmtProcedure = publicProcedure.use(async ({next, ctx, path}) => {
-  const useNewBackend =
-    ctx.headers.get('x-use-new-backend')?.toLowerCase() === 'true'
-
-  const provider: _Provider<InitOpts> = useNewBackend
+export const mgmtProcedure = publicProcedure.use(async ({next, ctx}) => {
+  const provider: _Provider<InitOpts> = ctx.useNewBackend
     ? nangoPostgresProvider
     : supaglueProvider
-  const providerName = useNewBackend ? 'nango-postgres' : 'supaglue'
+  const providerName = ctx.useNewBackend ? 'nango-postgres' : 'supaglue'
 
-  return next({
-    ctx: {
-      ...ctx,
-      path,
-      useNewBackend,
-      provider,
-      providerName,
-    },
-  })
+  return next({ctx: {...ctx, provider, providerName}})
 })
 
-type MgmtProcedure = ReturnType<
+type MgmtProcedureContext = ReturnType<
   (typeof mgmtProcedure)['query']
 >['_def']['_ctx_out']
 
-type InitOpts = {ctx: {headers: Headers}}
+type InitOpts = {ctx: MgmtProcedureContext}
+
+export type MgmtProvider<TInstance> = ProviderFromRouter<
+  typeof mgmtRouter,
+  TInstance,
+  MgmtProcedureContext,
+  InitOpts
+>
 
 // Should the mgmt router be refactored into its own package outside of API?
 export const mgmtRouter = trpc.router({
@@ -116,19 +112,12 @@ export const mgmtRouter = trpc.router({
     .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
 })
 
-export type MgmtProvider<TInstance> = ProviderFromRouter<
-  typeof mgmtRouter,
-  TInstance,
-  {headers: Headers},
-  InitOpts
->
-
 async function mgmtProxyCallProvider({
   input,
   ctx,
 }: {
   input: unknown
-  ctx: MgmtProcedure
+  ctx: MgmtProcedureContext
 }) {
   const instance = ctx.provider.__init__({ctx})
   // verticals.salesEngagement.listContacts -> listContacts

@@ -7,46 +7,40 @@ import {
   type MaybePromise,
 } from '@trpc/server'
 import type {Link as FetchLink} from '@opensdks/fetch-links'
+import {initNangoSDK} from '@opensdks/sdk-nango'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
-import {nangoProxyLink} from './nangoProxyLink'
+import {BadRequestError} from './errors'
+import {nangoConnectionWithCredentials, nangoProxyLink} from './nangoProxyLink'
+import {supaglueProxyLink} from './supaglueProxyLink'
 import type {RemoteProcedureContext} from './trpc'
 
 export type _Provider<TInitOpts, TInstance = unknown> = {
   __init__: (opts: TInitOpts) => TInstance
 }
-export type Provider = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [k: string]: (...args: any[]) => any
-  // TODO: Solve duplication issues
-} & _Provider<{
-  ctx: RemoteProcedureContext
+
+/** To be refactored out of vdk probably...  */
+export type ExtraInitOpts = {
   proxyLinks: FetchLink[]
   /** Used to get the raw credentails in case proxyLink doesn't work (e.g. SOAP calls). Hard coded to rest for now... */
   getCredentials: () => Promise<{
     access_token: string
-    refresh_token: string
-    expires_at: string
+    // refresh_token: string
+    // expires_at: string
     /** For salesforce */
     instance_url: string | null | undefined
   }>
-}>
+}
+export type Provider = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [k: string]: (...args: any[]) => any
+  // TODO: Solve duplication issues
+} & _Provider<{ctx: RemoteProcedureContext} & ExtraInitOpts>
 
 export type ProviderFromRouter<
   TRouter extends AnyRouter,
   TInstance = {},
   TCtx = RemoteProcedureContext,
-  TInitOpts = {
-    ctx: TCtx
-    proxyLinks: FetchLink[]
-    /** Used to get the raw credentails in case proxyLink doesn't work (e.g. SOAP calls). Hard coded to rest for now... */
-    getCredentials: () => Promise<{
-      access_token: string
-      refresh_token: string
-      expires_at: string
-      /** For salesforce */
-      instance_url: string | null | undefined
-    }>
-  },
+  TInitOpts = {ctx: TCtx} & ExtraInitOpts,
 > = {
   [k in keyof TRouter as TRouter[k] extends AnyProcedure
     ? k
@@ -67,9 +61,13 @@ export type ProviderFromRouter<
  */
 export const PLACEHOLDER_BASE_URL = 'http://placeholder'
 
-export const featureFlags = {
-  // Switch this over after credentials migration and adding the nango credentials
-  mode: 'supaglue' as 'supaglue' | 'nango',
+// TODO: Dedupe me
+function toNangoProviderConfigKey(provider: string) {
+  return `ccfg_${provider}`
+}
+
+function toNangoConnectionId(customerId: string) {
+  return `cus_${customerId}`
 }
 
 export async function proxyCallProvider({
@@ -79,65 +77,93 @@ export async function proxyCallProvider({
   input: unknown
   ctx: RemoteProcedureContext
 }) {
-  const instance = ctx.provider.__init__({
-    ctx,
-    getCredentials: async () => {
-      if (featureFlags.mode === 'nango') {
-        throw new Error('Nango getCredentials not implemented')
+  // This should probably be in mgmt package rather than vdk with some dependency injection involved
+  const extraInitOpts = ((): ExtraInitOpts => {
+    const {'x-nango-secret-key': nangoSecretKey, 'x-api-key': supaglueApiKey} =
+      ctx.optional
+    if (ctx.useNewBackend && nangoSecretKey) {
+      const connectionId = toNangoConnectionId(ctx.customerId)
+      const providerConfigKey = toNangoProviderConfigKey(ctx.providerName)
+      return {
+        getCredentials: async () => {
+          const nango = initNangoSDK({
+            headers: {authorization: `Bearer ${nangoSecretKey}`},
+          })
+          const conn = await nango
+            .GET('/connection/{connectionId}', {
+              params: {
+                path: {connectionId},
+                query: {provider_config_key: providerConfigKey},
+              },
+            })
+            .then((r) => nangoConnectionWithCredentials.parse(r.data))
+          return {
+            access_token: conn.credentials.access_token,
+            instance_url: conn.connection_config?.instance_url,
+          }
+        },
+        proxyLinks: [
+          nangoProxyLink({
+            secretKey: nangoSecretKey,
+            connectionId,
+            providerConfigKey,
+          }),
+        ],
       }
-      const supaglueApiKey = ctx.headers.get('x-api-key') ?? ctx.supaglueApiKey
-      if (!supaglueApiKey) {
-        throw new Error('No supaglue API key')
+    }
+    if (supaglueApiKey) {
+      return {
+        getCredentials: async () => {
+          const supaglue = initSupaglueSDK({
+            headers: {'x-api-key': supaglueApiKey},
+          })
+          const [{data: connections}] = await Promise.all([
+            supaglue.mgmt.GET('/customers/{customer_id}/connections', {
+              params: {path: {customer_id: ctx.customerId}},
+            }),
+            // This is a no-op passthrough request to ensure credentials have been refreshed if needed
+            supaglue.actions.POST('/passthrough', {
+              params: {
+                header: {
+                  'x-customer-id': ctx.customerId,
+                  'x-provider-name': ctx.providerName,
+                },
+              },
+              body: {method: 'GET', path: '/'},
+            }),
+          ])
+          const conn = connections.find(
+            (c) => c.provider_name === ctx.providerName,
+          )
+          if (!conn) {
+            throw new Error('Connection not found')
+          }
+
+          const res = await supaglue.private.exportConnection({
+            customerId: conn.customer_id,
+            connectionId: conn.id,
+          })
+          return {
+            access_token: res.data.credentials.access_token,
+            instance_url: res.data.instance_url,
+          }
+        },
+        proxyLinks: [
+          supaglueProxyLink({
+            apiKey: supaglueApiKey,
+            customerId: ctx.customerId,
+            providerName: ctx.providerName,
+          }),
+        ],
       }
-      const supaglue = initSupaglueSDK({
-        headers: {'x-api-key': supaglueApiKey},
-      })
+    }
+    throw new BadRequestError(
+      `Either x-nango-secret-key or x-api-key is required for ${ctx.path}`,
+    )
+  })()
 
-      const [{data: connections}] = await Promise.all([
-        supaglue.mgmt.GET('/customers/{customer_id}/connections', {
-          params: {path: {customer_id: ctx.customerId}},
-        }),
-        // This is a no-op passthrough request to ensure credentials have been refreshed if needed
-        supaglue.actions.POST('/passthrough', {
-          params: {
-            header: {
-              'x-customer-id': ctx.customerId,
-              'x-provider-name': ctx.providerName,
-            },
-          },
-          body: {method: 'GET', path: '/'},
-        }),
-      ])
-      const conn = connections.find((c) => c.provider_name === ctx.providerName)
-      if (!conn) {
-        throw new Error('Connection not found')
-      }
+  const instance = ctx.provider.__init__({ctx, ...extraInitOpts})
 
-      const res = await supaglue.private.exportConnection({
-        customerId: conn.customer_id,
-        connectionId: conn.id,
-      })
-      return {...res.data.credentials, instance_url: res.data.instance_url}
-    },
-    proxyLinks:
-      ctx.headers.get('x-use-new-backend') === 'true' && ctx.nangoLink
-        ? [
-            (req, next) => {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-              const baseUrl = (instance as any)?.clientOptions?.baseUrl as
-                | string
-                | undefined
-              if (baseUrl && baseUrl !== PLACEHOLDER_BASE_URL) {
-                req.headers.set(nangoProxyLink.kBaseUrlOverride, baseUrl)
-              }
-              return next(req)
-            },
-            ctx.nangoLink,
-          ]
-        : [ctx.supaglueLink],
-  })
-
-  // verticals.salesEngagement.listContacts -> listContacts
   const methodName = ctx.path.split('.').pop() ?? ''
   const implementation = ctx.provider?.[methodName] as Function
 
@@ -151,5 +177,6 @@ export async function proxyCallProvider({
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const out = await implementation({instance, input, ctx})
   // console.log('[proxyCallRemote] output', out)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return out
 }

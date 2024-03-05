@@ -7,22 +7,15 @@ export * from './createContext'
 
 export function createAppHandler({
   endpoint = '/api',
-  env,
 }: {
   endpoint?: `/${string}`
-  env: {NANGO_SECRET_KEY?: string; SUPAGLUE_API_KEY?: string}
-}) {
+} = {}) {
   return (req: Request) =>
     createOpenApiFetchHandler({
       endpoint,
       req,
       router: appRouter,
-      createContext: () =>
-        createContext({
-          headers: req.headers,
-          nangoSecretKey: env.NANGO_SECRET_KEY,
-          supaglueApiKey: env.SUPAGLUE_API_KEY,
-        }),
+      createContext: () => createContext({headers: req.headers}),
       // onError, // from trpc, cannot modify
       // responseMeta // From trpc-openapi, might not work for plain trpc
     })

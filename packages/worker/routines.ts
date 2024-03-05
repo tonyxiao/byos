@@ -63,12 +63,13 @@ export async function scheduleSyncs({step, event}: RoutineInput<never>) {
   const byos = initBYOSupaglueSDK({
     headers: {
       'x-api-key': env.SUPAGLUE_API_KEY,
+      'x-nango-secret-key': env.NANGO_SECRET_KEY,
       'x-use-new-backend': useNewBackend ? 'true' : 'false',
     },
     // Bypass the normal fetch link http round-tripping back to our server and handle the BYOS request directly!
     // Though we are losing the ability to debug using Proxyman and others... So maybe make this configurable in
     // development
-    links: [createAppHandler({env})],
+    links: [createAppHandler()],
   })
 
   const [syncConfigs, customers] = await Promise.all([
@@ -204,7 +205,7 @@ export async function syncConnection({
     // Bypass the normal fetch link http round-tripping back to our server and handle the BYOS request directly!
     // Though we are losing the ability to debug using Proxyman and others... So maybe make this configurable in
     // development
-    links: [createAppHandler({env})],
+    links: [createAppHandler()],
   })
 
   const overallState = (syncState.state ?? {}) as Record<

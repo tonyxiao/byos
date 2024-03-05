@@ -1,17 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {BadRequestError} from '@supaglue/vdk'
 import type {SupaglueSDK} from '@opensdks/sdk-supaglue'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
 import type {commonModels, MgmtProvider} from '../router'
 
 export const supaglueProvider = {
-  __init__: ({ctx}) => {
-    const supaglueApiKey = ctx.headers.get('x-api-key')
-    if (!supaglueApiKey) {
-      throw new BadRequestError('x-api-key header is required')
-    }
-    return initSupaglueSDK({headers: {'x-api-key': supaglueApiKey}})
-  },
+  __init__: ({ctx}) =>
+    initSupaglueSDK({headers: {'x-api-key': ctx.required['x-api-key']}}),
   listCustomers: async ({instance}) =>
     instance.mgmt.GET('/customers').then((r) => r.data),
   getCustomer: async ({instance, input}) =>
@@ -77,8 +71,8 @@ export const supaglueProvider = {
       .GET('/connection_sync_configs', {
         params: {
           header: {
-            'x-customer-id': ctx.headers.get('x-customer-id')!,
-            'x-provider-name': ctx.headers.get('x-provider-name')!,
+            'x-customer-id': ctx.required['x-customer-id'],
+            'x-provider-name': ctx.required['x-provider-name'],
           },
         },
       })
@@ -89,8 +83,8 @@ export const supaglueProvider = {
       .PUT('/connection_sync_configs', {
         params: {
           header: {
-            'x-customer-id': ctx.headers.get('x-customer-id')!,
-            'x-provider-name': ctx.headers.get('x-provider-name')!,
+            'x-customer-id': ctx.required['x-customer-id'],
+            'x-provider-name': ctx.required['x-provider-name'],
           },
         },
         body: {
