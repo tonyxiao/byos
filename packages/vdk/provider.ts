@@ -9,7 +9,6 @@ import {
 import type {Link as FetchLink} from '@opensdks/fetch-links'
 import {initNangoSDK} from '@opensdks/sdk-nango'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
-import {BadRequestError} from './errors'
 import {nangoConnectionWithCredentials, nangoProxyLink} from './nangoProxyLink'
 import {supaglueProxyLink} from './supaglueProxyLink'
 import type {RemoteProcedureContext} from './trpc'

@@ -9,6 +9,10 @@
     "@opensdks/sdk-nango": "0.0.4",
     "@opensdks/sdk-supaglue": "0.0.3",
     "@supaglue/db": "workspace:*",
-    "@supaglue/vdk": "workspace:*"
+    "@supaglue/vdk": "workspace:*",
+    "cookie": "^0.6.0"
+  },
+  "devDependencies": {
+    "@types/cookie": "^0.6.0"
   }
 }
