@@ -1,4 +1,5 @@
 import {createOpenApiFetchHandler} from '@lilyrose2798/trpc-openapi'
+import {isHttpError} from '@supaglue/vdk'
 import {appRouter} from './appRouter'
 import {createContext} from './createContext'
 
@@ -26,8 +27,25 @@ export function createAppHandler({
         }
         return createContext({headers: req.headers})
       },
-      // onError, // from trpc, cannot modify
-      // responseMeta // From trpc-openapi, might not work for plain trpc
+      // onError, // can only have side effect and not modify response error status code unfortunately...
+      responseMeta: ({errors, ctx}) => {
+        // Pass the status along
+        for (const err of errors) {
+          console.warn(
+            '[TRPCError]',
+            {
+              customerId: ctx?.headers.get('x-customer-id'),
+              providerName: ctx?.headers.get('x-provider-name'),
+            },
+            err,
+          )
+          if (isHttpError(err.cause)) {
+            // Maybe rename this to status within the error object?
+            return {status: err.cause.code}
+          }
+        }
+        return {}
+      },
     })
 }
 

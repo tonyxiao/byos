@@ -253,6 +253,8 @@ export async function syncConnection({
     } catch (err) {
       // HTTP 501 not implemented
       if (err instanceof HTTPError && err.code === 501) {
+        // NOTE: vercel doesn't understand console.warn unfortunately... so this will show up as error
+        // https://vercel.com/docs/observability/runtime-logs#level
         console.warn(
           `[sync progress] ${provider_name} does not implement ${stream}`,
         )

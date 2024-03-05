@@ -2,7 +2,7 @@ import {initBYOSupaglueSDK} from '@supaglue/sdk'
 
 const supaglue = initBYOSupaglueSDK({
   headers: {
-    // 'x-api-key': process.env['SUPAGLUE_API_KEY']!,
+    'x-api-key': process.env['SUPAGLUE_API_KEY']!,
     // 'x-customer-id': process.env['CUSTOMER_ID']!, // '64a350c383ea68001832fd8a',
     // 'x-provider-name': process.env['PROVIDER_NAME']!, // 'hubspot',
     // 'x-customer-id': 'test-connection-id',
@@ -11,7 +11,11 @@ const supaglue = initBYOSupaglueSDK({
 })
 
 async function main() {
-  await supaglue.GET('/customers')
+  await supaglue.GET('/customers/{customer_id}/connections/{provider_name}', {
+    params: {
+      path: {customer_id: '65e6f5841c379bbc9acc7818', provider_name: 'hubspot'},
+    },
+  })
   // await supaglue.GET('/sync_configs')
   // let cursor: string | undefined = undefined
   //
