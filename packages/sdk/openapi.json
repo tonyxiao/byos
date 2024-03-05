@@ -574,7 +574,7 @@
         }
       }
     },
-    "/verticals/sales-engagement/contacts": {
+    "/engagement/v2/contacts": {
       "get": {
         "operationId": "salesEngagement-listContacts",
         "parameters": [
@@ -642,7 +642,7 @@
         }
       }
     },
-    "/verticals/sales-engagement/sequences": {
+    "/engagement/v2/sequences": {
       "get": {
         "operationId": "salesEngagement-listSequences",
         "parameters": [
@@ -710,7 +710,7 @@
         }
       }
     },
-    "/verticals/sales-engagement/sequenceStates": {
+    "/engagement/v2/sequenceStates": {
       "get": {
         "operationId": "salesEngagement-listSequenceStates",
         "parameters": [
@@ -778,7 +778,7 @@
         }
       }
     },
-    "/verticals/sales-engagement/users": {
+    "/engagement/v2/users": {
       "get": {
         "operationId": "salesEngagement-listUsers",
         "parameters": [
@@ -846,7 +846,7 @@
         }
       }
     },
-    "/verticals/sales-engagement/accounts": {
+    "/engagement/v2/accounts": {
       "get": {
         "operationId": "salesEngagement-listAccounts",
         "parameters": [
@@ -914,7 +914,7 @@
         }
       }
     },
-    "/verticals/sales-engagement/mailboxes": {
+    "/engagement/v2/mailboxes": {
       "get": {
         "operationId": "salesEngagement-listMailboxes",
         "parameters": [
@@ -982,7 +982,7 @@
         }
       }
     },
-    "/verticals/sales-engagement/accounts/_upsert": {
+    "/engagement/v2/accounts/_upsert": {
       "post": {
         "operationId": "salesEngagement-upsertAccount",
         "requestBody": {
@@ -1081,7 +1081,7 @@
         }
       }
     },
-    "/verticals/sales-engagement/contacts/_upsert": {
+    "/engagement/v2/contacts/_upsert": {
       "post": {
         "operationId": "salesEngagement-upsertContact",
         "requestBody": {
@@ -1262,7 +1262,7 @@
         }
       }
     },
-    "/verticals/sales-engagement/sequenceState": {
+    "/engagement/v2/sequenceState": {
       "post": {
         "operationId": "salesEngagement-insertSequenceState",
         "requestBody": {
@@ -1345,7 +1345,7 @@
         }
       }
     },
-    "/verticals/crm/{entity}/_count": {
+    "/crm/v2/{entity}/_count": {
       "get": {
         "operationId": "crm-countEntity",
         "parameters": [
@@ -1408,7 +1408,7 @@
         }
       }
     },
-    "/verticals/crm/account": {
+    "/crm/v2/account": {
       "get": {
         "operationId": "crm-listAccounts",
         "parameters": [
@@ -1486,7 +1486,7 @@
         }
       }
     },
-    "/verticals/crm/account/{id}": {
+    "/crm/v2/account/{id}": {
       "get": {
         "operationId": "crm-getAccount",
         "parameters": [
@@ -1550,7 +1550,7 @@
         }
       }
     },
-    "/verticals/crm/contact": {
+    "/crm/v2/contact": {
       "get": {
         "operationId": "crm-listContacts",
         "parameters": [
@@ -1628,7 +1628,7 @@
         }
       }
     },
-    "/verticals/crm/contact/{id}": {
+    "/crm/v2/contact/{id}": {
       "get": {
         "operationId": "crm-getContact",
         "parameters": [
@@ -1692,7 +1692,7 @@
         }
       }
     },
-    "/verticals/crm/lead": {
+    "/crm/v2/lead": {
       "get": {
         "operationId": "crm-listLeads",
         "parameters": [
@@ -1770,7 +1770,7 @@
         }
       }
     },
-    "/verticals/crm/lead/{id}": {
+    "/crm/v2/lead/{id}": {
       "get": {
         "operationId": "crm-getLead",
         "parameters": [
@@ -1834,7 +1834,7 @@
         }
       }
     },
-    "/verticals/crm/opportunity": {
+    "/crm/v2/opportunity": {
       "get": {
         "operationId": "crm-listOpportunities",
         "parameters": [
@@ -1912,7 +1912,7 @@
         }
       }
     },
-    "/verticals/crm/opportunity/{id}": {
+    "/crm/v2/opportunity/{id}": {
       "get": {
         "operationId": "crm-getOpportunity",
         "parameters": [
@@ -1976,7 +1976,7 @@
         }
       }
     },
-    "/verticals/crm/user": {
+    "/crm/v2/user": {
       "get": {
         "operationId": "crm-listUsers",
         "parameters": [
@@ -2054,7 +2054,7 @@
         }
       }
     },
-    "/verticals/crm/user/{id}": {
+    "/crm/v2/user/{id}": {
       "get": {
         "operationId": "crm-getUser",
         "parameters": [
@@ -2118,7 +2118,7 @@
         }
       }
     },
-    "/verticals/crm/custom_objects/{object_name}": {
+    "/crm/v2/custom_objects/{object_name}": {
       "get": {
         "operationId": "crm-listCustomObjectRecords",
         "parameters": [
@@ -2273,7 +2273,7 @@
         }
       }
     },
-    "/verticals/crm/metadata/objects": {
+    "/crm/v2/metadata/objects": {
       "get": {
         "operationId": "crm-metadataListObjects",
         "parameters": [
@@ -2416,7 +2416,7 @@
         }
       }
     },
-    "/verticals/crm/metadata/objects/{object_name}/properties": {
+    "/crm/v2/metadata/objects/{object_name}/properties": {
       "get": {
         "operationId": "crm-metadataListObjectProperties",
         "parameters": [
@@ -2476,7 +2476,7 @@
         }
       }
     },
-    "/verticals/crm/metadata/associations": {
+    "/crm/v2/metadata/associations": {
       "post": {
         "operationId": "crm-metadataCreateAssociation",
         "requestBody": {

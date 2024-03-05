@@ -34,79 +34,79 @@ export interface paths {
     get: operations['mgmt-getConnectionSyncConfig']
     put: operations['mgmt-upsertConnectionSyncConfig']
   }
-  '/verticals/sales-engagement/contacts': {
+  '/engagement/v2/contacts': {
     get: operations['salesEngagement-listContacts']
   }
-  '/verticals/sales-engagement/sequences': {
+  '/engagement/v2/sequences': {
     get: operations['salesEngagement-listSequences']
   }
-  '/verticals/sales-engagement/sequenceStates': {
+  '/engagement/v2/sequenceStates': {
     get: operations['salesEngagement-listSequenceStates']
   }
-  '/verticals/sales-engagement/users': {
+  '/engagement/v2/users': {
     get: operations['salesEngagement-listUsers']
   }
-  '/verticals/sales-engagement/accounts': {
+  '/engagement/v2/accounts': {
     get: operations['salesEngagement-listAccounts']
   }
-  '/verticals/sales-engagement/mailboxes': {
+  '/engagement/v2/mailboxes': {
     get: operations['salesEngagement-listMailboxes']
   }
-  '/verticals/sales-engagement/accounts/_upsert': {
+  '/engagement/v2/accounts/_upsert': {
     post: operations['salesEngagement-upsertAccount']
   }
-  '/verticals/sales-engagement/contacts/_upsert': {
+  '/engagement/v2/contacts/_upsert': {
     post: operations['salesEngagement-upsertContact']
   }
-  '/verticals/sales-engagement/sequenceState': {
+  '/engagement/v2/sequenceState': {
     post: operations['salesEngagement-insertSequenceState']
   }
-  '/verticals/crm/{entity}/_count': {
+  '/crm/v2/{entity}/_count': {
     get: operations['crm-countEntity']
   }
-  '/verticals/crm/account': {
+  '/crm/v2/account': {
     get: operations['crm-listAccounts']
   }
-  '/verticals/crm/account/{id}': {
+  '/crm/v2/account/{id}': {
     get: operations['crm-getAccount']
   }
-  '/verticals/crm/contact': {
+  '/crm/v2/contact': {
     get: operations['crm-listContacts']
   }
-  '/verticals/crm/contact/{id}': {
+  '/crm/v2/contact/{id}': {
     get: operations['crm-getContact']
   }
-  '/verticals/crm/lead': {
+  '/crm/v2/lead': {
     get: operations['crm-listLeads']
   }
-  '/verticals/crm/lead/{id}': {
+  '/crm/v2/lead/{id}': {
     get: operations['crm-getLead']
   }
-  '/verticals/crm/opportunity': {
+  '/crm/v2/opportunity': {
     get: operations['crm-listOpportunities']
   }
-  '/verticals/crm/opportunity/{id}': {
+  '/crm/v2/opportunity/{id}': {
     get: operations['crm-getOpportunity']
   }
-  '/verticals/crm/user': {
+  '/crm/v2/user': {
     get: operations['crm-listUsers']
   }
-  '/verticals/crm/user/{id}': {
+  '/crm/v2/user/{id}': {
     get: operations['crm-getUser']
   }
-  '/verticals/crm/custom_objects/{object_name}': {
+  '/crm/v2/custom_objects/{object_name}': {
     get: operations['crm-listCustomObjectRecords']
     post: operations['crm-createCustomObjectRecord']
   }
-  '/verticals/crm/metadata/objects': {
+  '/crm/v2/metadata/objects': {
     get: operations['crm-metadataListObjects']
     /** @description Create custom object schema */
     post: operations['crm-metadataCreateObject']
   }
-  '/verticals/crm/metadata/objects/{object_name}/properties': {
+  '/crm/v2/metadata/objects/{object_name}/properties': {
     get: operations['crm-metadataListObjectProperties']
   }
-  '/verticals/crm/metadata/associations': {
+  '/crm/v2/metadata/associations': {
     post: operations['crm-metadataCreateAssociation']
   }
 }
