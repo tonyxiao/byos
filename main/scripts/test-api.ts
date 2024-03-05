@@ -1,20 +1,27 @@
 import {initBYOSupaglueSDK} from '@supaglue/sdk'
+import {proxyRequired} from '@supaglue/vdk'
+
+const env = proxyRequired(process.env)
 
 const supaglue = initBYOSupaglueSDK({
   headers: {
-    'x-api-key': process.env['SUPAGLUE_API_KEY']!,
-    // 'x-customer-id': process.env['CUSTOMER_ID']!, // '64a350c383ea68001832fd8a',
-    // 'x-provider-name': process.env['PROVIDER_NAME']!, // 'hubspot',
-    // 'x-customer-id': 'test-connection-id',
-    // 'x-provider-name': 'salesforce',
+    'x-api-key': process.env['SUPAGLUE_API_KEY'],
+    'x-customer-id': process.env['CUSTOMER_ID'],
+    'x-provider-name': process.env['PROVIDER_NAME'],
   },
 })
 
 async function main() {
   await supaglue.GET('/customers/{customer_id}/connections/{provider_name}', {
     params: {
-      path: {customer_id: '65e6f5841c379bbc9acc7818', provider_name: 'hubspot'},
+      path: {
+        customer_id: env['CUSTOMER_ID'],
+        provider_name: env['PROVIDER_NAME'],
+      },
     },
+  })
+  await supaglue.GET('/crm/v2/metadata/objects', {
+    params: {query: {type: 'custom'}},
   })
   // await supaglue.GET('/sync_configs')
   // let cursor: string | undefined = undefined

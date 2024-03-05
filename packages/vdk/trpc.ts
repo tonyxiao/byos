@@ -3,6 +3,7 @@ import {initTRPC} from '@trpc/server'
 import {z} from '@opensdks/util-zod'
 import {BadRequestError} from './errors'
 import type {Provider} from './provider'
+import {proxyRequired} from './util'
 
 export type RouterContext = {
   headers: Headers
@@ -65,15 +66,9 @@ export type ByosHeaders = z.infer<typeof zByosHeaders>
 // All the headers we accept here...
 export const publicProcedure = trpc.procedure.use(async ({next, ctx, path}) => {
   const optional = zByosHeaders.parse(Object.fromEntries(ctx.headers.entries()))
-  const required = new Proxy(optional, {
-    get(target, p) {
-      const value = target[p as keyof typeof target]
-      if (value == null) {
-        throw new BadRequestError(`${p as string} header is required`)
-      }
-      return value
-    },
-  }) as {[k in keyof typeof optional]-?: NonNullable<(typeof optional)[k]>}
+  const required = proxyRequired(optional, {
+    formatError: (key) => new BadRequestError(`${key} header is required`),
+  })
 
   const useNewBackend = optional['x-use-new-backend'] === 'true'
 

@@ -35,6 +35,7 @@ export type ResponseFrom<
 >
 
 export * from './errors'
+export * from './util'
 
 // re-exporting utiltities
 
