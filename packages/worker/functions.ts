@@ -362,7 +362,7 @@ export async function syncConnection({
       customer_id,
       provider_name,
       vertical,
-      unified_objects: unified_objects,
+      unified_objects,
       sync_mode,
       destination_schema,
       page_size,
@@ -387,6 +387,20 @@ export async function syncConnection({
   })
   // Return metrics to make it easier to debug in inngest
   return {syncRunId, metrics}
+}
+
+export async function triggerImmediateSync({
+  event,
+  step,
+}: FunctionInput<'connection.created'>) {
+  const data = {
+    ...event.data,
+    vertical: 'crm',
+    unified_objects: ['account', 'contact', 'opportunity', 'lead', 'user'],
+  } satisfies Events['sync.requested']['data']
+  await step.sendEvent('sync.requested', {name: 'sync.requested', data})
+
+  return data
 }
 
 export async function sendWebhook({event}: FunctionInput<keyof Events>) {

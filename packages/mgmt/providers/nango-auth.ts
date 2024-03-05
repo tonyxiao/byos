@@ -126,25 +126,8 @@ export async function nangoAuthCallbackHandler(req: Request) {
     Object.assign(returnParams, data)
 
     // Is there a way we can do this asynchronously AFTER the response is sent on Vercel?
-    await inngest.send([
-      // Fire webhook
-      {name: 'connection.created', data},
-      // Trigger immediate sync
-      {
-        name: 'sync.requested',
-        data: {
-          ...data,
-          vertical: 'crm',
-          unified_objects: [
-            'account',
-            'contact',
-            'opportunity',
-            'lead',
-            'user',
-          ],
-        } satisfies Events['sync.requested']['data'],
-      },
-    ])
+    // both webhook and immediate sync shall be triggered on connection.created event
+    await inngest.send([{name: 'connection.created', data}])
   } else if (event?.eventType === 'AUTHORIZATION_FAILED') {
     Object.assign(returnParams, {
       error_type: event.data.authErrorType,
