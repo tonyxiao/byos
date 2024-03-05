@@ -1,6 +1,8 @@
 import type {Link as FetchLink} from '@opensdks/fetch-links'
 import {mergeHeaders, modifyRequest} from '@opensdks/fetch-links'
+import {initNangoSDK} from '@opensdks/sdk-nango'
 import {z} from '@opensdks/util-zod'
+import {isHttpError, NotAuthenticatedError} from './errors'
 
 const kBaseUrlOverride = 'base-url-override'
 
@@ -34,7 +36,7 @@ export function nangoProxyLink(opts: {
     retries: String(opts.retries ?? 0),
   } satisfies NangoProxyHeaders
 
-  return (req, next) => {
+  return async (req, next) => {
     const baseUrlOverride =
       req.headers.get(kBaseUrlOverride) ?? opts.baseUrlOverride
     const baseUrl = baseUrlOverride
@@ -42,7 +44,7 @@ export function nangoProxyLink(opts: {
         ? baseUrlOverride
         : `${baseUrlOverride}/`
       : getBaseUrl(req.url)
-    return next(
+    const res = await next(
       modifyRequest(req, {
         url: req.url.replace(baseUrl, 'https://api.nango.dev/proxy/'),
         headers: mergeHeaders(req.headers, nangoHeaders, {
@@ -51,6 +53,46 @@ export function nangoProxyLink(opts: {
         body: req.body,
       }),
     )
+    // When Nango is not able to get up to date token to proxy, it returns a dumb 500 error with generic_error_support
+    // so we have to explicitly check...
+    if (res.status === 500) {
+      const resBody = zErrorBody.safeParse(await res.clone().json())
+      if (resBody.success && resBody.data.type === 'generic_error_support') {
+        const nango = initNangoSDK({
+          headers: {authorization: `Bearer ${opts.secretKey}`},
+        })
+        const authError = await nango
+          .GET('/connection/{connectionId}', {
+            params: {
+              path: {connectionId: opts.connectionId},
+              query: {provider_config_key: opts.providerConfigKey},
+            },
+          })
+          .then(() => null)
+          .catch((err) => {
+            if (isHttpError(err)) {
+              const parsed = zErrorBody.safeParse(err.error)
+              if (
+                parsed.success &&
+                parsed.data.type === 'refresh_token_external_error'
+                // authError.error will likely say `The external API returned an error when trying to refresh the access token. Please try again later.`
+                // for error type `refresh_token_external_error`. Therefore we cannot be 100% sure that this is due to user being no longer authenticated vs.
+                // say the provider auth service being down. But this is the closest approximation we can get so we'll settle for it for now
+              ) {
+                return parsed.data
+              }
+            }
+            return null
+          })
+        if (authError) {
+          throw new NotAuthenticatedError(
+            `[${authError.type}] ${opts.connectionId}/${opts.providerConfigKey}: ${authError.error}`,
+            authError,
+          )
+        }
+      }
+    }
+    return res
   }
 }
 
@@ -63,6 +105,20 @@ export function getBaseUrl(urlStr: string) {
 }
 
 // TODO: move this into sdk-nango
+
+/**
+ * e.g.
+  {
+    "error": "An error occurred. Please contact support with this unique id: 1f2f2c6c-0e63-42ff-9d69-8e74d7b105c7",
+    "type": "generic_error_support",
+    "payload": "1f2f2c6c-0e63-42ff-9d69-8e74d7b105c7"
+  }
+ */
+const zErrorBody = z.object({
+  error: z.string(),
+  type: z.string(),
+  payload: z.unknown(),
+})
 
 /**
  * e.g. {
