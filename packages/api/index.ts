@@ -15,7 +15,17 @@ export function createAppHandler({
       endpoint,
       req,
       router: appRouter,
-      createContext: () => createContext({headers: req.headers}),
+      createContext: () => {
+        // Temporary workaround to automatically set nango secret key based on supaglue API key
+        if (
+          req.headers.get('x-api-key') === process.env['SUPAGLUE_API_KEY'] &&
+          !req.headers.get('x-nango-secret-key') &&
+          process.env['NANGO_SECRET_KEY']
+        ) {
+          req.headers.set('x-nango-secret-key', process.env['NANGO_SECRET_KEY'])
+        }
+        return createContext({headers: req.headers})
+      },
       // onError, // from trpc, cannot modify
       // responseMeta // From trpc-openapi, might not work for plain trpc
     })
