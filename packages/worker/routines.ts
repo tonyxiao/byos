@@ -33,28 +33,6 @@ export type RoutineInput<T extends keyof Events> = {
 type SingleNoArray<T> = T extends Array<infer U> ? U : T
 export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 
-// export async function nangoScheduleSyncs({step}: RoutineInput<never>) {
-//  const nango = initNangoSDK({
-//   headers: {authorization: `Bearer ${env.NANGO_SECRET_KEY}`},
-// })
-
-//   const {
-//     data: {connections},
-//   } = await nango.GET('/connection')
-//   // console.log(connections)
-
-//   await step.sendEvent(
-//     'emit-connection-sync-events',
-//     connections
-//       .filter((c) => c.provider === 'outreach')
-//       .map((c) => ({
-//         name: 'sync.requested',
-//         // c.provider is the providerConfigKey, very confusing of nango
-//         data: {connection_id: c.connection_id, provider_config_key: c.provider},
-//       })),
-//   )
-// }
-
 const useNewBackend = process.env['USE_NEW_BACKEND'] === 'true'
 
 export async function scheduleSyncs({step, event}: RoutineInput<never>) {

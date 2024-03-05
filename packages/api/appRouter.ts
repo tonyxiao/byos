@@ -5,7 +5,7 @@ import type {
 } from '@lilyrose2798/trpc-openapi/dist/generator'
 import {eventsMap} from '@supaglue/events'
 import {mgmtRouter} from '@supaglue/mgmt'
-import {publicProcedure, trpc} from '@supaglue/vdk'
+import {publicProcedure, trpc, zByosHeaders} from '@supaglue/vdk'
 import {crmRouter} from '@supaglue/vertical-crm'
 import {salesEngagementRouter} from '@supaglue/vertical-sales-engagement'
 import {mapKeys, mapValues} from 'remeda'
@@ -77,11 +77,11 @@ export function getOpenAPISpec() {
     // Can we get env passed in instead of directly using it?
     baseUrl: new URL('/api', getServerUrl({env: process.env})).toString(),
     // TODO: add the security field to specify what methods are required.
-    securitySchemes: {
-      apiKey: {name: 'x-api-key', type: 'apiKey', in: 'header'},
-      customerId: {name: 'x-customer-id', type: 'apiKey', in: 'header'},
-      providerName: {name: 'x-provider-name', type: 'apiKey', in: 'header'},
-    },
+    securitySchemes: mapValues(zByosHeaders.shape, (_, key) => ({
+      name: key,
+      type: 'apiKey',
+      in: 'header',
+    })),
     webhooks,
     components,
   })

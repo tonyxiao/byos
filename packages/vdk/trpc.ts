@@ -1,5 +1,6 @@
 import type {OpenApiMeta} from '@lilyrose2798/trpc-openapi'
 import {initTRPC} from '@trpc/server'
+import {z} from '@opensdks/util-zod'
 import {BadRequestError} from './errors'
 import type {Provider} from './provider'
 
@@ -50,15 +51,20 @@ export const trpc = initTRPC
     // },
   })
 
+export const zByosHeaders = z.object({
+  'x-customer-id': z.string().nullish(),
+  'x-provider-name': z.string().nullish(),
+  'x-nango-secret-key': z.string().nullish(),
+  /** Supaglue API key */
+  'x-api-key': z.string().nullish(),
+  /** Will use nangoPostgres instead of supaglue */
+  'x-use-new-backend': z.enum(['true', 'false']).nullish(),
+})
+export type ByosHeaders = z.infer<typeof zByosHeaders>
+
 // All the headers we accept here...
 export const publicProcedure = trpc.procedure.use(async ({next, ctx, path}) => {
-  const optional = {
-    'x-customer-id': ctx.headers.get('x-customer-id'),
-    'x-provider-name': ctx.headers.get('x-provider-name'),
-    'x-use-new-backend': ctx.headers.get('x-use-new-backend'),
-    'x-nango-secret-key': ctx.headers.get('x-nango-secret-key'),
-    'x-api-key': ctx.headers.get('x-api-key'),
-  }
+  const optional = zByosHeaders.parse(Object.fromEntries(ctx.headers.entries()))
   const required = new Proxy(optional, {
     get(target, p) {
       const value = target[p as keyof typeof target]
@@ -67,7 +73,7 @@ export const publicProcedure = trpc.procedure.use(async ({next, ctx, path}) => {
       }
       return value
     },
-  }) as {[k in keyof typeof optional]: NonNullable<(typeof optional)[k]>}
+  }) as {[k in keyof typeof optional]-?: NonNullable<(typeof optional)[k]>}
 
   const useNewBackend = optional['x-use-new-backend'] === 'true'
 

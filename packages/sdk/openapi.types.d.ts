@@ -239,7 +239,7 @@ export interface components {
     customer: {
       customer_id: string
       name?: string | null
-      /** Format: email */
+      /** @description Email, but not validated as data from Supaglue has invalid emails for now */
       email?: string | null
     }
     /**
@@ -777,7 +777,7 @@ export interface operations {
       content: {
         'application/json': {
           name?: string | null
-          /** Format: email */
+          /** @description Email, but not validated as data from Supaglue has invalid emails for now */
           email?: string | null
         }
       }

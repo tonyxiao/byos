@@ -1,3 +1,4 @@
+import type {ByosHeaders} from '@supaglue/api'
 import {
   initSDK,
   type ClientOptions,
@@ -10,15 +11,7 @@ import type oasTypes from './openapi.types'
 export type BYOSupaglueSDKTypes = SDKTypes<
   oasTypes,
   Omit<ClientOptions, 'headers'> & {
-    headers: {
-      'x-nango-secret-key'?: string
-      'x-api-key'?: string
-      'x-customer-id'?: string
-      'x-provider-name'?: string
-      /** Will use nangoPostgres instead of supaglue */
-      'x-use-new-backend'?: 'true' | 'false'
-      [k: string]: string | undefined
-    }
+    headers: ByosHeaders & {[k: string]: string | undefined}
   }
 >
 

@@ -20,3 +20,5 @@ export function createAppHandler({
       // responseMeta // From trpc-openapi, might not work for plain trpc
     })
 }
+
+export {zByosHeaders, type ByosHeaders} from '@supaglue/vdk'

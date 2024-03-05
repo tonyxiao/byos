@@ -175,7 +175,7 @@
                   },
                   "email": {
                     "type": ["string", "null"],
-                    "format": "email"
+                    "description": "Email, but not validated as data from Supaglue has invalid emails for now"
                   }
                 }
               }
@@ -2603,18 +2603,28 @@
   },
   "components": {
     "securitySchemes": {
-      "apiKey": {
-        "name": "x-api-key",
-        "type": "apiKey",
-        "in": "header"
-      },
-      "customerId": {
+      "x-customer-id": {
         "name": "x-customer-id",
         "type": "apiKey",
         "in": "header"
       },
-      "providerName": {
+      "x-provider-name": {
         "name": "x-provider-name",
+        "type": "apiKey",
+        "in": "header"
+      },
+      "x-nango-secret-key": {
+        "name": "x-nango-secret-key",
+        "type": "apiKey",
+        "in": "header"
+      },
+      "x-api-key": {
+        "name": "x-api-key",
+        "type": "apiKey",
+        "in": "header"
+      },
+      "x-use-new-backend": {
+        "name": "x-use-new-backend",
         "type": "apiKey",
         "in": "header"
       }
@@ -2855,7 +2865,7 @@
           },
           "email": {
             "type": ["string", "null"],
-            "format": "email"
+            "description": "Email, but not validated as data from Supaglue has invalid emails for now"
           }
         },
         "required": ["customer_id"]
