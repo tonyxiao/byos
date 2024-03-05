@@ -111,7 +111,15 @@ export const nangoPostgresProvider = {
     await dbUpsert(
       instance.db,
       schema.customer,
-      [{...input, id: input.customer_id, updated_at: sql.raw('now()')}],
+      [
+        {
+          // Do not spread over input as we object keys to determine postgres columns to insert into
+          id: input.customer_id,
+          email: input.email,
+          name: input.name,
+          updated_at: sql.raw('now()'),
+        },
+      ],
       {noDiffColumns: ['updated_at']},
     )
     return getCustomerOrFail(instance.db, input.customer_id)

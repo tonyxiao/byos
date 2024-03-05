@@ -4,6 +4,7 @@ import {proxyRequired} from '@supaglue/vdk'
 const env = proxyRequired(process.env)
 
 const supaglue = initBYOSupaglueSDK({
+  baseUrl: process.env['BYOS_URL'],
   headers: {
     'x-api-key': process.env['SUPAGLUE_API_KEY'],
     'x-customer-id': process.env['CUSTOMER_ID'],
