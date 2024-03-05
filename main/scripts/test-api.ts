@@ -8,10 +8,15 @@ const supaglue = initBYOSupaglueSDK({
     'x-api-key': process.env['SUPAGLUE_API_KEY'],
     'x-customer-id': process.env['CUSTOMER_ID'],
     'x-provider-name': process.env['PROVIDER_NAME'],
+    'x-use-new-backend':
+      process.env['USE_NEW_BACKEND'] === 'true' ? 'true' : 'false',
   },
 })
 
 async function main() {
+  await supaglue.GET('/customers/{customer_id}/connections', {
+    params: {path: {customer_id: env['CUSTOMER_ID']}},
+  })
   await supaglue.GET('/customers/{customer_id}/connections/{provider_name}', {
     params: {
       path: {

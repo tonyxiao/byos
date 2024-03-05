@@ -23,7 +23,15 @@ export function createAppHandler({
           !req.headers.get('x-nango-secret-key') &&
           process.env['NANGO_SECRET_KEY']
         ) {
+          // console.log('Will set x-nango-secret-key header')
           req.headers.set('x-nango-secret-key', process.env['NANGO_SECRET_KEY'])
+        } else {
+          // console.log('Not setting x-nango-secret-key header', {
+          //   SUPAGLUE_API_KEY: process.env['SUPAGLUE_API_KEY'],
+          //   NANGO_SECRET_KEY: process.env['NANGO_SECRET_KEY'],
+          //   'x-api-key': req.headers.get('x-api-key'),
+          //   'x-nango-secret-key': req.headers.get('x-nango-secret-key'),
+          // })
         }
         return createContext({headers: req.headers})
       },

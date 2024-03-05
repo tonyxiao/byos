@@ -44,9 +44,7 @@ export function fromNangoProvider(provider: string) {
     : provider
 }
 
-export function fromNangoConnection(
-  c: NangoConnection,
-): unified.Connection {
+export function fromNangoConnection(c: NangoConnection): unified.Connection {
   return {
     id: `${c.id}`,
     customer_id: fromNangoConnectionId(c.connection_id),
@@ -124,7 +122,8 @@ export const nangoPostgresProvider = {
       .GET('/connection', {
         params: {query: {connectionId: toNangoConnectionId(input.customer_id)}},
       })
-      .then((r) => r.data.configs.map(fromNangoConnection)),
+      // TODO: Nango openapi spec is just wrong. Fix in sdk-nango or upstream in nango repo
+      .then((r) => r.data['connections' as 'configs'].map(fromNangoConnection)),
 
   getConnection: async ({instance, input}) =>
     getConnection(instance.nango, input).then(fromNangoConnection),
