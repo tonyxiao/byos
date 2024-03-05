@@ -5,9 +5,8 @@
   "module": "./index.ts",
   "scripts": {},
   "dependencies": {
-    "@opensdks/util-zod": "0.0.15"
-  },
-  "devDependencies": {
+    "@opensdks/util-zod": "0.0.15",
     "inngest": "^3.12.0"
-  }
+  },
+  "devDependencies": {}
 }

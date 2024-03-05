@@ -19,7 +19,7 @@ import {env} from './env'
  * So they can be used with any job queue system, such as BullMQ or home grown system built
  * on top of postgres / redis / pubsub / whatever.
  */
-export type RoutineInput<T extends keyof Events> = {
+export type FunctionInput<T extends keyof Events> = {
   // NOTE: This is not the full set of fields exposed by Inngest. there are more...
   event: {data: Events[T]['data']; id?: string; name: T}
   step: {
@@ -35,7 +35,7 @@ export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 
 const useNewBackend = process.env['USE_NEW_BACKEND'] === 'true'
 
-export async function scheduleSyncs({step, event}: RoutineInput<never>) {
+export async function scheduleSyncs({step, event}: FunctionInput<never>) {
   console.log('[scheduleSyncs]', event)
   const byos = initBYOSupaglueSDK({
     headers: {
@@ -116,7 +116,7 @@ const sqlNow = sql`now()`
 export async function syncConnection({
   event,
   step,
-}: RoutineInput<'sync.requested'>) {
+}: FunctionInput<'sync.requested'>) {
   const {
     data: {
       customer_id,
@@ -389,7 +389,7 @@ export async function syncConnection({
   return {syncRunId, metrics}
 }
 
-export async function sendWebhook({event}: RoutineInput<keyof Events>) {
+export async function sendWebhook({event}: FunctionInput<keyof Events>) {
   if (!env.WEBHOOK_URL) {
     return false
   }

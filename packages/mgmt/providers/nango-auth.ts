@@ -135,7 +135,7 @@ export async function nangoAuthCallbackHandler(req: Request) {
     }
   })
 
-  // For debugging
+  // For response body / 200 response is used for debugging
   return new Response(JSON.stringify({initParams, returnParams}), {
     status: returnUrl ? 307 : 200,
     headers: {

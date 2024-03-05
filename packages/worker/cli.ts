@@ -2,10 +2,10 @@
 import {parseArgs} from 'node:util'
 import {and, db, desc, eq, pgClient, schema} from '@supaglue/db'
 import type {Events} from '@supaglue/events'
-import * as routines from './routines'
+import * as routines from './functions'
 
 /** Mimic subset of Inngest StepTools UI */
-const step: routines.RoutineInput<never>['step'] = {
+const step: routines.FunctionInput<never>['step'] = {
   run: (name, fn) => {
     console.log('[step.run]', name)
     return fn()
