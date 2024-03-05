@@ -33,7 +33,8 @@ export type FunctionInput<T extends keyof Events> = {
 type SingleNoArray<T> = T extends Array<infer U> ? U : T
 export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 
-const useNewBackend = process.env['USE_NEW_BACKEND'] === 'true'
+// defaulting to true now for sync
+const useNewBackend = process.env['USE_NEW_BACKEND'] !== 'false'
 
 export async function scheduleSyncs({step, event}: FunctionInput<never>) {
   console.log('[scheduleSyncs]', event)
