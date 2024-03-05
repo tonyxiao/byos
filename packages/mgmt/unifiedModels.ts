@@ -40,7 +40,7 @@ export const connection_sync_config = z
       .object({type: z.string(), schema: z.string().nullish()})
       .nullish(),
 
-    common_objects: z.array(z.object({object: z.string()})).nullish(),
+    unified_objects: z.array(z.object({object: z.string()})).nullish(),
     standard_objects: z.array(z.object({object: z.string()})).nullish(),
     custom_objects: z.array(z.object({object: z.string()})).nullish(),
   })

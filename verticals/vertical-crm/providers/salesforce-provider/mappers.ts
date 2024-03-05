@@ -1,6 +1,6 @@
 import {mapper, z, zBaseRecord, zCast} from '@supaglue/vdk'
 import type {SalesforceSDKTypes} from '@opensdks/sdk-salesforce'
-import {commonModels} from '../../router'
+import {unified} from '../../router'
 
 // import {updateFieldPermissions} from './salesforce/updatePermissions'
 
@@ -11,13 +11,13 @@ export const CustomSObject = z
   .passthrough()
 
 export const mappers = {
-  contact: mapper(zCast<SFDC['ContactSObject']>(), commonModels.contact, {
+  contact: mapper(zCast<SFDC['ContactSObject']>(), unified.contact, {
     id: 'Id',
     updated_at: 'SystemModstamp',
     first_name: 'FirstName',
     last_name: 'LastName',
   }),
-  account: mapper(zCast<SFDC['AccountSObject']>(), commonModels.account, {
+  account: mapper(zCast<SFDC['AccountSObject']>(), unified.account, {
     id: 'Id',
     updated_at: 'SystemModstamp',
     name: 'Name',
@@ -31,7 +31,7 @@ export const mappers = {
   }),
   opportunity: mapper(
     zCast<SFDC['OpportunitySObject']>(),
-    commonModels.opportunity,
+    unified.opportunity,
     {
       id: 'Id',
       name: 'Name',
@@ -51,7 +51,7 @@ export const mappers = {
       last_modified_at: 'SystemModstamp',
     },
   ),
-  lead: mapper(zCast<SFDC['LeadSObject']>(), commonModels.lead, {
+  lead: mapper(zCast<SFDC['LeadSObject']>(), unified.lead, {
     id: 'Id',
     updated_at: 'SystemModstamp',
     name: 'Name',
@@ -79,7 +79,7 @@ export const mappers = {
               state: record.State ?? null,
               country: record.Country ?? null,
               postal_code: record.PostalCode ?? null,
-              address_type: commonModels.address_type.enum.primary,
+              address_type: unified.address_type.enum.primary,
             },
           ]
         : [],
@@ -88,7 +88,7 @@ export const mappers = {
         ? [
             {
               email_address: record.Email,
-              email_address_type: commonModels.email_address_type.enum.primary,
+              email_address_type: unified.email_address_type.enum.primary,
             },
           ]
         : [],
@@ -97,7 +97,7 @@ export const mappers = {
         ? [
             {
               phone_number: record.Phone ?? null,
-              phone_number_type: commonModels.phone_number_type.enum.primary,
+              phone_number_type: unified.phone_number_type.enum.primary,
             },
           ]
         : [],
@@ -109,7 +109,7 @@ export const mappers = {
         ? new Date(record.SystemModstamp).toISOString()
         : '',
   }),
-  user: mapper(zCast<SFDC['UserSObject']>(), commonModels.user, {
+  user: mapper(zCast<SFDC['UserSObject']>(), unified.user, {
     id: 'Id',
     name: 'Name',
     email: 'Email',

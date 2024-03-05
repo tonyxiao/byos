@@ -18,7 +18,7 @@ const syncRequestedData = z.object({
   customer_id: z.string(),
   provider_name: z.string(),
   vertical: z.enum(['crm', 'engagement']),
-  common_objects: z.array(z.string()).optional(),
+  unified_objects: z.array(z.string()).optional(),
   /** Not implemented yet */
   standard_objects: z.array(z.string()).optional(),
   /** Not implemented yet */

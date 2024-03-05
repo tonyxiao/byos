@@ -8,9 +8,9 @@ import {
   zPaginatedResult,
   zPaginationParams,
 } from '@supaglue/vdk'
-import * as commonModels from './commonModels'
+import * as unified from './unifiedModels'
 
-export {commonModels}
+export {unified}
 
 function oapi(meta: NonNullable<RouterMeta['openapi']>): RouterMeta {
   return {openapi: {...meta, path: `/verticals/crm${meta.path}`}}
@@ -26,60 +26,60 @@ export const crmRouter = trpc.router({
   listAccounts: remoteProcedure
     .meta(oapi({method: 'GET', path: '/account'}))
     .input(zPaginationParams.nullish())
-    .output(zPaginatedResult.extend({items: z.array(commonModels.account)}))
+    .output(zPaginatedResult.extend({items: z.array(unified.account)}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   getAccount: remoteProcedure
     .meta(oapi({method: 'GET', path: '/account/{id}'}))
     .input(z.object({id: z.string()}))
-    .output(z.object({record: commonModels.account, raw: z.unknown()}))
+    .output(z.object({record: unified.account, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   // MARK: - Contact
   listContacts: remoteProcedure
     .meta(oapi({method: 'GET', path: '/contact'}))
     .input(zPaginationParams.nullish())
-    .output(zPaginatedResult.extend({items: z.array(commonModels.contact)}))
+    .output(zPaginatedResult.extend({items: z.array(unified.contact)}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   getContact: remoteProcedure
     .meta(oapi({method: 'GET', path: '/contact/{id}'}))
     .input(z.object({id: z.string()}))
-    .output(z.object({record: commonModels.contact, raw: z.unknown()}))
+    .output(z.object({record: unified.contact, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   // MARK: - Lead
   listLeads: remoteProcedure
     .meta(oapi({method: 'GET', path: '/lead'}))
     .input(zPaginationParams.nullish())
-    .output(zPaginatedResult.extend({items: z.array(commonModels.lead)}))
+    .output(zPaginatedResult.extend({items: z.array(unified.lead)}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   getLead: remoteProcedure
     .meta(oapi({method: 'GET', path: '/lead/{id}'}))
     .input(z.object({id: z.string()}))
-    .output(z.object({record: commonModels.lead, raw: z.unknown()}))
+    .output(z.object({record: unified.lead, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   // MARK: - Opportunity
   listOpportunities: remoteProcedure
     .meta(oapi({method: 'GET', path: '/opportunity'}))
     .input(zPaginationParams.nullish())
-    .output(zPaginatedResult.extend({items: z.array(commonModels.opportunity)}))
+    .output(zPaginatedResult.extend({items: z.array(unified.opportunity)}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   getOpportunity: remoteProcedure
     .meta(oapi({method: 'GET', path: '/opportunity/{id}'}))
     .input(z.object({id: z.string()}))
-    .output(z.object({record: commonModels.opportunity, raw: z.unknown()}))
+    .output(z.object({record: unified.opportunity, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   // MARK: - User
   listUsers: remoteProcedure
     .meta(oapi({method: 'GET', path: '/user'}))
     .input(zPaginationParams.nullish())
-    .output(zPaginatedResult.extend({items: z.array(commonModels.user)}))
+    .output(zPaginatedResult.extend({items: z.array(unified.user)}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   getUser: remoteProcedure
     .meta(oapi({method: 'GET', path: '/user/{id}'}))
     .input(z.object({id: z.string()}))
-    .output(z.object({record: commonModels.user, raw: z.unknown()}))
+    .output(z.object({record: unified.user, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   // MARK: - Custom objects
@@ -109,7 +109,7 @@ export const crmRouter = trpc.router({
   metadataListObjects: remoteProcedure
     .meta(oapi({method: 'GET', path: '/metadata/objects'}))
     .input(z.object({type: z.enum(['standard', 'custom']).optional()}))
-    .output(z.array(commonModels.meta_object))
+    .output(z.array(unified.meta_object))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   metadataCreateObject: remoteProcedure
@@ -132,11 +132,11 @@ export const crmRouter = trpc.router({
           plural: z.string(),
         }),
         primary_field_id: z.string(),
-        fields: z.array(commonModels.meta_custom_object_field).min(1),
+        fields: z.array(unified.meta_custom_object_field).min(1),
       }),
     )
     // Maybe this should output meta_object_schema instead?
-    .output(commonModels.meta_object)
+    .output(unified.meta_object)
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   metadataListObjectProperties: remoteProcedure
@@ -145,7 +145,7 @@ export const crmRouter = trpc.router({
     )
     // type: z.enum(['standard', 'custom']), // Does not seem to be needed
     .input(z.object({object_name: z.string()}))
-    .output(z.array(commonModels.meta_property))
+    .output(z.array(unified.meta_property))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   metadataCreateAssociation: remoteProcedure
@@ -162,9 +162,7 @@ export const crmRouter = trpc.router({
         display_name: z.string(),
       }),
     )
-    .output(
-      withWarnings({association_schema: commonModels.meta_association_schema}),
-    )
+    .output(withWarnings({association_schema: unified.meta_association_schema}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   // Update custom object schema didn't work within Supaglue anyways...
 })

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type {SupaglueSDK} from '@opensdks/sdk-supaglue'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
-import type {commonModels, MgmtProvider} from '../router'
+import type {unified, MgmtProvider} from '../router'
 
 export const supaglueProvider = {
   __init__: ({ctx}) =>
@@ -58,10 +58,10 @@ export const supaglueProvider = {
   listSyncConfigs: async ({instance}) =>
     instance.mgmt.GET('/sync_configs').then((r) =>
       r.data.map(
-        (sc): commonModels.SyncConfig => ({
+        (sc): unified.SyncConfig => ({
           provider_name: sc.provider_name,
           custom_objects: sc.config.custom_objects,
-          common_objects: sc.config.common_objects,
+          unified_objects: sc.config.common_objects,
           standard_objects: sc.config.standard_objects,
         }),
       ),

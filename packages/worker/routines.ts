@@ -91,7 +91,7 @@ export async function scheduleSyncs({step, event}: RoutineInput<never>) {
           customer_id: c.customer_id,
           provider_name: c.provider_name,
           vertical: 'crm',
-          common_objects: syncConfig?.common_objects?.map((o) => o.object),
+          unified_objects: syncConfig?.unified_objects?.map((o) => o.object),
           standard_objects: syncConfig?.standard_objects?.map((o) => o.object),
           destination_schema: env.DESTINATION_SCHEMA,
         },
@@ -124,7 +124,7 @@ export async function syncConnection({
       customer_id,
       provider_name,
       vertical,
-      common_objects = [],
+      unified_objects = [],
       sync_mode = 'incremental',
       destination_schema,
       page_size,
@@ -138,7 +138,7 @@ export async function syncConnection({
     eventId: event.id,
     sync_mode,
     vertical,
-    common_objects,
+    unified_objects,
   })
 
   // This can probably be done via an upsert returning...
@@ -328,7 +328,7 @@ export async function syncConnection({
       console.log('[syncConnection] Ensured schema', destination_schema)
     }
     // TODO: Collect list of errors not just the last one...
-    for (const stream of common_objects) {
+    for (const stream of unified_objects) {
       try {
         await syncStream(stream)
       } catch (err) {
@@ -362,7 +362,7 @@ export async function syncConnection({
       customer_id,
       provider_name,
       vertical,
-      common_objects,
+      unified_objects: unified_objects,
       sync_mode,
       destination_schema,
       page_size,

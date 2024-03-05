@@ -5,13 +5,13 @@ import {
   type ApolloSDKTypes,
 } from '@opensdks/sdk-apollo'
 import type {SalesEngagementProvider} from '../router'
-import {commonModels} from '../router'
+import {unified} from '../router'
 
 type Apollo = ApolloSDKTypes['oas']['components']['schemas']
 
 const mappers = {
   // @ts-expect-error TODO: Implement me
-  contact: mapper(zCast<Apollo['contact']>(), commonModels.contact, {
+  contact: mapper(zCast<Apollo['contact']>(), unified.contact, {
     id: 'id',
     first_name: (c) => c.first_name ?? '',
     last_name: (c) => c.last_name ?? '',

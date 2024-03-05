@@ -5,14 +5,14 @@ import {
   type SalesloftSDKTypes,
 } from '@opensdks/sdk-salesloft'
 import type {SalesEngagementProvider} from '../router'
-import {commonModels} from '../router'
+import {unified} from '../router'
 
 type Salesloft = SalesloftSDKTypes['oas']['components']['schemas']
 
 const mappers = {
   contact: mapper(
     zCast<Salesloft['Person']>(),
-    commonModels.contact,
+    unified.contact,
     // @ts-expect-error TODO: Implement me
     {
       // TODO: Mapper should be able to enforce types as well so number does not automatically become string.

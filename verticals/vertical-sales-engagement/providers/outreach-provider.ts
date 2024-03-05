@@ -5,7 +5,7 @@ import {
   type OutreachSDKTypes,
 } from '@opensdks/sdk-outreach'
 import type {SalesEngagementProvider} from '../router'
-import {commonModels} from '../router'
+import {unified} from '../router'
 
 type Outreach = OutreachSDKTypes['oas']['components']['schemas']
 type EmailAddress = {
@@ -34,7 +34,7 @@ const listResponse = z.object({
 })
 
 const mappers = {
-  contact: mapper(zCast<Outreach['prospectResponse']>(), commonModels.contact, {
+  contact: mapper(zCast<Outreach['prospectResponse']>(), unified.contact, {
     id: (r) => r.id?.toString() ?? '',
     first_name: (r) => r.attributes?.firstName ?? '',
     last_name: (r) => r.attributes?.lastName ?? '',
@@ -97,7 +97,7 @@ const mappers = {
   }),
   sequence: mapper(
     zCast<Outreach['sequenceResponse']>(),
-    commonModels.sequence,
+    unified.sequence,
     {
       id: (r) => r.id?.toString() ?? '',
       name: (r) => r.attributes?.name ?? '',
@@ -126,7 +126,7 @@ const mappers = {
       raw_data: (r) => r,
     },
   ),
-  account: mapper(zCast<Outreach['accountResponse']>(), commonModels.account, {
+  account: mapper(zCast<Outreach['accountResponse']>(), unified.account, {
     id: (r) => r.id?.toString() ?? '',
     name: (r) => r.attributes?.name ?? '',
     created_at: (r) => r.attributes?.createdAt ?? '',
@@ -139,7 +139,7 @@ const mappers = {
   }),
   sequenceState: mapper(
     zCast<Outreach['sequenceStateResponse']>(),
-    commonModels.sequenceState,
+    unified.sequenceState,
     {
       id: (r) => r.id?.toString() ?? '',
       state: (r) => r.attributes?.state ?? '',
@@ -154,7 +154,7 @@ const mappers = {
       raw_data: (r) => r,
     },
   ),
-  mailbox: mapper(zCast<Outreach['mailboxResponse']>(), commonModels.mailbox, {
+  mailbox: mapper(zCast<Outreach['mailboxResponse']>(), unified.mailbox, {
     id: (r) => r.id?.toString() ?? '',
     email: (r) => r.attributes?.email ?? '',
     created_at: (r) => r.attributes?.createdAt ?? '',
@@ -164,7 +164,7 @@ const mappers = {
     user_id: (r) => r.relationships?.user?.data?.id?.toString() ?? '',
     raw_data: (r) => r,
   }),
-  user: mapper(zCast<Outreach['userResponse']>(), commonModels.user, {
+  user: mapper(zCast<Outreach['userResponse']>(), unified.user, {
     id: (r) => r.id?.toString() ?? '',
     first_name: (r) => r.attributes?.firstName ?? '',
     last_name: (r) => r.attributes?.lastName ?? '',

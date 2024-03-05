@@ -1,13 +1,13 @@
 import type {z} from '@supaglue/vdk'
 import {BadRequestError} from '@supaglue/vdk'
 import type {CustomField as SalesforceCustomField} from 'jsforce/lib/api/metadata/schema'
-import type {commonModels, CRMProvider} from '../../../router'
+import type {unified, CRMProvider} from '../../../router'
 
 type RouteInput<T extends Exclude<keyof CRMProvider<unknown>, '__init__'>> =
   Parameters<NonNullable<CRMProvider<unknown>[T]>>[0]['input']
 
 type PropertyUnified = z.infer<
-  (typeof commonModels)['meta_custom_object_field']
+  (typeof unified)['meta_custom_object_field']
 >
 
 type ToolingAPIValueSet = {

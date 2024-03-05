@@ -152,7 +152,7 @@ export interface components {
         provider_name: string
         /** @enum {string} */
         vertical: 'crm' | 'engagement'
-        common_objects?: string[]
+        unified_objects?: string[]
         standard_objects?: string[]
         custom_objects?: string[]
         /**
@@ -173,7 +173,7 @@ export interface components {
         provider_name: string
         /** @enum {string} */
         vertical: 'crm' | 'engagement'
-        common_objects?: string[]
+        unified_objects?: string[]
         standard_objects?: string[]
         custom_objects?: string[]
         /**
@@ -313,7 +313,7 @@ export interface components {
         type: string
         schema?: string | null
       } | null
-      common_objects?:
+      unified_objects?:
         | {
             object: string
           }[]
@@ -950,7 +950,7 @@ export interface operations {
             type: string
             schema?: string | null
           } | null
-          common_objects?:
+          unified_objects?:
             | {
                 object: string
               }[]

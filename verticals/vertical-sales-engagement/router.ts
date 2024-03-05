@@ -1,8 +1,8 @@
 import type {ProviderFromRouter, RouterMeta} from '@supaglue/vdk'
 import {proxyCallProvider, remoteProcedure, trpc, z} from '@supaglue/vdk'
-import * as commonModels from './commonModels'
+import * as unified from './unifiedModels'
 
-export {commonModels}
+export {unified}
 
 function oapi(meta: NonNullable<RouterMeta['openapi']>): RouterMeta {
   return {openapi: {...meta, path: `/verticals/sales-engagement${meta.path}`}}
@@ -15,7 +15,7 @@ export const salesEngagementRouter = trpc.router({
     .output(
       z.object({
         nextPageCursor: z.string().nullish(),
-        items: z.array(commonModels.contact),
+        items: z.array(unified.contact),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
@@ -25,7 +25,7 @@ export const salesEngagementRouter = trpc.router({
     .output(
       z.object({
         nextPageCursor: z.string().nullish(),
-        items: z.array(commonModels.sequence),
+        items: z.array(unified.sequence),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
@@ -35,7 +35,7 @@ export const salesEngagementRouter = trpc.router({
     .output(
       z.object({
         nextPageCursor: z.string().nullish(),
-        items: z.array(commonModels.sequenceState),
+        items: z.array(unified.sequenceState),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
@@ -45,7 +45,7 @@ export const salesEngagementRouter = trpc.router({
     .output(
       z.object({
         nextPageCursor: z.string().nullish(),
-        items: z.array(commonModels.user),
+        items: z.array(unified.user),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
@@ -55,7 +55,7 @@ export const salesEngagementRouter = trpc.router({
     .output(
       z.object({
         nextPageCursor: z.string().nullish(),
-        items: z.array(commonModels.account),
+        items: z.array(unified.account),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
@@ -65,7 +65,7 @@ export const salesEngagementRouter = trpc.router({
     .output(
       z.object({
         nextPageCursor: z.string().nullish(),
-        items: z.array(commonModels.mailbox),
+        items: z.array(unified.mailbox),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),

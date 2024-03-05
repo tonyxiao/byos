@@ -1,7 +1,7 @@
 import {mapper, z, zBaseRecord, zCast} from '@supaglue/vdk'
 import type {Oas_crm_contacts, Oas_crm_owners} from '@opensdks/sdk-hubspot'
 import type {PipelineStageMapping} from '.'
-import {commonModels} from '../../router'
+import {unified} from '../../router'
 
 export type SimplePublicObject =
   Oas_crm_contacts['components']['schemas']['SimplePublicObject']
@@ -204,7 +204,7 @@ export const propertiesToFetch = {
 }
 
 export const mappers = {
-  account: mapper(HSAccount, commonModels.account, {
+  account: mapper(HSAccount, unified.account, {
     id: 'id',
     name: 'properties.name',
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
@@ -218,13 +218,13 @@ export const mappers = {
     owner_id: 'properties.hubspot_owner_id',
     created_at: (record) => new Date(record.createdAt).toISOString(),
   }),
-  contact: mapper(HSContact, commonModels.contact, {
+  contact: mapper(HSContact, unified.contact, {
     id: 'id',
     first_name: 'properties.firstname',
     last_name: 'properties.lastname',
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
   }),
-  opportunity: mapper(HSDeal, commonModels.opportunity, {
+  opportunity: mapper(HSDeal, unified.opportunity, {
     id: 'id',
     name: 'properties.dealname',
     description: 'properties.description',
@@ -251,11 +251,11 @@ export const mappers = {
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
     last_modified_at: (record) => new Date(record.updatedAt).toISOString(),
   }),
-  lead: mapper(HSBase, commonModels.lead, {
+  lead: mapper(HSBase, unified.lead, {
     id: 'id',
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
   }),
-  user: mapper(zCast<Owner>(), commonModels.user, {
+  user: mapper(zCast<Owner>(), unified.user, {
     id: 'id',
     updated_at: 'updatedAt',
     created_at: 'createdAt',

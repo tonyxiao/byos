@@ -3,7 +3,7 @@ import type {PathsWithMethod, ResponseFrom} from '@supaglue/vdk'
 import {NotAuthenticatedError, NotFoundError} from '@supaglue/vdk'
 import type {NangoSDK, NangoSDKTypes} from '@opensdks/sdk-nango'
 import {initNangoSDK} from '@opensdks/sdk-nango'
-import type {commonModels} from '../router'
+import type {unified} from '../router'
 import {type MgmtProvider} from '../router'
 
 type NangoPaths = NangoSDKTypes['oas']['paths']
@@ -46,7 +46,7 @@ export function fromNangoProvider(provider: string) {
 
 export function fromNangoConnection(
   c: NangoConnection,
-): commonModels.Connection {
+): unified.Connection {
   return {
     id: `${c.id}`,
     customer_id: fromNangoConnectionId(c.connection_id),
@@ -149,14 +149,14 @@ export const nangoPostgresProvider = {
     //     (res) =>
     //       JSON.parse(
     //         res.data.find((v) => v.name === 'sync-configs')?.value || '[]',
-    //       ) as commonModels.SyncConfig[],
+    //       ) as unified.SyncConfig[],
     //   ),
     // hard-coding for now, as nango does not have a way to store this and putting it inside env var
     // feels more hacky than helpful for the time being...
     ['hubspot', 'salesforce', 'pipedrive', 'ms_dynamics_365_sales'].map(
-      (provider_name): commonModels.SyncConfig => ({
+      (provider_name): unified.SyncConfig => ({
         provider_name,
-        common_objects: [
+        unified_objects: [
           'account',
           'contact',
           'opportunity',
@@ -169,7 +169,7 @@ export const nangoPostgresProvider = {
     getConnection(instance.nango, {
       customer_id: ctx.required['x-customer-id'],
       provider_name: ctx.required['x-provider-name'],
-    }).then((conn) => conn.metadata as commonModels.ConnectionSyncConfig),
+    }).then((conn) => conn.metadata as unified.ConnectionSyncConfig),
 
   upsertConnectionSyncConfig: async ({instance, input, ctx}) => {
     const {'x-customer-id': customerId, 'x-provider-name': providerName} =

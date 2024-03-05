@@ -1,7 +1,7 @@
 import type {PathsWithMethod, ResponseFrom} from '@supaglue/vdk'
 import {mapper, z, zCast} from '@supaglue/vdk'
 import type {PipedriveSDKTypes} from '@opensdks/sdk-pipedrive'
-import {commonModels} from '../../router'
+import {unified} from '../../router'
 
 // Unfortunately pipedrive does not use the schemas field properly...
 // So we have to do the type magic...
@@ -21,27 +21,27 @@ export type Lead = NonNullable<GETResponse<'/leads'>['data']>[number]
 export type User = NonNullable<GETResponse<'/users'>['data']>[number]
 
 export const mappers = {
-  account: mapper(zCast<Organization>(), commonModels.account, {
+  account: mapper(zCast<Organization>(), unified.account, {
     id: (p) => `${p.id}`,
     updated_at: 'update_time',
     name: 'name',
   }),
-  contact: mapper(zCast<Person>(), commonModels.contact, {
+  contact: mapper(zCast<Person>(), unified.contact, {
     id: (p) => `${p.id}`,
     updated_at: 'update_time',
     first_name: (p) => p.first_name ?? '',
     last_name: (p) => p.last_name ?? '',
   }),
-  opportunity: mapper(zCast<Deal>(), commonModels.opportunity, {
+  opportunity: mapper(zCast<Deal>(), unified.opportunity, {
     id: (p) => `${p.id}`,
     updated_at: 'update_time',
     name: 'title',
   }),
-  lead: mapper(zCast<Lead>(), commonModels.lead, {
+  lead: mapper(zCast<Lead>(), unified.lead, {
     id: (p) => `${p.id}`,
     updated_at: 'update_time',
   }),
-  user: mapper(zCast<User>(), commonModels.user, {
+  user: mapper(zCast<User>(), unified.user, {
     id: (p) => `${p.id}`,
     updated_at: 'modified',
   }),
