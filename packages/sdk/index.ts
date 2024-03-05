@@ -14,6 +14,8 @@ export type BYOSupaglueSDKTypes = SDKTypes<
       'x-api-key'?: string
       'x-customer-id'?: string
       'x-provider-name'?: string
+      /** Will use nangoPostgres instead of supaglue */
+      'x-use-new-backend'?: 'true' | 'false'
       [k: string]: string | undefined
     }
   }

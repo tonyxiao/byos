@@ -120,7 +120,7 @@ export async function proxyCallProvider({
       return {...res.data.credentials, instance_url: res.data.instance_url}
     },
     proxyLinks:
-      featureFlags.mode === 'nango' && ctx.nangoLink
+      ctx.headers.get('x-use-new-backend') === 'true' && ctx.nangoLink
         ? [
             (req, next) => {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any

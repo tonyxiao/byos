@@ -55,6 +55,15 @@ export const trpc = initTRPC
 
 export const publicProcedure = trpc.procedure
 
+// TODO: Dedupe me
+function toNangoProviderConfigKey(provider: string) {
+  return `ccfg_${provider}`
+}
+
+function toNangoConnectionId(customerId: string) {
+  return `cus_${customerId}`
+}
+
 export const remoteProcedure = publicProcedure.use(
   async ({next, ctx, path}) => {
     const customerId = ctx.headers.get('x-customer-id')
@@ -83,9 +92,8 @@ export const remoteProcedure = publicProcedure.use(
     const nangoLink = ctx.nangoSecretKey
       ? nangoProxyLink({
           secretKey: ctx.nangoSecretKey,
-          connectionId: ctx.headers.get('x-connection-id') ?? customerId,
-          providerConfigKey:
-            ctx.headers.get('x-provider-config-key') ?? providerName,
+          connectionId: toNangoConnectionId(customerId),
+          providerConfigKey: toNangoProviderConfigKey(providerName),
         })
       : undefined
 

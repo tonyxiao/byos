@@ -116,6 +116,7 @@ export const nangoPostgresProvider = {
     }
     return {nango, db: _db, getCustomerIdAndProviderNameFromHeaders}
   },
+  // TODO: consider separating nango provider from postgres provider... And then have user compose together a nangoPostgres provider
   listCustomers: async ({instance}) => {
     await authenticateOrFail(instance.nango)
     return instance.db.query.customer
