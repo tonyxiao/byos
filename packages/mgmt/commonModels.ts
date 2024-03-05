@@ -16,7 +16,12 @@ export const customer = z
   .object({
     customer_id: z.string(),
     name: z.string().nullish(),
-    email: z.string().email().nullish(),
+    email: z
+      .string()
+      .nullish()
+      .describe(
+        'Email, but not validated as data from Supaglue has invalid emails for now',
+      ),
   })
   .openapi({ref: 'customer'})
 

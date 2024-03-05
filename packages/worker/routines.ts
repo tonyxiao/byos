@@ -115,6 +115,12 @@ export async function scheduleSyncs({step, event}: RoutineInput<never>) {
     })
     .filter((c): c is NonNullable<typeof c> => !!c)
 
+  console.log('[scheduleSyncs] Metrics', {
+    num_customers: customers.length,
+    num_connections: connections.length,
+    num_connections_to_sync: events.length,
+  })
+
   await step.sendEvent('emit-connection-sync-events', events)
   // make it easier to see...
   return events.map((e) => ({
