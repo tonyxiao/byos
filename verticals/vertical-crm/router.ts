@@ -13,7 +13,7 @@ import * as commonModels from './commonModels'
 export {commonModels}
 
 function oapi(meta: NonNullable<RouterMeta['openapi']>): RouterMeta {
-  return {openapi: {...meta, path: `/crm/v2${meta.path}`}}
+  return {openapi: {...meta, path: `/verticals/crm${meta.path}`}}
 }
 
 export const crmRouter = trpc.router({

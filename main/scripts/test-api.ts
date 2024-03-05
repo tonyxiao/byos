@@ -16,7 +16,7 @@ async function main() {
   // let cursor: string | undefined = undefined
   //
   // while (true) {
-  //   const r = await supaglue.GET('/engagement/v2/sequences', {
+  //   const r = await supaglue.GET('/verticals/sales-engagement/sequences', {
   //     params: {query: {cursor}},
   //   })
   //   console.log('Success', r.data)
@@ -25,23 +25,23 @@ async function main() {
   //   }
   //   cursor = r.data.nextPageCursor as string | undefined
   // }
-  // const res = await supaglue.POST('/engagement/v2/accounts/_upsert', {
+  // const res = await supaglue.POST('/verticals/sales-engagement/accounts/_upsert', {
   //   body: {record: {domain: 'examplebob.com', }, upsert_on: {name: 'Jacob'}},
   // })
   // console.log('Success', res.data)
   // const res = await supaglue.GET(
-  //   '/crm/v2/metadata/objects/{object_name}/properties',
+  //   '/verticals/crm/metadata/objects/{object_name}/properties',
   //   {params: {path: {object_name: process.env['OBJECT'] ?? 'Account'}}},
   // )
   // console.log('Success', res.data)
-  // const res = await supaglue.GET('/crm/v2/contacts/{id}', {
+  // const res = await supaglue.GET('/verticals/crm/contacts/{id}', {
   //   params: {path: {id: '0033x00003D6SBOAA3'}},
   // })
   // console.log('Success', res.data)
-  // const res = await supaglue.GET('/crm/v2/companies/{id}', {
+  // const res = await supaglue.GET('/verticals/crm/companies/{id}', {
   //   params: {path: {id: '0033x00003D6SBOAA3'}},
   // })
-  // const res = await supaglue.POST('/engagement/v2/sequenceState', {
+  // const res = await supaglue.POST('/verticals/sales-engagement/sequenceState', {
   //   body: {
   //     record: {
   //       contact_id: '41834',
@@ -50,7 +50,7 @@ async function main() {
   //     },
   //   },
   // })
-  // const res = await supaglue.GET('/crm/v2/metadata/properties', {
+  // const res = await supaglue.GET('/verticals/crm/metadata/properties', {
   //   params: {query: {name: 'MyStuff', type: 'custom'}},
   // })
   // await supaglue.PUT('/customers/{customer_id}', {
@@ -73,7 +73,7 @@ main()
 //   },
 // })
 
-// supaglue.GET('/crm/v2/contacts').then((r) => {
+// supaglue.GET('/verticals/crm/contacts').then((r) => {
 //   if (r.error) {
 //     console.log('Error', r.error)
 //   } else {
