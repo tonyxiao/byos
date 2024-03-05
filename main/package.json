@@ -15,11 +15,12 @@
     "@opensdks/sdk-supaglue": "0.0.3",
     "@supaglue/api": "workspace:*",
     "@supaglue/db": "workspace:*",
+    "@supaglue/mgmt": "workspace:*",
     "@supaglue/sdk": "workspace:*",
     "@supaglue/vdk": "workspace:*",
-    "@supaglue/mgmt": "workspace:*",
     "@supaglue/worker": "workspace:*",
     "@t3-oss/env-nextjs": "0.7.3",
+    "cookie": "^0.6.0",
     "jsforce": "^2.0.0-beta.29",
     "next": "14.0.3",
     "react": "^18",
@@ -27,6 +28,7 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
+    "@types/cookie": "^0.6.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
