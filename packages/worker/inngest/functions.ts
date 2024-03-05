@@ -1,4 +1,4 @@
-import {eventsMap, type Events} from '@supaglue/events'
+import {type Events} from '@supaglue/events'
 import * as routines from '../routines'
 import {inngest} from './client'
 
@@ -13,13 +13,11 @@ export const functions = [
     {event: 'sync.requested'},
     routines.syncConnection,
   ),
-  // MARK: - Workaround for Inngest not having support for
-  // multiple event triggers in a single function
-  ...Object.keys(eventsMap).map((name) =>
-    inngest.createFunction(
-      {id: `send-webhook/${name}`},
-      {event: name as keyof Events},
-      routines.sendWebhook,
-    ),
+  inngest.createFunction(
+    {id: 'send-webhook'},
+    // Inngest supports it but it is not supported in the sdk
+    // @see https://discord.com/channels/842170679536517141/1214066130860118087/1214283616327180318
+    {event: '*' as keyof Events},
+    routines.sendWebhook,
   ),
 ]
