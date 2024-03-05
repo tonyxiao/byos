@@ -37,7 +37,6 @@ const useNewBackend = process.env['USE_NEW_BACKEND'] === 'true'
 
 export async function scheduleSyncs({step, event}: RoutineInput<never>) {
   console.log('[scheduleSyncs]', event)
-
   const byos = initBYOSupaglueSDK({
     headers: {
       'x-api-key': env.SUPAGLUE_API_KEY,
@@ -176,6 +175,7 @@ export async function syncConnection({
   const byos = initBYOSupaglueSDK({
     headers: {
       'x-api-key': env.SUPAGLUE_API_KEY,
+      'x-nango-secret-key': env.NANGO_SECRET_KEY,
       'x-customer-id': customer_id, // This relies on customer-id mapping 1:1 to connection_id
       'x-provider-name': provider_name, // This relies on provider_config_key mapping 1:1 to provider-name
       'x-use-new-backend': useNewBackend ? 'true' : 'false',

@@ -79,15 +79,15 @@ export async function proxyCallProvider({
 }) {
   // This should probably be in mgmt package rather than vdk with some dependency injection involved
   const extraInitOpts = ((): ExtraInitOpts => {
-    const {'x-nango-secret-key': nangoSecretKey, 'x-api-key': supaglueApiKey} =
-      ctx.optional
-    if (ctx.useNewBackend && nangoSecretKey) {
+    if (ctx.useNewBackend) {
       const connectionId = toNangoConnectionId(ctx.customerId)
       const providerConfigKey = toNangoProviderConfigKey(ctx.providerName)
       return {
         getCredentials: async () => {
           const nango = initNangoSDK({
-            headers: {authorization: `Bearer ${nangoSecretKey}`},
+            headers: {
+              authorization: `Bearer ${ctx.required['x-nango-secret-key']}`,
+            },
           })
           const conn = await nango
             .GET('/connection/{connectionId}', {
@@ -104,62 +104,57 @@ export async function proxyCallProvider({
         },
         proxyLinks: [
           nangoProxyLink({
-            secretKey: nangoSecretKey,
+            secretKey: ctx.required['x-nango-secret-key'],
             connectionId,
             providerConfigKey,
           }),
         ],
       }
     }
-    if (supaglueApiKey) {
-      return {
-        getCredentials: async () => {
-          const supaglue = initSupaglueSDK({
-            headers: {'x-api-key': supaglueApiKey},
-          })
-          const [{data: connections}] = await Promise.all([
-            supaglue.mgmt.GET('/customers/{customer_id}/connections', {
-              params: {path: {customer_id: ctx.customerId}},
-            }),
-            // This is a no-op passthrough request to ensure credentials have been refreshed if needed
-            supaglue.actions.POST('/passthrough', {
-              params: {
-                header: {
-                  'x-customer-id': ctx.customerId,
-                  'x-provider-name': ctx.providerName,
-                },
-              },
-              body: {method: 'GET', path: '/'},
-            }),
-          ])
-          const conn = connections.find(
-            (c) => c.provider_name === ctx.providerName,
-          )
-          if (!conn) {
-            throw new Error('Connection not found')
-          }
-
-          const res = await supaglue.private.exportConnection({
-            customerId: conn.customer_id,
-            connectionId: conn.id,
-          })
-          return {
-            access_token: res.data.credentials.access_token,
-            instance_url: res.data.instance_url,
-          }
-        },
-        proxyLinks: [
-          supaglueProxyLink({
-            apiKey: supaglueApiKey,
-            customerId: ctx.customerId,
-            providerName: ctx.providerName,
+    return {
+      getCredentials: async () => {
+        const supaglue = initSupaglueSDK({
+          headers: {'x-api-key': ctx.required['x-api-key']},
+        })
+        const [{data: connections}] = await Promise.all([
+          supaglue.mgmt.GET('/customers/{customer_id}/connections', {
+            params: {path: {customer_id: ctx.customerId}},
           }),
-        ],
-      }
+          // This is a no-op passthrough request to ensure credentials have been refreshed if needed
+          supaglue.actions.POST('/passthrough', {
+            params: {
+              header: {
+                'x-customer-id': ctx.customerId,
+                'x-provider-name': ctx.providerName,
+              },
+            },
+            body: {method: 'GET', path: '/'},
+          }),
+        ])
+        const conn = connections.find(
+          (c) => c.provider_name === ctx.providerName,
+        )
+        if (!conn) {
+          throw new Error('Connection not found')
+        }
+
+        const res = await supaglue.private.exportConnection({
+          customerId: conn.customer_id,
+          connectionId: conn.id,
+        })
+        return {
+          access_token: res.data.credentials.access_token,
+          instance_url: res.data.instance_url,
+        }
+      },
+      proxyLinks: [
+        supaglueProxyLink({
+          apiKey: ctx.required['x-api-key'],
+          customerId: ctx.customerId,
+          providerName: ctx.providerName,
+        }),
+      ],
     }
-    throw new BadRequestError(
-      `Either x-nango-secret-key or x-api-key is required for ${ctx.path}`,
-    )
   })()
 
   const instance = ctx.provider.__init__({ctx, ...extraInitOpts})
