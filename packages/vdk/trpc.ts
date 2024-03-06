@@ -1,5 +1,5 @@
 import type {OpenApiMeta} from '@lilyrose2798/trpc-openapi'
-import {env, proxyRequired, serverEnv} from '@supaglue/env'
+import {env, MGMT_PROVIDER_NAME, proxyRequired} from '@supaglue/env'
 import {initTRPC} from '@trpc/server'
 import {z} from '@opensdks/util-zod'
 import {BadRequestError} from './errors'
@@ -59,8 +59,7 @@ export const zByosHeaders = z.object({
   /** Supaglue API key */
   'x-api-key': z.string().nullish(),
   /** Will use nangoPostgres instead of supaglue */
-  'x-mgmt-provider-name':
-    serverEnv.MGMT_PROVIDER_NAME.removeDefault().optional(),
+  'x-mgmt-provider-name': MGMT_PROVIDER_NAME.optional(),
 })
 export type ByosHeaders = z.infer<typeof zByosHeaders>
 
