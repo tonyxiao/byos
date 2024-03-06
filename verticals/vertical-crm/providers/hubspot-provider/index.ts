@@ -231,8 +231,8 @@ const _listObjectsIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
     return {
       ...rawData,
       // polyfill associations that are not normally available from the search endpoint
-      properties: {...rawData.properties, associations},
-      // Will only be set for deals
+      associations,
+      // Will only be set for deals, never returned by hubspot directly
       '#pipelineStageMapping': pipelineStageMapping,
     }
   })

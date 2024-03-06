@@ -68,9 +68,9 @@ export const HSBase = z.object({
       createdate: z.string().nullish(),
       lastmodifieddate: z.string().nullish(),
       hs_lastmodifieddate: z.string().nullish(),
-      associations: HSAssociations.nullish(),
     })
     .passthrough(),
+  associations: HSAssociations.nullish(),
   createdAt: z.string(),
   updatedAt: z.string(),
   archived: z.boolean(),
@@ -88,9 +88,9 @@ export const HSContact = z.object({
       phone: z.string().nullish(),
       firstname: z.string().nullish(),
       lastname: z.string().nullish(),
-      associations: HSAssociations.nullish(),
     })
     .passthrough(),
+  associations: HSAssociations.nullish(),
   createdAt: z.string(),
   updatedAt: z.string(),
   archived: z.boolean(),
@@ -118,9 +118,9 @@ export const HSDeal = z.object({
       // status: z.string().nullish(),
       is_deleted: z.boolean().nullish(), // Does this exist?
       archivedAt: z.string().nullish(), // Does this exist?
-      associations: HSAssociations.nullish(),
     })
     .passthrough(),
+  associations: HSAssociations.nullish(),
   createdAt: z.string(),
   updatedAt: z.string(),
   archived: z.boolean(),
@@ -144,9 +144,9 @@ export const HSCompany = z.object({
       phonenumbers: z.string().nullish(), // Assuming phonenumbers is a string; adjust the type if needed
       lifecyclestage: z.string().nullish(),
       notes_last_updated: z.string().nullish(),
-      associations: HSAssociations.nullish(),
     })
     .passthrough(),
+  associations: HSAssociations.nullish(),
   createdAt: z.string(),
   updatedAt: z.string(),
   archived: z.boolean(),
@@ -247,8 +247,7 @@ export const mappers = {
       r['#pipelineStageMapping'][r.properties.pipeline ?? '']?.stageLabelById?.[
         r.properties.dealstage ?? ''
       ],
-    account_id: (r) =>
-      r.properties.associations?.['companies']?.results?.[0]?.id,
+    account_id: (r) => r.associations?.['companies']?.results?.[0]?.id,
     close_date: 'properties.closedate',
     amount: (record) =>
       record.properties.amount
