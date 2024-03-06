@@ -77,9 +77,14 @@ export interface paths {
   }
   '/crm/v2/contact': {
     get: operations['crm-listContacts']
+    post: operations['crm-createContact']
   }
   '/crm/v2/contact/{id}': {
     get: operations['crm-getContact']
+    patch: operations['crm-updateContact']
+  }
+  '/crm/v2/contact/_upsert': {
+    post: operations['crm-upsertContact']
   }
   '/crm/v2/lead': {
     get: operations['crm-listLeads']
@@ -509,9 +514,9 @@ export interface components {
         | null
       owner_id?: string | null
       lifecycle_stage?: components['schemas']['crm.lifecycle_stage'] | null
-      extra_fields?: {
+      passthrough_fields?: {
         [key: string]: unknown
-      }
+      } | null
     }
     'crm.contact': {
       id: string
@@ -522,6 +527,21 @@ export interface components {
       }
       first_name?: string | null
       last_name?: string | null
+      /** @description Primary email address */
+      email?: string | null
+      /** @description Primary phone number */
+      phone?: string | null
+    }
+    'crm.contact_input': {
+      first_name?: string | null
+      last_name?: string | null
+      /** @description Primary email address */
+      email?: string | null
+      /** @description Primary phone number */
+      phone?: string | null
+      passthrough_fields?: {
+        [key: string]: unknown
+      } | null
     }
     'crm.lead': {
       id: string
@@ -1512,9 +1532,7 @@ export interface operations {
       200: {
         content: {
           'application/json': {
-            record: {
-              id: string
-            }
+            record: components['schemas']['crm.account']
           }
         }
       }
@@ -1586,9 +1604,7 @@ export interface operations {
       200: {
         content: {
           'application/json': {
-            record: {
-              id: string
-            }
+            record: components['schemas']['crm.account']
           }
         }
       }
@@ -1634,9 +1650,7 @@ export interface operations {
       200: {
         content: {
           'application/json': {
-            record: {
-              id: string
-            }
+            record: components['schemas']['crm.account']
           }
         }
       }
@@ -1692,6 +1706,37 @@ export interface operations {
       }
     }
   }
+  'crm-createContact': {
+    requestBody: {
+      content: {
+        'application/json': {
+          record: components['schemas']['crm.contact_input']
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': {
+            record: components['schemas']['crm.contact']
+          }
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
   'crm-getContact': {
     parameters: {
       path: {
@@ -1718,6 +1763,88 @@ export interface operations {
       404: {
         content: {
           'application/json': components['schemas']['error.NOT_FOUND']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-updateContact': {
+    parameters: {
+      path: {
+        id: string
+      }
+    }
+    requestBody: {
+      content: {
+        'application/json': {
+          record: components['schemas']['crm.contact_input']
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': {
+            record: components['schemas']['crm.contact']
+          }
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Not found */
+      404: {
+        content: {
+          'application/json': components['schemas']['error.NOT_FOUND']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-upsertContact': {
+    requestBody: {
+      content: {
+        'application/json': {
+          upsert_on: {
+            /**
+             * @description The key to upsert on. Only `email` is supported for all providers.
+             * @enum {string}
+             */
+            key: 'email'
+            /** @description The values to upsert on. If more than one value is provided, it will act as a logical OR. If more than one record is found that matches, then an error will be thrown. */
+            values: string[]
+          }
+          record: components['schemas']['crm.contact_input']
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': {
+            record: components['schemas']['crm.contact']
+          }
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
         }
       }
       /** @description Internal server error */

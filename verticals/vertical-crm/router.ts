@@ -106,7 +106,7 @@ export const crmRouter = trpc.router({
               'The values to upsert on. If more than one value is provided, it will act as a logical OR. If more than one record is found that matches, then an error will be thrown.',
             ),
         }),
-        record: unified.account_input,
+        record: unified.contact_input,
       }),
     )
     .output(z.object({record: unified.contact}))
