@@ -1,6 +1,11 @@
 import {db as _db, dbUpsert, eq, schema, sql} from '@supaglue/db'
 import type {PathsWithMethod, ResponseFrom} from '@supaglue/vdk'
 import {NotAuthenticatedError, NotFoundError} from '@supaglue/vdk'
+import {
+  fromNangoConnectionId,
+  toNangoConnectionId,
+  toNangoProviderConfigKey,
+} from '@supaglue/vdk/nangoProxyLink'
 import type {NangoSDK, NangoSDKTypes} from '@opensdks/sdk-nango'
 import {initNangoSDK} from '@opensdks/sdk-nango'
 import type {unified} from '../router'
@@ -14,23 +19,6 @@ type GETResponse<P extends PathsWithMethod<NangoPaths, 'get'>> = ResponseFrom<
   P
 >
 type NangoConnection = GETResponse<'/connection'>['configs'][number]
-
-/** Support a single connector config aka nango provider per provider name for now */
-export function toNangoProviderConfigKey(provider: string) {
-  return `ccfg_${provider}`
-}
-
-export function fromNangoProviderConfigKey(provider: string) {
-  return provider.replace(/^ccfg_/, '')
-}
-
-export function toNangoConnectionId(customerId: string) {
-  return `cus_${customerId}`
-}
-
-export function fromNangoConnectionId(connectionId: string) {
-  return connectionId.replace(/^cus_/, '')
-}
 
 export function toNangoProvider(provider: string) {
   return provider === 'ms_dynamics_365_sales'

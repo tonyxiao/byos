@@ -1,19 +1,18 @@
 // import {createClient, fetchLink} from '@opensdks/runtime'
 import {parseArgs} from 'node:util'
 import {db, dbUpsert, pgClient, schema, sql} from '@supaglue/db'
-import {
-  toNangoConnectionId,
-  toNangoProvider,
-  toNangoProviderConfigKey,
-} from '@supaglue/mgmt/providers/nango-postgres-provider'
+import {toNangoProvider} from '@supaglue/mgmt/providers/nango-postgres-provider'
 import {
   isHttpError,
   OperationRequestBodyContent,
   PathsWithMethod,
 } from '@supaglue/vdk'
+import {
+  toNangoConnectionId,
+  toNangoProviderConfigKey,
+} from '@supaglue/vdk/nangoProxyLink'
 import {initNangoSDK, NangoSDKTypes} from '@opensdks/sdk-nango'
 import {initSupaglueSDK, Oas_mgmt} from '@opensdks/sdk-supaglue'
-import {env} from '../env'
 
 type SupaglueCustomer = Oas_mgmt['components']['schemas']['customer']
 type SupaglueProvider = Oas_mgmt['components']['schemas']['provider']

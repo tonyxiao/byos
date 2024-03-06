@@ -104,6 +104,27 @@ export function getBaseUrl(urlStr: string) {
   return `${url.protocol}//${url.host}/`
 }
 
+// TODO: Move these into mgmt once we are able to move proxyLinks out of vdk
+
+const noPrefix = process.env['NANGO_NO_ID_PREFIX'] === 'true'
+
+/** Support a single connector config aka nango provider per provider name for now */
+export function toNangoProviderConfigKey(provider: string) {
+  return noPrefix ? provider : `ccfg_${provider}`
+}
+
+export function fromNangoProviderConfigKey(provider: string) {
+  return noPrefix ? provider : provider.replace(/^ccfg_/, '')
+}
+
+export function toNangoConnectionId(customerId: string) {
+  return noPrefix ? customerId : `cus_${customerId}`
+}
+
+export function fromNangoConnectionId(connectionId: string) {
+  return noPrefix ? connectionId : connectionId.replace(/^cus_/, '')
+}
+
 // TODO: move this into sdk-nango
 
 /**

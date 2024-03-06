@@ -1,12 +1,12 @@
 import {inngest} from '@supaglue/events'
 import {z} from '@supaglue/vdk'
-import cookie from 'cookie'
 import {
   fromNangoConnectionId,
   fromNangoProviderConfigKey,
   toNangoConnectionId,
   toNangoProviderConfigKey,
-} from './nango-postgres-provider'
+} from '@supaglue/vdk/nangoProxyLink'
+import cookie from 'cookie'
 
 const zOauthInitParams = z.object({
   customer_id: z.string(),

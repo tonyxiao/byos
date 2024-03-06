@@ -9,7 +9,12 @@ import {
 import type {Link as FetchLink} from '@opensdks/fetch-links'
 import {initNangoSDK} from '@opensdks/sdk-nango'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
-import {nangoConnectionWithCredentials, nangoProxyLink} from './nangoProxyLink'
+import {
+  nangoConnectionWithCredentials,
+  nangoProxyLink,
+  toNangoConnectionId,
+  toNangoProviderConfigKey,
+} from './nangoProxyLink'
 import {supaglueProxyLink} from './supaglueProxyLink'
 import type {RemoteProcedureContext} from './trpc'
 
@@ -59,15 +64,6 @@ export type ProviderFromRouter<
  * make this relationship clearer
  */
 export const PLACEHOLDER_BASE_URL = 'http://placeholder'
-
-// TODO: Dedupe me
-function toNangoProviderConfigKey(provider: string) {
-  return `ccfg_${provider}`
-}
-
-function toNangoConnectionId(customerId: string) {
-  return `cus_${customerId}`
-}
 
 export async function proxyCallProvider({
   input,
