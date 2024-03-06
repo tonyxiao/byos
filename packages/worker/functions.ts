@@ -33,7 +33,10 @@ export type FunctionInput<T extends keyof Events> = {
 type SingleNoArray<T> = T extends Array<infer U> ? U : T
 export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 
-export async function scheduleSyncs({step, event}: FunctionInput<never>) {
+export async function scheduleSyncs({
+  step,
+  event,
+}: FunctionInput<'scheduler.requested'>) {
   console.log('[scheduleSyncs]', event)
   const byos = initBYOSupaglueSDK({
     headers: {
@@ -62,16 +65,7 @@ export async function scheduleSyncs({step, event}: FunctionInput<never>) {
 
   const events = connections
     .map((c) => {
-      if (
-        ![
-          'salesforce',
-          'hubspot',
-          'pipedrive',
-          'outreach',
-          'salesloft',
-          'apollo',
-        ].includes(c.provider_name)
-      ) {
+      if (!event.data.provider_names.includes(c.provider_name)) {
         // Only sync these for now...
         return null
       }
@@ -86,10 +80,11 @@ export async function scheduleSyncs({step, event}: FunctionInput<never>) {
         data: {
           customer_id: c.customer_id,
           provider_name: c.provider_name,
-          vertical: 'crm',
+          vertical: event.data.vertical,
           unified_objects: syncConfig?.unified_objects?.map((o) => o.object),
           standard_objects: syncConfig?.standard_objects?.map((o) => o.object),
           destination_schema: env.DESTINATION_SCHEMA,
+          sync_mode: event.data.sync_mode,
         },
       } satisfies EventPayload
     })

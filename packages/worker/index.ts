@@ -10,9 +10,36 @@ import * as functions from './functions'
 // and have the potential to miss new functions. May also need eslint barrel for codegen support as well.
 export const inngestFunctions = [
   inngest.createFunction(
-    {id: 'schedule-syncs'},
+    {id: 'hourly-incremental-syncs'},
     {cron: '0 * * * *'}, // Once an hour on the hour by default
-    functions.scheduleSyncs,
+    ({step}) =>
+      step.sendEvent('scheduler.requested', {
+        name: 'scheduler.requested',
+        data: {
+          provider_names: [
+            'salesforce',
+            'hubspot',
+            'pipedrive',
+            'outreach',
+            'salesloft',
+            'apollo',
+          ],
+          vertical: 'crm',
+          sync_mode: 'incremental',
+        },
+      }),
+  ),
+  // Hubspot association changes do not show up in incremental syncs unfortuntately, so we have to do a full sync
+  // Would be great to avoid hard-coding provider_names tho.
+  inngest.createFunction(
+    {id: 'nightly-full-syncs'},
+    // 9pm pacific time / midnight eastern / 5am Europe. Nobody should be working, right?
+    {cron: 'TZ=America/New_York 0 0 * * *'},
+    ({step}) =>
+      step.sendEvent('scheduler.requested', {
+        name: 'scheduler.requested',
+        data: {provider_names: ['hubspot'], vertical: 'crm', sync_mode: 'full'},
+      }),
   ),
   inngest.createFunction(
     {id: 'sync-connection'},

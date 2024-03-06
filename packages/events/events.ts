@@ -35,6 +35,13 @@ const syncRequestedData = z.object({
 })
 
 export const eventsMap = {
+  'scheduler.requested': {
+    data: z.object({
+      provider_names: z.array(z.string()),
+      vertical: z.enum(['crm', 'engagement']),
+      sync_mode: z.enum(['full', 'incremental']),
+    }),
+  },
   'sync.requested': {data: syncRequestedData},
   'sync.completed': {
     // We merge syncRequestData top level as things like sync_mode etc. can be modified during
