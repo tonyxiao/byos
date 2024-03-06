@@ -6,16 +6,9 @@ import {
 } from '@opensdks/sdk-outreach'
 import type {SalesEngagementProvider} from '../router'
 import {unified} from '../router'
+import type {EmailAddress, PhoneNumber} from '../unifiedModels'
 
 type Outreach = OutreachSDKTypes['oas']['components']['schemas']
-type EmailAddress = {
-  email_address: string
-  email_address_type: 'primary' | 'personal' | 'work'
-}
-type PhoneNumber = {
-  phone_number: string
-  phone_number_type: 'primary' | 'work' | 'home' | 'mobile' | 'other'
-}
 
 /** Outreach OpenAPI is unfortunately incomplete */
 const listResponse = z.object({
@@ -95,37 +88,33 @@ const mappers = {
     last_modified_at: (r) => r.attributes?.updatedAt ?? '',
     raw_data: (r) => r,
   }),
-  sequence: mapper(
-    zCast<Outreach['sequenceResponse']>(),
-    unified.sequence,
-    {
-      id: (r) => r.id?.toString() ?? '',
-      name: (r) => r.attributes?.name ?? '',
-      created_at: (r) => r.attributes?.createdAt ?? '',
-      updated_at: (r) => r.attributes?.updatedAt ?? '',
-      is_deleted: () => false,
-      last_modified_at: (r) => r.attributes?.updatedAt ?? '',
-      owner_id: (r) => r.relationships?.owner?.data?.id?.toString() ?? '',
-      tags: (r) => r.attributes?.tags ?? [],
-      num_steps: (r) => r.attributes?.sequenceStepCount ?? 0,
-      metrics: (r) => ({
-        scheduleCount: r.attributes?.scheduleCount ?? 0,
-        openCount: r.attributes?.openCount ?? 0,
-        optOutCount: r.attributes?.optOutCount ?? 0,
-        clickCount: r.attributes?.clickCount ?? 0,
-        replyCount: r.attributes?.replyCount ?? 0,
-        deliverCount: r.attributes?.deliverCount ?? 0,
-        failureCount: r.attributes?.failureCount ?? 0,
-        neutralReplyCount: r.attributes?.neutralReplyCount ?? 0,
-        negativeReplyCount: r.attributes?.negativeReplyCount ?? 0,
-        positiveReplyCount: r.attributes?.positiveReplyCount ?? 0,
-        numRepliedProspects: r.attributes?.numRepliedProspects ?? 0,
-        numContactedProspects: r.attributes?.numContactedProspects ?? 0,
-      }),
-      is_enabled: (r) => r.attributes?.enabled ?? false,
-      raw_data: (r) => r,
-    },
-  ),
+  sequence: mapper(zCast<Outreach['sequenceResponse']>(), unified.sequence, {
+    id: (r) => r.id?.toString() ?? '',
+    name: (r) => r.attributes?.name ?? '',
+    created_at: (r) => r.attributes?.createdAt ?? '',
+    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    is_deleted: () => false,
+    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    owner_id: (r) => r.relationships?.owner?.data?.id?.toString() ?? '',
+    tags: (r) => r.attributes?.tags ?? [],
+    num_steps: (r) => r.attributes?.sequenceStepCount ?? 0,
+    metrics: (r) => ({
+      scheduleCount: r.attributes?.scheduleCount ?? 0,
+      openCount: r.attributes?.openCount ?? 0,
+      optOutCount: r.attributes?.optOutCount ?? 0,
+      clickCount: r.attributes?.clickCount ?? 0,
+      replyCount: r.attributes?.replyCount ?? 0,
+      deliverCount: r.attributes?.deliverCount ?? 0,
+      failureCount: r.attributes?.failureCount ?? 0,
+      neutralReplyCount: r.attributes?.neutralReplyCount ?? 0,
+      negativeReplyCount: r.attributes?.negativeReplyCount ?? 0,
+      positiveReplyCount: r.attributes?.positiveReplyCount ?? 0,
+      numRepliedProspects: r.attributes?.numRepliedProspects ?? 0,
+      numContactedProspects: r.attributes?.numContactedProspects ?? 0,
+    }),
+    is_enabled: (r) => r.attributes?.enabled ?? false,
+    raw_data: (r) => r,
+  }),
   account: mapper(zCast<Outreach['accountResponse']>(), unified.account, {
     id: (r) => r.id?.toString() ?? '',
     name: (r) => r.attributes?.name ?? '',

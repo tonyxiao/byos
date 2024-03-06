@@ -11,23 +11,26 @@ export const address = z
   })
   .openapi({ref: 'sales-engagement.address'})
 
-export const email_addresses = z
-  .array(
-    z.object({
-      email_address: z.string(),
-      email_address_type: z.enum(['primary', 'personal', 'work']),
-    }),
-  )
-  .openapi({ref: 'sales-engagement.email_addresses'})
+export const email_address = z
+  .object({
+    email_address: z.string(),
+    email_address_type: z.enum(['primary', 'personal', 'work', 'other']),
+  })
+  .openapi({ref: 'sales-engagement.email_address'})
 
-export const phone_numbers = z
-  .array(
-    z.object({
-      phone_number: z.string(),
-      phone_number_type: z.enum(['primary', 'work', 'home', 'mobile', 'other']),
-    }),
-  )
-  .openapi({ref: 'sales-engagement.phone_numbers'})
+export type EmailAddress = z.infer<typeof email_address>
+
+export const phone_number = z
+  .object({
+    phone_number: z.string(),
+    phone_number_type: z.enum(['primary', 'work', 'home', 'mobile', 'other']),
+  })
+  .openapi({ref: 'sales-engagement.phone_number'})
+export type PhoneNumber = z.infer<typeof phone_number>
+
+export const email_addresses = z.array(email_address)
+
+export const phone_numbers = z.array(phone_number)
 
 export const contact = z
   .object({

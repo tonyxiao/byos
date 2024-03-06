@@ -15,6 +15,8 @@ const supaglue = initBYOSupaglueSDK({
 })
 
 async function main() {
+  await supaglue.GET('/crm/v2/contact', {}).then((r) => console.log(r.data))
+  return
   await supaglue.POST('/crm/v2/contact/_upsert', {
     body: {
       record: {email: 'test@test.com'},
