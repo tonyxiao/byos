@@ -72,7 +72,7 @@ export const publicProcedure = trpc.procedure.use(async ({next, ctx, path}) => {
 
   // Defaulting to supaglue here for now but worker defaults to nango
   const mgmtProviderName =
-    optional['x-mgmt-provider-name'] ?? env['MGMT_PROVIDER_NAME'] ?? 'supaglue'
+    optional['x-mgmt-provider-name'] ?? env['MGMT_PROVIDER_NAME']
 
   return next({
     ctx: {...ctx, path, optional, required, mgmtProviderName},

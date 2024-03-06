@@ -27,19 +27,21 @@ export const env = createEnv({
     CONFIG_SCHEMA: z.string().optional(),
     DESTINATION_SCHEMA: z.string().optional(),
 
-    // Required on production, but optional on dev
+    // Required for worker to work when deployed
     INNGEST_SIGNING_KEY: z.string().optional(),
     INNGEST_EVENT_KEY: z.string().optional(),
-    // webhook related
+
+    // Set if you want to receive webhooks for all the events
     WEBHOOK_URL: z.string().optional(),
     WEBHOOK_SECRET: z.string().optional(),
 
     // Variables set by Vercel when deployed
     VERCEL_URL: z.string().optional(),
 
-    // Used for scripts / cli only
+    // Used for scripts / cli only, maybe we should rename them to all _ prefixed to be clear?
     PROVIDER_NAME: z.string().optional(),
     CUSTOMER_ID: z.string().optional(),
+    // Redundant with NEXT_PUBLIC_SERVER_URL, but shorter and for script only
     BYOS_URL: z.string().optional(),
     SFDC_INSTANCE_URL: z.string().optional(),
     SFDC_ACCESS_TOKEN: z.string().optional(),
@@ -93,4 +95,8 @@ export const env = createEnv({
   },
 })
 
-export const envRequired = proxyRequired(env)
+export const envRequired = proxyRequired(env, {
+  formatError(key) {
+    return new Error(`Missing required env var: ${key}`)
+  },
+})

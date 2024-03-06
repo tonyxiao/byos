@@ -246,7 +246,7 @@ export const meta_custom_object_field = z
     group_name: z.string().optional().openapi({
       description:
         "Only applicable for Hubspot. If specified, Supaglue will attempt to attach the field to this group if it exists, or create it if it doesn't.",
-      example: 'supaglue',
+      example: 'my group',
     }),
     type: meta_property_type,
     precision: z

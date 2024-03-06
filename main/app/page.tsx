@@ -1,5 +1,5 @@
 // async function listConnections() {
-// if (env.SUPAGLUE_API_KEY && featureFlags.mode === 'supaglue') {
+// if (env.SUPAGLUE_API_KEY ) {
 //   const supaglue = initSupaglueSDK({
 //     headers: {'x-api-key': env.SUPAGLUE_API_KEY},
 //   })
@@ -18,7 +18,7 @@
 //     // customer_id: c.customer_id,
 //   }))
 // }
-// if (env.NANGO_SECRET_KEY && featureFlags.mode === 'nango') {
+// if (env.NANGO_SECRET_KEY) {
 // const nango = initNangoSDK({
 //   headers: {authorization: `Bearer ${env.NANGO_SECRET_KEY}`},
 // })

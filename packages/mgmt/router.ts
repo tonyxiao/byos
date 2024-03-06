@@ -9,10 +9,7 @@ export {unified}
 export const mgmtProcedure = publicProcedure.use(async ({next, ctx}) => {
   const provider: _Provider<InitOpts> =
     ctx.mgmtProviderName === 'nango' ? nangoPostgresProvider : supaglueProvider
-  const providerName =
-    ctx.mgmtProviderName === 'nango' ? 'nango-postgres' : 'supaglue'
-
-  return next({ctx: {...ctx, provider, providerName}})
+  return next({ctx: {...ctx, provider}})
 })
 
 type MgmtProcedureContext = ReturnType<
