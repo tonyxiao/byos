@@ -44,10 +44,12 @@ const mappers = {
     }),
     email_addresses: (r) => {
       const emails: EmailAddress[] = []
-      r.attributes?.emails?.forEach((record) => ({
-        email_address: record,
-        email_address_type: 'primary',
-      }))
+      r.attributes?.emails?.forEach((record) => {
+        emails.push({
+          email_address: record,
+          email_address_type: 'primary',
+        })
+      })
       return emails
     },
     phone_numbers: (r) => {
@@ -79,22 +81,25 @@ const mappers = {
       return phoneNumbers
     },
     open_count: (r) => r.attributes?.openCount ?? 0,
-    click_count: (r) => r.attributes?.openCount ?? 0,
-    reply_count: (r) => r.attributes?.openCount ?? 0,
+    click_count: (r) => r.attributes?.clickCount ?? 0,
+    reply_count: (r) => r.attributes?.replyCount ?? 0,
+    // TODO: Needs to confirm bouncedCount with Tony
     bounced_count: (r) => r.attributes?.openCount ?? 0,
-    created_at: (r) => r.attributes?.createdAt ?? '',
-    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    created_at: (r) => r.attributes?.createdAt ?? new Date().toISOString(),
+    updated_at: (r) => r.attributes?.updatedAt ?? new Date().toISOString(),
     is_deleted: () => false,
-    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    last_modified_at: (r) =>
+      r.attributes?.updatedAt ?? new Date().toISOString(),
     raw_data: (r) => r,
   }),
   sequence: mapper(zCast<Outreach['sequenceResponse']>(), unified.sequence, {
     id: (r) => r.id?.toString() ?? '',
     name: (r) => r.attributes?.name ?? '',
-    created_at: (r) => r.attributes?.createdAt ?? '',
-    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    created_at: (r) => r.attributes?.createdAt ?? new Date().toISOString(),
+    updated_at: (r) => r.attributes?.updatedAt ?? new Date().toISOString(),
     is_deleted: () => false,
-    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    last_modified_at: (r) =>
+      r.attributes?.updatedAt ?? new Date().toISOString(),
     owner_id: (r) => r.relationships?.owner?.data?.id?.toString() ?? '',
     tags: (r) => r.attributes?.tags ?? [],
     num_steps: (r) => r.attributes?.sequenceStepCount ?? 0,
@@ -118,10 +123,11 @@ const mappers = {
   account: mapper(zCast<Outreach['accountResponse']>(), unified.account, {
     id: (r) => r.id?.toString() ?? '',
     name: (r) => r.attributes?.name ?? '',
-    created_at: (r) => r.attributes?.createdAt ?? '',
-    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    created_at: (r) => r.attributes?.createdAt ?? new Date().toISOString(),
+    updated_at: (r) => r.attributes?.updatedAt ?? new Date().toISOString(),
     is_deleted: () => false,
-    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    last_modified_at: (r) =>
+      r.attributes?.updatedAt ?? new Date().toISOString(),
     owner_id: (r) => r.relationships?.owner?.data?.id?.toString() ?? '',
     domain: (r) => r.attributes?.domain ?? '',
     raw_data: (r) => r,
@@ -132,10 +138,11 @@ const mappers = {
     {
       id: (r) => r.id?.toString() ?? '',
       state: (r) => r.attributes?.state ?? '',
-      created_at: (r) => r.attributes?.createdAt ?? '',
-      updated_at: (r) => r.attributes?.updatedAt ?? '',
+      created_at: (r) => r.attributes?.createdAt ?? new Date().toISOString(),
+      updated_at: (r) => r.attributes?.updatedAt ?? new Date().toISOString(),
       is_deleted: () => false,
-      last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+      last_modified_at: (r) =>
+        r.attributes?.updatedAt ?? new Date().toISOString(),
       sequence_id: (r) => r.relationships?.sequence?.data?.id?.toString() ?? '',
       contact_id: (r) => r.relationships?.prospect?.data?.id?.toString() ?? '',
       mailbox_id: (r) => r.relationships?.mailbox?.data?.id?.toString() ?? '',
@@ -146,10 +153,11 @@ const mappers = {
   mailbox: mapper(zCast<Outreach['mailboxResponse']>(), unified.mailbox, {
     id: (r) => r.id?.toString() ?? '',
     email: (r) => r.attributes?.email ?? '',
-    created_at: (r) => r.attributes?.createdAt ?? '',
-    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    created_at: (r) => r.attributes?.createdAt ?? new Date().toISOString(),
+    updated_at: (r) => r.attributes?.updatedAt ?? new Date().toISOString(),
     is_deleted: () => false,
-    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    last_modified_at: (r) =>
+      r.attributes?.updatedAt ?? new Date().toISOString(),
     user_id: (r) => r.relationships?.user?.data?.id?.toString() ?? '',
     raw_data: (r) => r,
   }),
@@ -158,10 +166,11 @@ const mappers = {
     first_name: (r) => r.attributes?.firstName ?? '',
     last_name: (r) => r.attributes?.lastName ?? '',
     email: (r) => r.attributes?.email ?? '',
-    created_at: (r) => r.attributes?.createdAt ?? '',
-    updated_at: (r) => r.attributes?.updatedAt ?? '',
+    created_at: (r) => r.attributes?.createdAt ?? new Date().toISOString(),
+    updated_at: (r) => r.attributes?.updatedAt ?? new Date().toISOString(),
     is_deleted: () => false,
-    last_modified_at: (r) => r.attributes?.updatedAt ?? '',
+    last_modified_at: (r) =>
+      r.attributes?.updatedAt ?? new Date().toISOString(),
     raw_data: (r) => r,
   }),
 }
