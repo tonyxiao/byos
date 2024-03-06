@@ -20,8 +20,9 @@ export const trpc = initTRPC
   .create({
     allowOutsideOfServer: true,
     // We cannot use the errorFormatter to modify here because trpc-openapi does not respect data.httpStatus field
-    // so we need to catch it further upstream. But we can add some fields...
+    // so we need to catch it further upstream. But we can add some fields... Maybe we need an explicit className field?
     errorFormatter: ({shape, error}) => ({
+      // This doesn't seem to work so well in prod as name can be mangled...
       class: error.constructor.name,
       ...shape,
     }),
