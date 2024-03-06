@@ -4,9 +4,10 @@
   "dependencies": {
     "@jsonurl/jsonurl": "^1.1.7",
     "@opensdks/fetch-links": "0.0.18",
-    "@opensdks/sdk-supaglue": "0.0.3",
     "@opensdks/sdk-nango": "0.0.4",
+    "@opensdks/sdk-supaglue": "0.0.3",
     "@opensdks/util-zod": "0.0.15",
+    "@supaglue/env": "workspace:*",
     "@trpc/server": "10.40.0",
     "remeda": "^1.46.0"
   },

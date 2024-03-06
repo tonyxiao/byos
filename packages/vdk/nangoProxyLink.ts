@@ -1,3 +1,4 @@
+import {env} from '@supaglue/env'
 import type {Link as FetchLink} from '@opensdks/fetch-links'
 import {mergeHeaders, modifyRequest} from '@opensdks/fetch-links'
 import {initNangoSDK} from '@opensdks/sdk-nango'
@@ -106,7 +107,7 @@ export function getBaseUrl(urlStr: string) {
 
 // TODO: Move these into mgmt once we are able to move proxyLinks out of vdk
 
-const noPrefix = process.env['NANGO_NO_ID_PREFIX'] === 'true'
+const noPrefix = env['NANGO_NO_ID_PREFIX'] === 'true'
 
 /** Support a single connector config aka nango provider per provider name for now */
 export function toNangoProviderConfigKey(provider: string) {

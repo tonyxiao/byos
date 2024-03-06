@@ -1,3 +1,4 @@
+import {env} from '@supaglue/env'
 import type {ErrorType} from '@supaglue/vdk'
 import {sql} from 'drizzle-orm'
 import {
@@ -30,7 +31,7 @@ const generated = <T = undefined>(
     // https://discord.com/channels/1043890932593987624/1156712008893354084/1209669640637382739
     // however it is still useful to leave it here so migration can produce semi-correct SQL
     dataType() {
-      if (process.env['DEBUG']) {
+      if (env['DEBUG']) {
         console.debug(
           'Please manually modify the migration to add the generated column',
           `${name} ${dataType} GENERATED ALWAYS AS (${expr}) STORED`,
@@ -40,9 +41,7 @@ const generated = <T = undefined>(
     },
   })(name)
 
-const schema = process.env['CONFIG_SCHEMA']
-  ? pgSchema(process.env['CONFIG_SCHEMA'])
-  : null
+const schema = env['CONFIG_SCHEMA'] ? pgSchema(env['CONFIG_SCHEMA']) : null
 
 const table = schema?.table ?? pgTable
 

@@ -13,7 +13,7 @@
     "db:template-dynamic-schema": "drizzle-kit generate:pg --schema ./schema-dynamic.ts --out ./drizzle && cd ./drizzle && ls *.sql | xargs cat && pnpm db:clean"
   },
   "dependencies": {
-    "@t3-oss/env-core": "0.7.3",
+    "@supaglue/env": "workspace:*",
     "drizzle-orm": "^0.29.3",
     "postgres": "^3.4.3",
     "zod": "^3.22.4"

@@ -1,9 +1,9 @@
 import type {OpenApiMeta} from '@lilyrose2798/trpc-openapi'
+import {env, proxyRequired, serverEnv} from '@supaglue/env'
 import {initTRPC} from '@trpc/server'
 import {z} from '@opensdks/util-zod'
 import {BadRequestError} from './errors'
 import type {Provider} from './provider'
-import {proxyRequired} from './util'
 
 export type RouterContext = {
   headers: Headers
@@ -59,7 +59,8 @@ export const zByosHeaders = z.object({
   /** Supaglue API key */
   'x-api-key': z.string().nullish(),
   /** Will use nangoPostgres instead of supaglue */
-  'x-mgmt-provider-name': z.enum(['supaglue', 'nango']).nullish(),
+  'x-mgmt-provider-name':
+    serverEnv.MGMT_PROVIDER_NAME.removeDefault().optional(),
 })
 export type ByosHeaders = z.infer<typeof zByosHeaders>
 
@@ -72,9 +73,7 @@ export const publicProcedure = trpc.procedure.use(async ({next, ctx, path}) => {
 
   // Defaulting to supaglue here for now but worker defaults to nango
   const mgmtProviderName =
-    optional['x-mgmt-provider-name'] ??
-    (process.env['MGMT_PROVIDER_NAME'] as 'supaglue' | 'nango') ??
-    'supaglue'
+    optional['x-mgmt-provider-name'] ?? env['MGMT_PROVIDER_NAME'] ?? 'supaglue'
 
   return next({
     ctx: {...ctx, path, optional, required, mgmtProviderName},

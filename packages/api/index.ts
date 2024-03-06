@@ -1,4 +1,5 @@
 import {createOpenApiFetchHandler} from '@lilyrose2798/trpc-openapi'
+import {env} from '@supaglue/env'
 import {isHttpError} from '@supaglue/vdk'
 import {appRouter} from './appRouter'
 import {createContext} from './createContext'
@@ -19,16 +20,16 @@ export function createAppHandler({
       createContext: () => {
         // Temporary workaround to automatically set nango secret key based on supaglue API key
         if (
-          req.headers.get('x-api-key') === process.env['SUPAGLUE_API_KEY'] &&
+          req.headers.get('x-api-key') === env['SUPAGLUE_API_KEY'] &&
           !req.headers.get('x-nango-secret-key') &&
-          process.env['NANGO_SECRET_KEY']
+          env['NANGO_SECRET_KEY']
         ) {
           // console.log('Will set x-nango-secret-key header')
-          req.headers.set('x-nango-secret-key', process.env['NANGO_SECRET_KEY'])
+          req.headers.set('x-nango-secret-key', env['NANGO_SECRET_KEY'])
         } else {
           // console.log('Not setting x-nango-secret-key header', {
-          //   SUPAGLUE_API_KEY: process.env['SUPAGLUE_API_KEY'],
-          //   NANGO_SECRET_KEY: process.env['NANGO_SECRET_KEY'],
+          //   SUPAGLUE_API_KEY: env['SUPAGLUE_API_KEY'],
+          //   NANGO_SECRET_KEY: env['NANGO_SECRET_KEY'],
           //   'x-api-key': req.headers.get('x-api-key'),
           //   'x-nango-secret-key': req.headers.get('x-nango-secret-key'),
           // })

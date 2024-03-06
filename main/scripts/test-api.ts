@@ -1,38 +1,36 @@
+import {env, envRequired} from '@supaglue/env'
 import {initBYOSupaglueSDK} from '@supaglue/sdk'
-import {proxyRequired} from '@supaglue/vdk'
-
-const env = proxyRequired(process.env)
 
 const supaglue = initBYOSupaglueSDK({
-  ...(process.env['BYOS_URL'] && {baseUrl: process.env['BYOS_URL']}),
+  ...(env['BYOS_URL'] && {baseUrl: env['BYOS_URL']}),
   headers: {
-    'x-api-key': process.env['SUPAGLUE_API_KEY'],
-    'x-customer-id': process.env['CUSTOMER_ID'],
-    'x-provider-name': process.env['PROVIDER_NAME'],
-    'x-nango-secret-key': process.env['NANGO_SECRET_KEY'],
-    'x-mgmt-provider-name': process.env['MGMT_PROVIDER_NAME'] as
-      | 'supaglue'
-      | 'nango',
+    // 'x-api-key': env['SUPAGLUE_API_KEY'],
+    'x-customer-id': env['CUSTOMER_ID'],
+    'x-provider-name': env['PROVIDER_NAME'],
+    'x-nango-secret-key': env['NANGO_SECRET_KEY'],
+    // 'x-mgmt-provider-name': env['MGMT_PROVIDER_NAME'] as
+    //   | 'supaglue'
+    //   | 'nango',
   },
 })
 
 async function main() {
   await supaglue.GET('/crm/v2/account', {}).then((r) => console.log(r.data))
-  return
   await supaglue.POST('/crm/v2/account/_upsert', {
     body: {
-      record: {name: 'example example 4', website: 'example.com'},
-      upsert_on: {key: 'website', values: ['example.com']},
+      record: {name: 'example example 4', website: 'example1.com'},
+      upsert_on: {key: 'website', values: ['example1.com']},
     },
   })
+  return
   await supaglue.GET('/customers/{customer_id}/connections', {
-    params: {path: {customer_id: env['CUSTOMER_ID']}},
+    params: {path: {customer_id: envRequired['CUSTOMER_ID']}},
   })
   await supaglue.GET('/customers/{customer_id}/connections/{provider_name}', {
     params: {
       path: {
-        customer_id: env['CUSTOMER_ID'],
-        provider_name: env['PROVIDER_NAME'],
+        customer_id: envRequired['CUSTOMER_ID'],
+        provider_name: envRequired['PROVIDER_NAME'],
       },
     },
   })
@@ -59,7 +57,7 @@ async function main() {
   // console.log('Success', res.data)
   // const res = await supaglue.GET(
   //   '/crm/v2/metadata/objects/{object_name}/properties',
-  //   {params: {path: {object_name: process.env['OBJECT'] ?? 'Account'}}},
+  //   {params: {path: {object_name: env['OBJECT'] ?? 'Account'}}},
   // )
   // console.log('Success', res.data)
   // const res = await supaglue.GET('/crm/v2/contacts/{id}', {

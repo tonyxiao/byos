@@ -1,19 +1,19 @@
+import {env} from '@supaglue/env'
 import {sql} from 'drizzle-orm'
 import {drizzle} from 'drizzle-orm/postgres-js'
 import {migrate} from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
-import {env} from './env'
 import * as schema from './schema'
 
-export * from './upsert'
 export * from './schema-dynamic'
 export * from './stripeNullByte'
+export * from './upsert'
 
-export {schema, env}
+export {schema}
 
 // TODO: Remove these global variables...
 export const pgClient = postgres(env.POSTGRES_URL)
-export const db = drizzle(pgClient, {schema, logger: !!process.env['DEBUG']})
+export const db = drizzle(pgClient, {schema, logger: !!env['DEBUG']})
 
 export async function ensureSchema(thisDb: typeof db, schema: string) {
   // Check existence first because we may not have permission to actually create the schema
@@ -36,7 +36,7 @@ export async function runMigration(opts?: {keepAlive?: boolean}) {
   // const fs = await import('node:fs')
   // const url = await import('node:url')
 
-  const schema = process.env['CONFIG_SCHEMA']
+  const schema = env['CONFIG_SCHEMA']
   if (schema) {
     await ensureSchema(db, schema)
     await db.execute(sql`

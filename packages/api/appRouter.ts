@@ -3,6 +3,7 @@ import type {
   ZodOpenApiComponentsObject,
   ZodOpenApiPathsObject,
 } from '@lilyrose2798/trpc-openapi/dist/generator'
+import {env} from '@supaglue/env'
 import {eventsMap} from '@supaglue/events'
 import {mgmtRouter} from '@supaglue/mgmt'
 import {publicProcedure, trpc, zByosHeaders} from '@supaglue/vdk'
@@ -75,7 +76,7 @@ export function getOpenAPISpec() {
     title: 'Bulid your own Supaglue',
     version: '0.0.0',
     // Can we get env passed in instead of directly using it?
-    baseUrl: new URL('/api', getServerUrl({env: process.env})).toString(),
+    baseUrl: new URL('/api', getServerUrl({})).toString(),
     // TODO: add the security field to specify what methods are required.
     securitySchemes: mapValues(zByosHeaders.shape, (_, key) => ({
       name: key,
@@ -88,10 +89,7 @@ export function getOpenAPISpec() {
   return oas
 }
 
-export function getServerUrl(opts: {
-  req?: Request
-  env?: Record<string, string | undefined>
-}) {
+export function getServerUrl(opts: {req?: Request}) {
   return (
     (typeof window !== 'undefined' &&
       `${window.location.protocol}//${window.location.host}`) ||
@@ -99,13 +97,9 @@ export function getServerUrl(opts: {
       `${
         opts.req.headers.get('x-forwarded-proto') || 'http'
       }://${opts.req.headers.get('host')}`) ||
-    (opts.env?.['NEXT_PUBLIC_SERVER_URL']
-      ? opts.env['NEXT_PUBLIC_SERVER_URL']
-      : null) ||
-    (opts.env?.['VERCEL_URL'] ? 'https://' + opts.env['VERCEL_URL'] : null) ||
-    `http://localhost:${
-      opts.env?.['PORT'] || opts.env?.['NEXT_PUBLIC_PORT'] || 3000
-    }`
+    (env['NEXT_PUBLIC_SERVER_URL'] ? env['NEXT_PUBLIC_SERVER_URL'] : null) ||
+    (env['VERCEL_URL'] ? 'https://' + env['VERCEL_URL'] : null) ||
+    `http://localhost:${env['NEXT_PUBLIC_PORT'] || 3000}`
   )
 }
 

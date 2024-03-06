@@ -1,3 +1,4 @@
+import {envRequired} from '@supaglue/env'
 import {inngest} from '@supaglue/events'
 import {z} from '@supaglue/vdk'
 import {
@@ -25,10 +26,8 @@ const zCookie = zOauthInitParams.pick({state: true, return_url: true})
 // even if it's just a standalone package
 
 export function nangoAuthCreateInitHandler({
-  env,
   getServerUrl,
 }: {
-  env: {NEXT_PUBLIC_NANGO_PUBLIC_KEY: string}
   getServerUrl: (req: Request) => string
 }) {
   return async function GET(req: Request) {
@@ -49,7 +48,7 @@ export function nangoAuthCreateInitHandler({
     )
     nangoConnectUrl.searchParams.set(
       'public_key',
-      env.NEXT_PUBLIC_NANGO_PUBLIC_KEY,
+      envRequired.NEXT_PUBLIC_NANGO_PUBLIC_KEY,
     )
 
     const res = await fetch(nangoConnectUrl, {redirect: 'manual'})

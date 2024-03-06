@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {parseArgs} from 'node:util'
 import {and, db, desc, eq, pgClient, schema} from '@supaglue/db'
+import {env} from '@supaglue/env'
 import type {Events} from '@supaglue/events'
 import * as routines from './functions'
 
@@ -36,16 +37,16 @@ switch (cmd) {
           name: 'sync.requested',
           data: {
             // customer_id: 'outreach1', provider_name: 'outreach'
-            customer_id: process.env['CUSTOMER_ID']!,
-            provider_name: process.env['PROVIDER_NAME']!,
-            vertical: process.env['VERTICAL']! as 'crm',
-            unified_objects: process.env['UNIFIED_OBJECT']
-              ? [process.env['UNIFIED_OBJECT']]
+            customer_id: env['CUSTOMER_ID']!,
+            provider_name: env['PROVIDER_NAME']!,
+            vertical: env['VERTICAL']! as 'crm',
+            unified_objects: env['UNIFIED_OBJECT']
+              ? [env['UNIFIED_OBJECT']]
               : ['account', 'contact', 'opportunity', 'lead', 'user'],
-            sync_mode: process.env['SYNC_MODE']! as 'incremental',
-            destination_schema: process.env['DESTINATION_SCHEMA'],
-            page_size: process.env['PAGE_SIZE']
-              ? Number.parseInt(process.env['PAGE_SIZE'])
+            sync_mode: env['SYNC_MODE'],
+            destination_schema: env['DESTINATION_SCHEMA'],
+            page_size: env['PAGE_SIZE']
+              ? Number.parseInt(env['PAGE_SIZE'])
               : undefined,
           },
         },
@@ -109,14 +110,14 @@ async function runBackfill() {
         ...event,
         data: {
           ...event.data,
-          ...(process.env['UNIFIED_OBJECT'] && {
-            unified_objects: [process.env['UNIFIED_OBJECT']! as 'contact'],
+          ...(env['UNIFIED_OBJECT'] && {
+            unified_objects: [env['UNIFIED_OBJECT']],
           }),
-          ...(process.env['SYNC_MODE'] && {
-            sync_mode: process.env['SYNC_MODE']! as 'incremental',
+          ...(env['SYNC_MODE'] && {
+            sync_mode: env['SYNC_MODE'],
           }),
-          ...(process.env['DESTINATION_SCHEMA'] && {
-            destination_schema: process.env['DESTINATION_SCHEMA']!,
+          ...(env['DESTINATION_SCHEMA'] && {
+            destination_schema: env['DESTINATION_SCHEMA']!,
           }),
         },
       },

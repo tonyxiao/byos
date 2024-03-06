@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable jest/no-standalone-expect */
+import {env} from '@supaglue/env'
 import {initSDK, logLink} from '@opensdks/runtime'
 import outreachSdkDef from '@opensdks/sdk-outreach'
 import {nangoProxyLink} from './nangoProxyLink'
 
-const maybeTest = process.env['_NANGO_SECRET_KEY'] ? test : test.skip
+const maybeTest = env['NANGO_SECRET_KEY'] ? test : test.skip
 
 maybeTest('get outreach accounts', async () => {
   const client = initSDK(outreachSdkDef, {
@@ -23,9 +24,9 @@ maybeTest('get outreach accounts', async () => {
         return next(req)
       },
       nangoProxyLink({
-        secretKey: process.env['_NANGO_SECRET_KEY']!,
-        connectionId: process.env['_CONNECTION_ID']!,
-        providerConfigKey: process.env['_PROVIDER_CONFIG_KEY']!,
+        secretKey: env['NANGO_SECRET_KEY']!,
+        connectionId: env['CONNECTION_ID']!,
+        providerConfigKey: env['PROVIDER_CONFIG_KEY']!,
       }),
       ...defaultLinks,
     ],

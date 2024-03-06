@@ -1,8 +1,8 @@
 'use client'
 
 import Nango from '@nangohq/frontend'
+import {env} from '@supaglue/env'
 import React from 'react'
-import {env} from '@/env'
 
 export function NewConnection() {
   if (!env.NEXT_PUBLIC_NANGO_PUBLIC_KEY) {

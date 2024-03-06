@@ -14,6 +14,7 @@
     "@opensdks/util-zod": "0.0.15",
     "@supaglue/events": "workspace:*",
     "@supaglue/mgmt": "workspace:*",
+    "@supaglue/env": "workspace:*",
     "@supaglue/vdk": "workspace:*",
     "@supaglue/vertical-crm": "workspace:*",
     "@supaglue/vertical-sales-engagement": "workspace:*",

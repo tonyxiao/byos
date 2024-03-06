@@ -1,10 +1,11 @@
 // import {createClient, fetchLink} from '@opensdks/runtime'
+import {env} from '@supaglue/env'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
 
 // import {env} from '@/env'
 
 const supaglue = initSupaglueSDK({
-  headers: {'x-api-key': process.env['SUPAGLUE_API_KEY']!},
+  headers: {'x-api-key': env['SUPAGLUE_API_KEY']!},
 })
 
 // async function main() {
@@ -38,8 +39,8 @@ const supaglue = initSupaglueSDK({
 // supaglue.mgmt.GET('/sync_configs', {
 //   params: {
 //     // header: {
-//     //   'x-customer-id': process.env['CUSTOMER_ID']!,
-//     //   'x-provider-name': process.env['PROVIDER_NAME']!,
+//     //   'x-customer-id': env['CUSTOMER_ID']!,
+//     //   'x-provider-name': env['PROVIDER_NAME']!,
 //     // },
 //   },
 // })
@@ -57,7 +58,7 @@ const supaglue = initSupaglueSDK({
 // createClient({
 //   baseUrl: 'https://api.supaglue.io',
 //   links: [fetchLink()],
-//   headers: {'x-api-key': process.env['SUPAGLUE_API_KEY']!},
+//   headers: {'x-api-key': env['SUPAGLUE_API_KEY']!},
 // })
 //   .request(
 //     'GET',
@@ -70,12 +71,10 @@ const supaglue = initSupaglueSDK({
 async function exportMe() {
   const res = await supaglue.mgmt
     .GET('/customers/{customer_id}/connections', {
-      params: {path: {customer_id: process.env['CUSTOMER_ID']!}},
+      params: {path: {customer_id: env['CUSTOMER_ID']!}},
     })
     .then((r) => {
-      const conn = r.data.find(
-        (c) => c.provider_name === process.env['PROVIDER_NAME']!,
-      )
+      const conn = r.data.find((c) => c.provider_name === env['PROVIDER_NAME']!)
       if (!conn) {
         throw new Error('Connection not found')
       }
@@ -89,8 +88,8 @@ async function exportMe() {
 exportMe()
 // supaglue.private
 //   .exportConnection({
-//     customerId: process.env['CUSTOMER_ID']!,
-//     connectionId: process.env['CONNECTION_ID']!,
+//     customerId: env['CUSTOMER_ID']!,
+//     connectionId: env['CONNECTION_ID']!,
 //   })
 //   .then((r) => {
 //     console.log(r.data)

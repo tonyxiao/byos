@@ -142,6 +142,9 @@ importers:
       '@supaglue/db':
         specifier: workspace:*
         version: link:../packages/db
+      '@supaglue/env':
+        specifier: workspace:*
+        version: link:../packages/env
       '@supaglue/mgmt':
         specifier: workspace:*
         version: link:../packages/mgmt
@@ -154,9 +157,6 @@ importers:
       '@supaglue/worker':
         specifier: workspace:*
         version: link:../packages/worker
-      '@t3-oss/env-nextjs':
-        specifier: 0.7.3
-        version: 0.7.3(typescript@5.3.2)(zod@3.22.4)
       jsforce:
         specifier: ^2.0.0-beta.29
         version: 2.0.0-beta.29
@@ -209,6 +209,9 @@ importers:
       '@opensdks/util-zod':
         specifier: 0.0.15
         version: 0.0.15
+      '@supaglue/env':
+        specifier: workspace:*
+        version: link:../env
       '@supaglue/events':
         specifier: workspace:*
         version: link:../events
@@ -230,9 +233,9 @@ importers:
 
   packages/db:
     dependencies:
-      '@t3-oss/env-core':
-        specifier: 0.7.3
-        version: 0.7.3(typescript@5.3.2)(zod@3.22.4)
+      '@supaglue/env':
+        specifier: workspace:*
+        version: link:../env
       drizzle-orm:
         specifier: ^0.29.3
         version: 0.29.3(postgres@3.4.3)
@@ -249,6 +252,15 @@ importers:
       drizzle-kit:
         specifier: ^0.20.12
         version: 0.20.12
+
+  packages/env:
+    dependencies:
+      '@opensdks/util-zod':
+        specifier: 0.0.15
+        version: 0.0.15
+      '@t3-oss/env-nextjs':
+        specifier: 0.7.3
+        version: 0.7.3(typescript@5.3.2)(zod@3.22.4)
 
   packages/events:
     dependencies:
@@ -270,6 +282,9 @@ importers:
       '@supaglue/db':
         specifier: workspace:*
         version: link:../db
+      '@supaglue/env':
+        specifier: workspace:*
+        version: link:../env
       '@supaglue/events':
         specifier: workspace:*
         version: link:../events
@@ -311,6 +326,9 @@ importers:
       '@opensdks/util-zod':
         specifier: 0.0.15
         version: 0.0.15
+      '@supaglue/env':
+        specifier: workspace:*
+        version: link:../env
       '@trpc/server':
         specifier: 10.40.0
         version: 10.40.0
@@ -345,15 +363,15 @@ importers:
       '@supaglue/db':
         specifier: workspace:*
         version: link:../db
+      '@supaglue/env':
+        specifier: workspace:*
+        version: link:../env
       '@supaglue/events':
         specifier: workspace:*
         version: link:../events
       '@supaglue/sdk':
         specifier: workspace:*
         version: link:../sdk
-      '@t3-oss/env-core':
-        specifier: 0.7.3
-        version: 0.7.3(typescript@5.3.2)(zod@3.22.4)
       drizzle-orm:
         specifier: ^0.29.3
         version: 0.29.3(postgres@3.4.3)

@@ -1,6 +1,7 @@
 // import {createClient, fetchLink} from '@opensdks/runtime'
 import {parseArgs} from 'node:util'
 import {db, dbUpsert, pgClient, schema, sql} from '@supaglue/db'
+import {env} from '@supaglue/env'
 import {toNangoProvider} from '@supaglue/mgmt/providers/nango-postgres-provider'
 import {
   isHttpError,
@@ -23,10 +24,10 @@ type NangoPUTBody<P extends PathsWithMethod<NangoPaths, 'put'>> =
   OperationRequestBodyContent<NangoPaths[P]['put']>
 
 const supaglue = initSupaglueSDK({
-  headers: {'x-api-key': process.env['SUPAGLUE_API_KEY']!},
+  headers: {'x-api-key': env['SUPAGLUE_API_KEY']!},
 })
 const nango = initNangoSDK({
-  headers: {authorization: `Bearer ${process.env['NANGO_SECRET_KEY']}`},
+  headers: {authorization: `Bearer ${env['NANGO_SECRET_KEY']}`},
 })
 
 async function migrateCustomers() {
@@ -109,7 +110,7 @@ async function migrateCustomerConnections(opts: {customerId: string}) {
     }),
   )
   // const conn = r.data.find(
-  //   (c) => c.provider_name === process.env['PROVIDER_NAME']!,
+  //   (c) => c.provider_name === env['PROVIDER_NAME']!,
   // )
   // if (!conn) {
   //   throw new Error('Connection not found')
