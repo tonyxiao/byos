@@ -68,6 +68,7 @@ export const HSContact = z.object({
       lastmodifieddate: z.string().nullish(),
       // properties specific to contacts below...
       email: z.string().nullish(),
+      phone: z.string().nullish(),
       firstname: z.string().nullish(),
       lastname: z.string().nullish(),
     })
@@ -222,6 +223,8 @@ export const mappers = {
     id: 'id',
     first_name: 'properties.firstname',
     last_name: 'properties.lastname',
+    email: 'properties.email',
+    phone: 'properties.phone',
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
   }),
   opportunity: mapper(HSDeal, unified.opportunity, {
@@ -326,6 +329,8 @@ export const reverseMappers = {
     removeUndefinedValues({
       last_name: nullToEmptyString(input.last_name),
       first_name: nullToEmptyString(input.first_name),
+      email: nullToEmptyString(input.email),
+      phone: nullToEmptyString(input.phone),
       ...input.passthrough_fields,
     }),
   ),

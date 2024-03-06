@@ -16,6 +16,8 @@ export const mappers = {
     updated_at: 'SystemModstamp',
     first_name: 'FirstName',
     last_name: 'LastName',
+    email: 'Email',
+    phone: 'Phone',
   }),
   account: mapper(zCast<SFDC['AccountSObject']>(), unified.account, {
     id: 'Id',

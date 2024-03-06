@@ -83,6 +83,8 @@ export const contact = zBaseRecord
   .extend({
     first_name: z.string().nullish(),
     last_name: z.string().nullish(),
+    email: z.string().nullish().describe('Primary email address'),
+    phone: z.string().nullish().describe('Primary phone number'),
   })
   .openapi({ref: 'crm.contact'})
 
@@ -304,6 +306,8 @@ export const contact_input = contact
     first_name: true,
     /** @example Xing */
     last_name: true,
+    email: true,
+    phone: true,
     // /** @example 64571bff-48ea-4469-9fa0-ee1a0bab38bd */
     // account_id: true,
     // addresses: true,
