@@ -11,6 +11,9 @@ export * from './upsert'
 
 export {schema}
 
+const url = new URL(env.POSTGRES_URL)
+console.log('[db] host', url.host)
+
 // TODO: Remove these global variables...
 export const pgClient = postgres(env.POSTGRES_URL)
 export const db = drizzle(pgClient, {schema, logger: !!env['DEBUG']})

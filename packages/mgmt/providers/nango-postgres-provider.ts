@@ -23,13 +23,17 @@ type NangoConnection = GETResponse<'/connection'>['configs'][number]
 export function toNangoProvider(provider: string) {
   return provider === 'ms_dynamics_365_sales'
     ? 'microsoft-tenant-specific'
-    : provider
+    : provider === 'gong'
+      ? 'gong-oauth'
+      : provider
 }
 
 export function fromNangoProvider(provider: string) {
   return provider === 'microsoft-tenant-specific'
     ? 'ms_dynamics_365_sales'
-    : provider
+    : provider === 'gong-oauth'
+      ? 'gong'
+      : provider
 }
 
 export function fromNangoConnection(c: NangoConnection): unified.Connection {

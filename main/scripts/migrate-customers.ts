@@ -30,7 +30,7 @@ const nango = initNangoSDK({
   headers: {authorization: `Bearer ${env['NANGO_SECRET_KEY']}`},
 })
 
-async function migrateCustomers() {
+async function migrateCustomers(opts: {migrateConnections?: boolean}) {
   const customers = await supaglue.mgmt.GET('/customers').then((r) => r.data)
 
   await dbUpsert(
@@ -46,6 +46,11 @@ async function migrateCustomers() {
     {insertOnlyColumns: ['created_at'], noDiffColumns: ['updated_at']},
   )
   console.log(`Migrated ${customers.length} customers`)
+  if (opts.migrateConnections) {
+    for (const c of customers) {
+      await migrateCustomerConnections({customerId: c.customer_id})
+    }
+  }
   await pgClient.end()
 }
 
