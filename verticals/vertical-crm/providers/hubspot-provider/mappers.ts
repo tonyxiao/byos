@@ -110,7 +110,7 @@ export const HSDeal = z.object({
     .optional(),
   '#pipelineStageMapping': zCast<PipelineStageMapping>(),
 })
-export const HSAccount = z.object({
+export const HSCompany = z.object({
   id: z.string(),
   properties: z
     .object({
@@ -204,7 +204,7 @@ export const propertiesToFetch = {
 }
 
 export const mappers = {
-  account: mapper(HSAccount, unified.account, {
+  companies: mapper(HSCompany, unified.account, {
     id: 'id',
     name: 'properties.name',
     updated_at: (record) => new Date(record.updatedAt).toISOString(),
@@ -218,7 +218,7 @@ export const mappers = {
     owner_id: 'properties.hubspot_owner_id',
     created_at: (record) => new Date(record.createdAt).toISOString(),
   }),
-  contact: mapper(HSContact, unified.contact, {
+  contacts: mapper(HSContact, unified.contact, {
     id: 'id',
     first_name: 'properties.firstname',
     last_name: 'properties.lastname',
@@ -296,7 +296,7 @@ const HSProperties = z.record(z.string())
 
 /** destinations mappers */
 export const reverseMappers = {
-  account_input: mapper(unified.account_input, HSProperties, (input) =>
+  companies_input: mapper(unified.account_input, HSProperties, (input) =>
     removeUndefinedValues({
       // We will remove undefined values later... Though it's arguable this is stil the right approach
       // for mapping when it got so complicated
@@ -322,7 +322,7 @@ export const reverseMappers = {
       ...input.passthrough_fields,
     }),
   ),
-  contact_input: mapper(unified.contact_input, HSProperties, (input) =>
+  contacts_input: mapper(unified.contact_input, HSProperties, (input) =>
     removeUndefinedValues({
       last_name: nullToEmptyString(input.last_name),
       first_name: nullToEmptyString(input.first_name),

@@ -335,57 +335,90 @@ const _listObjectsFullThenMap = async <TIn, TOut extends BaseRecord>(
   }
 }
 
-const createAccount = (async ({instance, input}) => {
-  const properties = reverseMappers.account_input.parse(input.record)
-  const res = await instance.crm_companies.POST(
-    '/crm/v3/objects/companies/batch/create',
+const _createObject = async <T extends 'contacts' | 'companies'>(
+  instance: HubspotSDK,
+  {
+    objectType,
+    ...input
+  }: {
+    objectType: T
+    record: Record<string, unknown>
+  },
+) => {
+  const properties = reverseMappers[`${objectType}_input`].parse(input.record)
+  const res = await instance[`crm_${objectType}` as 'crm_contacts'].POST(
+    `/crm/v3/objects/${objectType as 'contacts'}/batch/create`,
     {body: {inputs: [{properties, associations: []}]}},
   )
   const created = res.data.results[0]
   if (!created) {
-    throw new InternalServerError('Failed to create account')
+    throw new InternalServerError(`Failed to create ${objectType}`)
   }
-  return {record: mappers.account.parse(created)}
-}) satisfies CRMProvider<HubspotSDK>['createAccount']
-
-const updateAccount = (async ({instance, input}) => {
-  const properties = reverseMappers.account_input.parse(input.record)
-  const res = await instance.crm_companies.POST(
-    '/crm/v3/objects/companies/batch/update',
+  return {
+    record: mappers[objectType].parse(created) as (typeof mappers)[T]['_out'],
+  }
+}
+const _updateObject = async <T extends 'contacts' | 'companies'>(
+  instance: HubspotSDK,
+  {
+    objectType,
+    ...input
+  }: {
+    objectType: T
+    id: string
+    record: Record<string, unknown>
+  },
+) => {
+  const properties = reverseMappers[`${objectType}_input`].parse(input.record)
+  const res = await instance[`crm_${objectType}` as 'crm_contacts'].POST(
+    `/crm/v3/objects/${objectType as 'contacts'}/batch/update`,
     {body: {inputs: [{properties, id: input.id}]}},
   )
   const updated = res.data.results[0]
   if (!updated) {
-    throw new InternalServerError('Failed to update account')
+    throw new InternalServerError(`Failed to update ${objectType}`)
   }
-  return {record: mappers.account.parse(updated)}
-}) satisfies CRMProvider<HubspotSDK>['updateAccount']
+  return {
+    record: mappers[objectType].parse(updated) as (typeof mappers)[T]['_out'],
+  }
+}
 
-const createContact = (async ({instance, input}) => {
-  const properties = reverseMappers.contact_input.parse(input.record)
-  const res = await instance.crm_contacts.POST(
-    '/crm/v3/objects/contacts/batch/create',
-    {body: {inputs: [{properties, associations: []}]}},
-  )
-  const created = res.data.results[0]
-  if (!created) {
-    throw new InternalServerError('Failed to create contact')
+const _upsertObject = async <T extends 'contacts' | 'companies'>(
+  instance: HubspotSDK,
+  {
+    objectType,
+    record,
+    ...input
+  }: {
+    objectType: T
+    record: Record<string, unknown>
+    upsert_on: {key: string; values: string[]}
+  },
+) => {
+  const {key, values} = input.upsert_on
+  const records = await instance[`crm_${objectType as 'contacts'}`]
+    .POST(`/crm/v3/objects/${objectType as 'contacts'}/search`, {
+      body: {
+        filterGroups: [
+          {filters: [{propertyName: key, values, operator: 'IN'}]},
+        ],
+        sorts: [key],
+        properties: ['id', key],
+        limit: 2,
+        after: '',
+      },
+    })
+    .then((r) => r.data.results)
+  if (records.length > 1) {
+    throw new BadRequestError(`More than one ${objectType} found for upsert`)
   }
-  return {record: mappers.contact.parse(created)}
-}) satisfies CRMProvider<HubspotSDK>['createContact']
-
-const updateContact = (async ({instance, input}) => {
-  const properties = reverseMappers.contact_input.parse(input.record)
-  const res = await instance.crm_contacts.POST(
-    '/crm/v3/objects/contacts/batch/update',
-    {body: {inputs: [{properties, id: input.id}]}},
-  )
-  const updated = res.data.results[0]
-  if (!updated) {
-    throw new InternalServerError('Failed to update contact')
+  const existingId = records[0]?.id
+  if (!existingId) {
+    return _createObject(instance, {objectType, record})
+  } else {
+    return _updateObject(instance, {objectType, record, id: existingId})
   }
-  return {record: mappers.contact.parse(updated)}
-}) satisfies CRMProvider<HubspotSDK>['updateContact']
+}
 
 export const hubspotProvider = {
   __init__: ({proxyLinks}) =>
@@ -397,85 +430,35 @@ export const hubspotProvider = {
     _listObjectsIncrementalThenMap(instance, {
       ...input,
       objectType: 'contacts',
-      mapper: mappers.contact,
+      mapper: mappers.contacts,
       fields: propertiesToFetch.contact,
       includeAllFields: true,
       ctx,
     }),
-  createContact,
-  updateContact,
-  upsertContact: async ({instance, input, ctx}) => {
-    // TODO: DRY up this implementation across different properties...
-    const {key, values} = input.upsert_on
-    const contacts = await instance.crm_contacts
-      .POST('/crm/v3/objects/contacts/search', {
-        body: {
-          filterGroups: [
-            {filters: [{propertyName: key, values, operator: 'IN'}]},
-          ],
-          sorts: [key],
-          properties: ['id', key],
-          limit: 2,
-          after: '',
-        },
-      })
-      .then((r) => r.data.results)
-    if (contacts.length > 1) {
-      throw new BadRequestError('More than one record found for upsert query')
-    }
-    const existingId = contacts[0]?.id
-    if (!existingId) {
-      return createContact({instance, input: {record: input.record}, ctx})
-    } else {
-      return updateContact({
-        instance,
-        input: {record: input.record, id: existingId},
-        ctx,
-      })
-    }
-  },
+
+  createContact: ({instance, input}) =>
+    _createObject(instance, {...input, objectType: 'contacts'}),
+  updateContact: ({instance, input}) =>
+    _updateObject(instance, {...input, objectType: 'contacts'}),
+  upsertContact: ({instance, input}) =>
+    _upsertObject(instance, {...input, objectType: 'contacts'}),
+
   listAccounts: async ({instance, input, ctx}) =>
     _listObjectsIncrementalThenMap(instance, {
       ...input,
       objectType: 'companies',
-      mapper: mappers.account,
+      mapper: mappers.companies,
       fields: propertiesToFetch.account,
       includeAllFields: true,
       ctx,
     }),
-  createAccount,
-  updateAccount,
-  upsertAccount: async ({instance, input, ctx}) => {
-    // TODO: Figure out how upsert on domain should work. Not seeing
-    // domain come back as a hubspot field at all.
-    const {key, values} = input.upsert_on
-    const companies = await instance.crm_companies
-      .POST('/crm/v3/objects/companies/search', {
-        body: {
-          filterGroups: [
-            {filters: [{propertyName: key, values, operator: 'IN'}]},
-          ],
-          sorts: [key],
-          properties: ['id', key],
-          limit: 2,
-          after: '',
-        },
-      })
-      .then((r) => r.data.results)
-    if (companies.length > 1) {
-      throw new BadRequestError('More than one account found for upsert query')
-    }
-    const existingId = companies[0]?.id
-    if (!existingId) {
-      return createAccount({instance, input: {record: input.record}, ctx})
-    } else {
-      return updateAccount({
-        instance,
-        input: {record: input.record, id: existingId},
-        ctx,
-      })
-    }
-  },
+  createAccount: ({instance, input}) =>
+    _createObject(instance, {...input, objectType: 'companies'}),
+  updateAccount: ({instance, input}) =>
+    _updateObject(instance, {...input, objectType: 'companies'}),
+  upsertAccount: ({instance, input}) =>
+    _upsertObject(instance, {...input, objectType: 'companies'}),
+
   listOpportunities: async ({instance, input, ctx}) =>
     _listObjectsIncrementalThenMap(instance, {
       ...input,

@@ -15,6 +15,14 @@ const supaglue = initBYOSupaglueSDK({
 })
 
 async function main() {
+  await supaglue.POST('/crm/v2/account/_upsert', {
+    body: {
+      record: {name: 'example example 4', website: 'example1.com'},
+      upsert_on: {key: 'website', values: ['example1.com']},
+    },
+  })
+  return
+  return
   await supaglue.GET('/customers/{customer_id}/connections/{provider_name}', {
     params: {
       path: {
@@ -23,15 +31,8 @@ async function main() {
       },
     },
   })
-  return
   await supaglue.GET('/crm/v2/account', {}).then((r) => console.log(r.data))
-  await supaglue.POST('/crm/v2/account/_upsert', {
-    body: {
-      record: {name: 'example example 4', website: 'example1.com'},
-      upsert_on: {key: 'website', values: ['example1.com']},
-    },
-  })
-  return
+
   await supaglue.GET('/customers/{customer_id}/connections', {
     params: {path: {customer_id: envRequired['CUSTOMER_ID']}},
   })
