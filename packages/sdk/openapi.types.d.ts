@@ -66,9 +66,14 @@ export interface paths {
   }
   '/crm/v2/account': {
     get: operations['crm-listAccounts']
+    post: operations['crm-createAccount']
   }
   '/crm/v2/account/{id}': {
     get: operations['crm-getAccount']
+    patch: operations['crm-updateAccount']
+  }
+  '/crm/v2/account/_upsert': {
+    post: operations['crm-upsertAccount']
   }
   '/crm/v2/contact': {
     get: operations['crm-listContacts']
@@ -200,9 +205,6 @@ export interface components {
       data: {
         customer_id: string
         provider_name: string
-        connection_id: string
-        /** @enum {string} */
-        result: 'SUCCESS' | 'USER_ERROR' | 'REMOTE_ERROR' | 'INTERNAL_ERROR'
       }
       /** @enum {string} */
       name: 'connection.created'
@@ -491,6 +493,26 @@ export interface components {
       | 'customer'
       | 'evangelist'
       | 'other'
+    'crm.account_input': {
+      /** @example Integration API */
+      description?: string | null
+      industry?: string | null
+      name?: string | null
+      number_of_employees?: number | null
+      website?: string | null
+      addresses?: components['schemas']['crm.address'][] | null
+      phone_numbers?:
+        | {
+            phone_number: string | null
+            phone_number_type: components['schemas']['crm.phone_number_type']
+          }[]
+        | null
+      owner_id?: string | null
+      lifecycle_stage?: components['schemas']['crm.lifecycle_stage'] | null
+      extra_fields?: {
+        [key: string]: unknown
+      }
+    }
     'crm.contact': {
       id: string
       /** @description ISO8601 date string */
@@ -1477,6 +1499,39 @@ export interface operations {
       }
     }
   }
+  'crm-createAccount': {
+    requestBody: {
+      content: {
+        'application/json': {
+          record: components['schemas']['crm.account_input']
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': {
+            record: {
+              id: string
+            }
+          }
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
   'crm-getAccount': {
     parameters: {
       path: {
@@ -1503,6 +1558,92 @@ export interface operations {
       404: {
         content: {
           'application/json': components['schemas']['error.NOT_FOUND']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-updateAccount': {
+    parameters: {
+      path: {
+        id: string
+      }
+    }
+    requestBody: {
+      content: {
+        'application/json': {
+          record: components['schemas']['crm.account_input']
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': {
+            record: {
+              id: string
+            }
+          }
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Not found */
+      404: {
+        content: {
+          'application/json': components['schemas']['error.NOT_FOUND']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-upsertAccount': {
+    requestBody: {
+      content: {
+        'application/json': {
+          upsert_on: {
+            /**
+             * @description The key to upsert on. Only `website` is supported for Salesforce, while both `domain` and `website` are supported for Hubspot.
+             * @enum {string}
+             */
+            key: 'domain' | 'website'
+            /** @description The values to upsert on. If more than one value is provided, it will act as a logical OR. If more than one account is found that matches, then an error will be thrown. */
+            values: string[]
+          }
+          record: components['schemas']['crm.account_input']
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': {
+            record: {
+              id: string
+            }
+          }
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
         }
       }
       /** @description Internal server error */

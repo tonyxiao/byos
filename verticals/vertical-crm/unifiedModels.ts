@@ -273,3 +273,26 @@ export const meta_custom_object_field = z
       .optional(),
   })
   .openapi({ref: 'crm.meta.custom_object_field'})
+
+export const account_input = account
+  .pick({
+    /** @example Integration API */
+    description: true,
+    /** @example API's */
+    industry: true,
+    /** @example Sample Customer */
+    name: true,
+    /** @example 276000 */
+    number_of_employees: true,
+    /** @example https:supaglue.com/ */
+    website: true,
+    addresses: true,
+    phone_numbers: true,
+    /** @example 9f3e97fd-4d5d-4efc-959d-bbebfac079f5 */
+    owner_id: true,
+    lifecycle_stage: true,
+  })
+  .extend({
+    extra_fields: z.record(z.unknown()).optional(),
+  })
+  .openapi({ref: 'crm.account_input'})

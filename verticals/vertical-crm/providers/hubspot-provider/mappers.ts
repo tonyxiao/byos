@@ -270,3 +270,78 @@ export const mappers = {
     updated_at: 'properties.hs_lastmodifieddate',
   }),
 }
+const HSProperties = z.record(z.string())
+
+// const reverse_address = mapper(unified.address, zHSProperties, {
+//   address: (addr) => addr?.street_1 ?? '',
+//   // TODO: Support address2 for companies only
+//   city: (addr) => addr?.city ?? '',
+//   state: (addr) => addr?.state ?? '',
+//   zip: (addr) => addr?.postal_code ?? '',
+//   country: (addr) => addr?.country ?? '',
+// })
+
+// const reverse_phone_numbers = mapper(
+//   z.array(unified.phone_number),
+//   zHSProperties,
+//   {
+//     phone: (phones) =>
+//       phones.find((p) => p.phone_number_type === 'primary')?.phone_number ?? '',
+//     mobilephone: (phones) =>
+//       phones.find((p) => p.phone_number_type === 'mobile')?.phone_number ?? '',
+//     fax: (phones) =>
+//       phones.find((p) => p.phone_number_type === 'fax')?.phone_number ?? '',
+//   },
+// )
+
+/** destinations mappers */
+export const reverseMappers = {
+  account_input: mapper(unified.account_input, HSProperties, (input) =>
+    removeUndefinedValues({
+      // We will remove undefined values later... Though it's arguable this is stil the right approach
+      // for mapping when it got so complicated
+      name: nullToEmptyString(input.name),
+      industry: nullToEmptyString(input.industry),
+      description: nullToEmptyString(input.description),
+      website: nullToEmptyString(input.website),
+      numberofemployees: nullToEmptyString(
+        input.number_of_employees?.toString(),
+      ),
+      lifecyclestage: nullToEmptyString(input.lifecycle_stage),
+      hubspot_owner_id: nullToEmptyString(input.owner_id),
+      // only primary phone is supported for hubspot accounts
+      phone:
+        input.phone_numbers?.find((p) => p.phone_number_type === 'primary')
+          ?.phone_number ?? '',
+      address: input.addresses?.[0]?.street_1 ?? '',
+      // NOTE: Support address2 for companies only
+      city: input.addresses?.[0]?.city ?? '',
+      state: input.addresses?.[0]?.state ?? '',
+      zip: input.addresses?.[0]?.postal_code ?? '',
+      country: input.addresses?.[0]?.country ?? '',
+      // ...input.customFields,
+      // TODO: Add 1) add custom fields here
+    }),
+  ),
+}
+
+// MARK: - Utils
+
+const removeValues = (
+  obj: Record<string, unknown>,
+  fn: (k: string, v: unknown) => boolean,
+) => {
+  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+  Object.keys(obj).forEach((key) => (fn(key, obj[key]) ? delete obj[key] : {}))
+  return obj
+}
+
+const removeUndefinedValues = <T extends Record<string, unknown>>(
+  obj: T,
+): {[k in keyof T]: Exclude<T[k], undefined>} =>
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any
+  removeValues(obj, (_, v) => v === undefined) as any
+
+const nullToEmptyString = (
+  value: string | undefined | null,
+): string | undefined => (value === null ? '' : value)

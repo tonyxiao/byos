@@ -4,7 +4,7 @@ import {proxyRequired} from '@supaglue/vdk'
 const env = proxyRequired(process.env)
 
 const supaglue = initBYOSupaglueSDK({
-  baseUrl: process.env['BYOS_URL'],
+  ...(process.env['BYOS_URL'] && {baseUrl: process.env['BYOS_URL']}),
   headers: {
     'x-api-key': process.env['SUPAGLUE_API_KEY'],
     'x-customer-id': process.env['CUSTOMER_ID'],
@@ -15,6 +15,13 @@ const supaglue = initBYOSupaglueSDK({
 })
 
 async function main() {
+  await supaglue.POST('/crm/v2/account/_upsert', {
+    body: {
+      record: {name: 'example example 4', website: 'example.com'},
+      upsert_on: {key: 'website', values: ['example.com']},
+    },
+  })
+  return
   await supaglue.GET('/customers/{customer_id}/connections', {
     params: {path: {customer_id: env['CUSTOMER_ID']}},
   })
@@ -29,6 +36,7 @@ async function main() {
   await supaglue.GET('/crm/v2/metadata/objects', {
     params: {query: {type: 'custom'}},
   })
+
   // await supaglue.GET('/sync_configs')
   // let cursor: string | undefined = undefined
   //

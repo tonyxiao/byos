@@ -12,7 +12,12 @@ import type {Oas_crm_schemas} from '@opensdks/sdk-hubspot'
 import {initHubspotSDK, type HubspotSDK} from '@opensdks/sdk-hubspot'
 import type {CRMProvider} from '../../router'
 import type {HSDeal} from './mappers'
-import {HUBSPOT_STANDARD_OBJECTS, mappers, propertiesToFetch} from './mappers'
+import {
+  HUBSPOT_STANDARD_OBJECTS,
+  mappers,
+  propertiesToFetch,
+  reverseMappers,
+} from './mappers'
 
 const isStandardObjectType = (
   objectType: string,
@@ -330,6 +335,32 @@ const _listObjectsFullThenMap = async <TIn, TOut extends BaseRecord>(
   }
 }
 
+const createAccount = (async ({instance, input}) => {
+  const properties = reverseMappers.account_input.parse(input.record)
+  const res = await instance.crm_companies.POST(
+    '/crm/v3/objects/companies/batch/create',
+    {body: {inputs: [{properties, associations: []}]}},
+  )
+  const created = res.data.results[0]
+  if (!created) {
+    throw new InternalServerError('Failed to create account')
+  }
+  return {record: {id: created.id}}
+}) satisfies CRMProvider<HubspotSDK>['createAccount']
+
+const updateAccount = (async ({instance, input}) => {
+  const properties = reverseMappers.account_input.parse(input.record)
+  const res = await instance.crm_companies.POST(
+    '/crm/v3/objects/companies/batch/update',
+    {body: {inputs: [{properties, id: input.id}]}},
+  )
+  const updated = res.data.results[0]
+  if (!updated) {
+    throw new InternalServerError('Failed to update account')
+  }
+  return {record: {id: updated.id}}
+}) satisfies CRMProvider<HubspotSDK>['updateAccount']
+
 export const hubspotProvider = {
   __init__: ({proxyLinks}) =>
     initHubspotSDK({
@@ -354,6 +385,39 @@ export const hubspotProvider = {
       includeAllFields: true,
       ctx,
     }),
+  createAccount,
+  updateAccount,
+  upsertAccount: async ({instance, input, ctx}) => {
+    // TODO: Figure out how upsert on domain should work. Not seeing
+    // domain come back as a hubspot field at all.
+    const {key, values} = input.upsert_on
+    const companies = await instance.crm_companies
+      .POST('/crm/v3/objects/companies/search', {
+        body: {
+          filterGroups: [
+            {filters: [{propertyName: key, values, operator: 'IN'}]},
+          ],
+          sorts: [key],
+          properties: ['id', key],
+          limit: 2,
+          after: '',
+        },
+      })
+      .then((r) => r.data.results)
+    if (companies.length > 1) {
+      throw new BadRequestError('More than one account found for upsert query')
+    }
+    const existingId = companies[0]?.id
+    if (!existingId) {
+      return createAccount({instance, input: {record: input.record}, ctx})
+    } else {
+      return updateAccount({
+        instance,
+        input: {record: input.record, id: existingId},
+        ctx,
+      })
+    }
+  },
   listOpportunities: async ({instance, input, ctx}) =>
     _listObjectsIncrementalThenMap(instance, {
       ...input,

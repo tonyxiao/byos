@@ -34,6 +34,39 @@ export const crmRouter = trpc.router({
     .output(z.object({record: unified.account, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
+  createAccount: remoteProcedure
+    .meta(oapi({method: 'POST', path: '/account'}))
+    .input(z.object({record: unified.account_input}))
+    .output(z.object({record: unified.account.pick({id: true})}))
+    .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+
+  updateAccount: remoteProcedure
+    .meta(oapi({method: 'PATCH', path: '/account/{id}'}))
+    .input(z.object({id: z.string(), record: unified.account_input}))
+    .output(z.object({record: unified.account.pick({id: true})}))
+    .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+
+  upsertAccount: remoteProcedure
+    .meta(oapi({method: 'POST', path: '/account/_upsert'}))
+    .input(
+      z.object({
+        upsert_on: z.object({
+          key: z
+            .enum(['domain', 'website'])
+            .describe(
+              'The key to upsert on. Only `website` is supported for Salesforce, while both `domain` and `website` are supported for Hubspot.',
+            ),
+          values: z
+            .array(z.string())
+            .describe(
+              'The values to upsert on. If more than one value is provided, it will act as a logical OR. If more than one account is found that matches, then an error will be thrown.',
+            ),
+        }),
+        record: unified.account_input,
+      }),
+    )
+    .output(z.object({record: unified.account.pick({id: true})}))
+    .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   // MARK: - Contact
   listContacts: remoteProcedure
     .meta(oapi({method: 'GET', path: '/contact'}))

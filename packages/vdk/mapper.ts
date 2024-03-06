@@ -13,12 +13,14 @@ export function mapper<
 >(
   zInput: ZInputSchema,
   zOutput: ZOutputSchema,
-  mapping: {
-    [k in keyof TOut]:  // | ExtractKeyOfValueType<TIn, TOut[k]> // | Getter<ExtractKeyOfValueType<TIn, TOut[k]>> // | TOut[k] // Constant
-      | PathsOf<StrictObjDeep<TIn>> // Getter for the keypaths
-      | ReturnType<typeof literal<TOut[k]>> // literal value
-      | ((ext: TIn) => TOut[k]) // Function that can do whatever
-  },
+  mapping:
+    | {
+        [k in keyof TOut]:  // | ExtractKeyOfValueType<TIn, TOut[k]> // | Getter<ExtractKeyOfValueType<TIn, TOut[k]>> // | TOut[k] // Constant
+          | PathsOf<StrictObjDeep<TIn>> // Getter for the keypaths
+          | ReturnType<typeof literal<TOut[k]>> // literal value
+          | ((ext: TIn) => TOut[k]) // Function that can do whatever on a property level
+      }
+    | ((ext: TIn) => TOut), // Function that can do whatever,
 ) {
   const meta = {
     _in: undefined as TIn,
@@ -48,12 +50,19 @@ export function mapper<
   return apply
 }
 
+// TODO: We need a reverse mapper that does not add raw_data
+// to the output...
+
 export function applyMapper<
   T extends Pick<
     ReturnType<typeof mapper>,
     'mapping' | '_in' | '_out' | 'inputSchema' | 'outputSchema'
   >,
 >(mapper: T, input: T['_in']): T['_out'] {
+  if (typeof mapper.mapping === 'function') {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return mapper.mapping(input)
+  }
   // This can probably be extracted into its own function without needint TIn and TOut even
   const output = R.mapValues(mapper.mapping, (m, key) => {
     if (typeof m === 'function') {

@@ -1484,6 +1484,69 @@
             }
           }
         }
+      },
+      "post": {
+        "operationId": "crm-createAccount",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "record": {
+                    "$ref": "#/components/schemas/crm.account_input"
+                  }
+                },
+                "required": ["record"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "record": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["id"]
+                    }
+                  },
+                  "required": ["record"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/crm/v2/account/{id}": {
@@ -1533,6 +1596,172 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "crm-updateAccount",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "record": {
+                    "$ref": "#/components/schemas/crm.account_input"
+                  }
+                },
+                "required": ["record"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "record": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["id"]
+                    }
+                  },
+                  "required": ["record"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/v2/account/_upsert": {
+      "post": {
+        "operationId": "crm-upsertAccount",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "upsert_on": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "enum": ["domain", "website"],
+                        "description": "The key to upsert on. Only `website` is supported for Salesforce, while both `domain` and `website` are supported for Hubspot."
+                      },
+                      "values": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "The values to upsert on. If more than one value is provided, it will act as a logical OR. If more than one account is found that matches, then an error will be thrown."
+                      }
+                    },
+                    "required": ["key", "values"]
+                  },
+                  "record": {
+                    "$ref": "#/components/schemas/crm.account_input"
+                  }
+                },
+                "required": ["upsert_on", "record"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "record": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["id"]
+                    }
+                  },
+                  "required": ["record"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
                 }
               }
             }
@@ -2786,26 +3015,9 @@
               },
               "provider_name": {
                 "type": "string"
-              },
-              "connection_id": {
-                "type": "string"
-              },
-              "result": {
-                "type": "string",
-                "enum": [
-                  "SUCCESS",
-                  "USER_ERROR",
-                  "REMOTE_ERROR",
-                  "INTERNAL_ERROR"
-                ]
               }
             },
-            "required": [
-              "customer_id",
-              "provider_name",
-              "connection_id",
-              "result"
-            ]
+            "required": ["customer_id", "provider_name"]
           },
           "name": {
             "type": "string",
@@ -3541,6 +3753,65 @@
           "evangelist",
           "other"
         ]
+      },
+      "crm.account_input": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": ["string", "null"],
+            "example": "Integration API"
+          },
+          "industry": {
+            "type": ["string", "null"]
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "number_of_employees": {
+            "type": ["number", "null"]
+          },
+          "website": {
+            "type": ["string", "null"]
+          },
+          "addresses": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/crm.address"
+            }
+          },
+          "phone_numbers": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object",
+              "properties": {
+                "phone_number": {
+                  "type": ["string", "null"]
+                },
+                "phone_number_type": {
+                  "$ref": "#/components/schemas/crm.phone_number_type"
+                }
+              },
+              "required": ["phone_number", "phone_number_type"]
+            }
+          },
+          "owner_id": {
+            "type": ["string", "null"]
+          },
+          "lifecycle_stage": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/crm.lifecycle_stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "extra_fields": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        }
       },
       "crm.contact": {
         "type": "object",
