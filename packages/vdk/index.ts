@@ -38,4 +38,4 @@ export * from './errors'
 
 // re-exporting utiltities
 
-export {uniq, uniqBy, mapValues, mapKeys} from 'remeda'
+export {uniq, uniqBy, mapValues, mapKeys, pick} from 'remeda'
