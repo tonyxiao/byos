@@ -33,15 +33,15 @@ export type FunctionInput<T extends keyof Events> = {
 type SingleNoArray<T> = T extends Array<infer U> ? U : T
 export type EventPayload = SingleNoArray<SendEventPayload<Events>>
 
-// defaulting to true now for sync
-const useNewBackend = process.env['USE_NEW_BACKEND'] !== 'false'
+const mgmtProviderName = env.MGMT_PROVIDER_NAME ?? 'nango'
 
 export async function scheduleSyncs({step, event}: FunctionInput<never>) {
   console.log('[scheduleSyncs]', event)
   const byos = initBYOSupaglueSDK({
     headers: {
       'x-api-key': env.SUPAGLUE_API_KEY,
-      'x-use-new-backend': useNewBackend ? 'true' : 'false',
+      'x-nango-secret-key': env.NANGO_SECRET_KEY,
+      'x-mgmt-provider-name': mgmtProviderName,
     },
     // Bypass the normal fetch link http round-tripping back to our server and handle the BYOS request directly!
     // Though we are losing the ability to debug using Proxyman and others... So maybe make this configurable in
@@ -175,9 +175,10 @@ export async function syncConnection({
   const byos = initBYOSupaglueSDK({
     headers: {
       'x-api-key': env.SUPAGLUE_API_KEY,
+      'x-nango-secret-key': env.NANGO_SECRET_KEY,
       'x-customer-id': customer_id, // This relies on customer-id mapping 1:1 to connection_id
       'x-provider-name': provider_name, // This relies on provider_config_key mapping 1:1 to provider-name
-      'x-use-new-backend': useNewBackend ? 'true' : 'false',
+      'x-mgmt-provider-name': mgmtProviderName,
     },
     // Bypass the normal fetch link http round-tripping back to our server and handle the BYOS request directly!
     // Though we are losing the ability to debug using Proxyman and others... So maybe make this configurable in

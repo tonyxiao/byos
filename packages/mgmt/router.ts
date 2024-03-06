@@ -7,10 +7,10 @@ import * as unified from './unifiedModels'
 export {unified}
 
 export const mgmtProcedure = publicProcedure.use(async ({next, ctx}) => {
-  const provider: _Provider<InitOpts> = ctx.useNewBackend
-    ? nangoPostgresProvider
-    : supaglueProvider
-  const providerName = ctx.useNewBackend ? 'nango-postgres' : 'supaglue'
+  const provider: _Provider<InitOpts> =
+    ctx.mgmtProviderName === 'nango' ? nangoPostgresProvider : supaglueProvider
+  const providerName =
+    ctx.mgmtProviderName === 'nango' ? 'nango-postgres' : 'supaglue'
 
   return next({ctx: {...ctx, provider, providerName}})
 })

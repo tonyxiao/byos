@@ -74,7 +74,7 @@ export async function proxyCallProvider({
 }) {
   // This should probably be in mgmt package rather than vdk with some dependency injection involved
   const extraInitOpts = ((): ExtraInitOpts => {
-    if (ctx.useNewBackend) {
+    if (ctx.mgmtProviderName === 'nango') {
       const connectionId = toNangoConnectionId(ctx.customerId)
       const providerConfigKey = toNangoProviderConfigKey(ctx.providerName)
       return {

@@ -9,19 +9,22 @@ const supaglue = initBYOSupaglueSDK({
     'x-api-key': process.env['SUPAGLUE_API_KEY'],
     'x-customer-id': process.env['CUSTOMER_ID'],
     'x-provider-name': process.env['PROVIDER_NAME'],
-    'x-use-new-backend':
-      process.env['USE_NEW_BACKEND'] === 'true' ? 'true' : 'false',
+    'x-nango-secret-key': process.env['NANGO_SECRET_KEY'],
+    'x-mgmt-provider-name': process.env['MGMT_PROVIDER_NAME'] as
+      | 'supaglue'
+      | 'nango',
   },
 })
 
 async function main() {
+  await supaglue.GET('/crm/v2/account', {}).then((r) => console.log(r.data))
+  return
   await supaglue.POST('/crm/v2/account/_upsert', {
     body: {
       record: {name: 'example example 4', website: 'example.com'},
       upsert_on: {key: 'website', values: ['example.com']},
     },
   })
-  return
   await supaglue.GET('/customers/{customer_id}/connections', {
     params: {path: {customer_id: env['CUSTOMER_ID']}},
   })

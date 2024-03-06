@@ -59,7 +59,7 @@ export const zByosHeaders = z.object({
   /** Supaglue API key */
   'x-api-key': z.string().nullish(),
   /** Will use nangoPostgres instead of supaglue */
-  'x-use-new-backend': z.enum(['true', 'false']).nullish(),
+  'x-mgmt-provider-name': z.enum(['supaglue', 'nango']).nullish(),
 })
 export type ByosHeaders = z.infer<typeof zByosHeaders>
 
@@ -70,9 +70,15 @@ export const publicProcedure = trpc.procedure.use(async ({next, ctx, path}) => {
     formatError: (key) => new BadRequestError(`${key} header is required`),
   })
 
-  const useNewBackend = optional['x-use-new-backend'] === 'true'
+  // Defaulting to supaglue here for now but worker defaults to nango
+  const mgmtProviderName =
+    optional['x-mgmt-provider-name'] ??
+    (process.env['MGMT_PROVIDER_NAME'] as 'supaglue' | 'nango') ??
+    'supaglue'
 
-  return next({ctx: {...ctx, path, optional, required, useNewBackend}})
+  return next({
+    ctx: {...ctx, path, optional, required, mgmtProviderName},
+  })
 })
 
 export const remoteProcedure = publicProcedure.use(async ({next, ctx}) => {

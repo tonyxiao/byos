@@ -2852,8 +2852,8 @@
         "type": "apiKey",
         "in": "header"
       },
-      "x-use-new-backend": {
-        "name": "x-use-new-backend",
+      "x-mgmt-provider-name": {
+        "name": "x-mgmt-provider-name",
         "type": "apiKey",
         "in": "header"
       }
