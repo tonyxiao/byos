@@ -116,7 +116,7 @@ const mappers = {
     owner_id: (r) => r.owner?.id?.toString() ?? '',
     tags: (r) => r.tags ?? [],
     // TODO: Needs to confirm num_steps with Tony
-    num_steps: (r) => 0,
+    num_steps: () => 0,
     metrics: (r) => r.counts ?? {},
     is_enabled: (r) => !r.draft,
     raw_data: (r) => r,
@@ -133,7 +133,7 @@ const mappers = {
       last_modified_at: (r) => r.updated_at ?? new Date().toISOString(),
       sequence_id: (r) => r.cadence?.id?.toString() ?? '',
       contact_id: (r) => r.person?.id?.toString() ?? '',
-      mailbox_id: (r) => '',
+      mailbox_id: () => '',
       user_id: (r) => r.user?.id?.toString() ?? '',
       raw_data: (r) => r,
     },
@@ -167,7 +167,7 @@ export const salesloftProvider = {
         : '/v2/people.json',
     )
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.contact) ?? [],
     }
   },
@@ -182,7 +182,7 @@ export const salesloftProvider = {
     )
 
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.sequence) ?? [],
     }
   },
@@ -197,7 +197,7 @@ export const salesloftProvider = {
     )
 
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.sequenceState) ?? [],
     }
   },
@@ -212,7 +212,7 @@ export const salesloftProvider = {
     )
 
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.account) ?? [],
     }
   },
@@ -227,7 +227,7 @@ export const salesloftProvider = {
     )
 
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.user) ?? [],
     }
   },

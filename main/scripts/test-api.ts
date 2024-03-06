@@ -57,10 +57,10 @@ async function main() {
   //     params: {query: {cursor}},
   //   })
   //   console.log('Success', r.data)
-  //   if (!r.data.nextPageCursor) {
+  //   if (!r.data.next_page_cursor) {
   //     break
   //   }
-  //   cursor = r.data.nextPageCursor as string | undefined
+  //   cursor = r.data.next_page_cursor as string | undefined
   // }
   // const res = await supaglue.POST('/engagement/v2/accounts/_upsert', {
   //   body: {record: {domain: 'examplebob.com', }, upsert_on: {name: 'Jacob'}},

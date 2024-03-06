@@ -10,67 +10,67 @@ function oapi(meta: NonNullable<RouterMeta['openapi']>): RouterMeta {
 
 export const salesEngagementRouter = trpc.router({
   listContacts: remoteProcedure
-    .meta(oapi({method: 'GET', path: '/contacts'}))
+    .meta(oapi({method: 'GET', path: '/contact'}))
     .input(z.object({cursor: z.string().nullish()}))
     .output(
       z.object({
-        nextPageCursor: z.string().nullish(),
+        next_page_cursor: z.string().nullish(),
         items: z.array(unified.contact),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   listSequences: remoteProcedure
-    .meta(oapi({method: 'GET', path: '/sequences'}))
+    .meta(oapi({method: 'GET', path: '/sequence'}))
     .input(z.object({cursor: z.string().nullish()}))
     .output(
       z.object({
-        nextPageCursor: z.string().nullish(),
+        next_page_cursor: z.string().nullish(),
         items: z.array(unified.sequence),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   listSequenceStates: remoteProcedure
-    .meta(oapi({method: 'GET', path: '/sequenceStates'}))
+    .meta(oapi({method: 'GET', path: '/sequence_state'}))
     .input(z.object({cursor: z.string().nullish()}))
     .output(
       z.object({
-        nextPageCursor: z.string().nullish(),
+        next_page_cursor: z.string().nullish(),
         items: z.array(unified.sequenceState),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   listUsers: remoteProcedure
-    .meta(oapi({method: 'GET', path: '/users'}))
+    .meta(oapi({method: 'GET', path: '/user'}))
     .input(z.object({cursor: z.string().nullish()}))
     .output(
       z.object({
-        nextPageCursor: z.string().nullish(),
+        next_page_cursor: z.string().nullish(),
         items: z.array(unified.user),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   listAccounts: remoteProcedure
-    .meta(oapi({method: 'GET', path: '/accounts'}))
+    .meta(oapi({method: 'GET', path: '/account'}))
     .input(z.object({cursor: z.string().nullish()}))
     .output(
       z.object({
-        nextPageCursor: z.string().nullish(),
+        next_page_cursor: z.string().nullish(),
         items: z.array(unified.account),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   listMailboxes: remoteProcedure
-    .meta(oapi({method: 'GET', path: '/mailboxes'}))
+    .meta(oapi({method: 'GET', path: '/mailbox'}))
     .input(z.object({cursor: z.string().nullish()}))
     .output(
       z.object({
-        nextPageCursor: z.string().nullish(),
+        next_page_cursor: z.string().nullish(),
         items: z.array(unified.mailbox),
       }),
     )
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   upsertAccount: remoteProcedure
-    .meta(oapi({method: 'POST', path: '/accounts/_upsert'}))
+    .meta(oapi({method: 'POST', path: '/account/_upsert'}))
     .input(
       z.object({
         record: z.object({
@@ -103,7 +103,7 @@ export const salesEngagementRouter = trpc.router({
     .output(z.object({record: z.object({id: z.string()}).optional()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   upsertContact: remoteProcedure
-    .meta(oapi({method: 'POST', path: '/contacts/_upsert'}))
+    .meta(oapi({method: 'POST', path: '/contact/_upsert'}))
     .input(
       z.object({
         record: z.object({
@@ -188,7 +188,7 @@ export const salesEngagementRouter = trpc.router({
     .output(z.object({record: z.object({id: z.string()}).optional()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   insertSequenceState: remoteProcedure
-    .meta(oapi({method: 'POST', path: '/sequenceState'}))
+    .meta(oapi({method: 'POST', path: '/sequence_state'}))
     .input(
       z.object({
         record: z.object({

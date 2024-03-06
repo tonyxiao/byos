@@ -574,7 +574,7 @@
         }
       }
     },
-    "/engagement/v2/contacts": {
+    "/engagement/v2/contact": {
       "get": {
         "operationId": "salesEngagement-listContacts",
         "parameters": [
@@ -594,7 +594,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "nextPageCursor": {
+                    "next_page_cursor": {
                       "type": ["string", "null"]
                     },
                     "items": {
@@ -642,7 +642,7 @@
         }
       }
     },
-    "/engagement/v2/sequences": {
+    "/engagement/v2/sequence": {
       "get": {
         "operationId": "salesEngagement-listSequences",
         "parameters": [
@@ -662,7 +662,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "nextPageCursor": {
+                    "next_page_cursor": {
                       "type": ["string", "null"]
                     },
                     "items": {
@@ -710,7 +710,7 @@
         }
       }
     },
-    "/engagement/v2/sequenceStates": {
+    "/engagement/v2/sequence_state": {
       "get": {
         "operationId": "salesEngagement-listSequenceStates",
         "parameters": [
@@ -730,7 +730,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "nextPageCursor": {
+                    "next_page_cursor": {
                       "type": ["string", "null"]
                     },
                     "items": {
@@ -776,9 +776,90 @@
             }
           }
         }
+      },
+      "post": {
+        "operationId": "salesEngagement-insertSequenceState",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "record": {
+                    "type": "object",
+                    "properties": {
+                      "contact_id": {
+                        "type": "string",
+                        "example": "9f3e97fd-4d5d-4efc-959d-bbebfac079f5"
+                      },
+                      "mailbox_id": {
+                        "type": "string",
+                        "example": "ae4be028-9078-4850-a0bf-d2112b7c4d11"
+                      },
+                      "sequence_id": {
+                        "type": "string",
+                        "example": "b854e510-1c40-4ef6-ade4-8eb35f49d331"
+                      },
+                      "user_id": {
+                        "type": ["string", "null"],
+                        "example": "c590dc63-8e43-48a4-8154-1fbb00ac936b"
+                      }
+                    },
+                    "required": ["contact_id", "mailbox_id", "sequence_id"]
+                  }
+                },
+                "required": ["record"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "record": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["id"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
       }
     },
-    "/engagement/v2/users": {
+    "/engagement/v2/user": {
       "get": {
         "operationId": "salesEngagement-listUsers",
         "parameters": [
@@ -798,7 +879,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "nextPageCursor": {
+                    "next_page_cursor": {
                       "type": ["string", "null"]
                     },
                     "items": {
@@ -846,7 +927,7 @@
         }
       }
     },
-    "/engagement/v2/accounts": {
+    "/engagement/v2/account": {
       "get": {
         "operationId": "salesEngagement-listAccounts",
         "parameters": [
@@ -866,7 +947,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "nextPageCursor": {
+                    "next_page_cursor": {
                       "type": ["string", "null"]
                     },
                     "items": {
@@ -914,7 +995,7 @@
         }
       }
     },
-    "/engagement/v2/mailboxes": {
+    "/engagement/v2/mailbox": {
       "get": {
         "operationId": "salesEngagement-listMailboxes",
         "parameters": [
@@ -934,7 +1015,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "nextPageCursor": {
+                    "next_page_cursor": {
                       "type": ["string", "null"]
                     },
                     "items": {
@@ -982,7 +1063,7 @@
         }
       }
     },
-    "/engagement/v2/accounts/_upsert": {
+    "/engagement/v2/account/_upsert": {
       "post": {
         "operationId": "salesEngagement-upsertAccount",
         "requestBody": {
@@ -1081,7 +1162,7 @@
         }
       }
     },
-    "/engagement/v2/contacts/_upsert": {
+    "/engagement/v2/contact/_upsert": {
       "post": {
         "operationId": "salesEngagement-upsertContact",
         "requestBody": {
@@ -1213,89 +1294,6 @@
                   }
                 },
                 "required": ["record", "upsert_on"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "record": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        }
-                      },
-                      "required": ["id"]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/engagement/v2/sequenceState": {
-      "post": {
-        "operationId": "salesEngagement-insertSequenceState",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "record": {
-                    "type": "object",
-                    "properties": {
-                      "contact_id": {
-                        "type": "string",
-                        "example": "9f3e97fd-4d5d-4efc-959d-bbebfac079f5"
-                      },
-                      "mailbox_id": {
-                        "type": "string",
-                        "example": "ae4be028-9078-4850-a0bf-d2112b7c4d11"
-                      },
-                      "sequence_id": {
-                        "type": "string",
-                        "example": "b854e510-1c40-4ef6-ade4-8eb35f49d331"
-                      },
-                      "user_id": {
-                        "type": ["string", "null"],
-                        "example": "c590dc63-8e43-48a4-8154-1fbb00ac936b"
-                      }
-                    },
-                    "required": ["contact_id", "mailbox_id", "sequence_id"]
-                  }
-                },
-                "required": ["record"]
               }
             }
           }
@@ -3462,10 +3460,16 @@
             "$ref": "#/components/schemas/sales-engagement.address"
           },
           "email_addresses": {
-            "$ref": "#/components/schemas/sales-engagement.email_addresses"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/sales-engagement.email_address"
+            }
           },
           "phone_numbers": {
-            "$ref": "#/components/schemas/sales-engagement.phone_numbers"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/sales-engagement.phone_number"
+            }
           },
           "open_count": {
             "type": "number"
@@ -3546,37 +3550,31 @@
           "street_2"
         ]
       },
-      "sales-engagement.email_addresses": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "email_address": {
-              "type": "string"
-            },
-            "email_address_type": {
-              "type": "string",
-              "enum": ["primary", "personal", "work"]
-            }
+      "sales-engagement.email_address": {
+        "type": "object",
+        "properties": {
+          "email_address": {
+            "type": "string"
           },
-          "required": ["email_address", "email_address_type"]
-        }
+          "email_address_type": {
+            "type": "string",
+            "enum": ["primary", "personal", "work", "other"]
+          }
+        },
+        "required": ["email_address", "email_address_type"]
       },
-      "sales-engagement.phone_numbers": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "phone_number": {
-              "type": "string"
-            },
-            "phone_number_type": {
-              "type": "string",
-              "enum": ["primary", "work", "home", "mobile", "other"]
-            }
+      "sales-engagement.phone_number": {
+        "type": "object",
+        "properties": {
+          "phone_number": {
+            "type": "string"
           },
-          "required": ["phone_number", "phone_number_type"]
-        }
+          "phone_number_type": {
+            "type": "string",
+            "enum": ["primary", "work", "home", "mobile", "other"]
+          }
+        },
+        "required": ["phone_number", "phone_number_type"]
       },
       "sales-engagement.sequence": {
         "type": "object",

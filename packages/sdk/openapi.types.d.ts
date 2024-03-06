@@ -34,32 +34,30 @@ export interface paths {
     get: operations['mgmt-getConnectionSyncConfig']
     put: operations['mgmt-upsertConnectionSyncConfig']
   }
-  '/engagement/v2/contacts': {
+  '/engagement/v2/contact': {
     get: operations['salesEngagement-listContacts']
   }
-  '/engagement/v2/sequences': {
+  '/engagement/v2/sequence': {
     get: operations['salesEngagement-listSequences']
   }
-  '/engagement/v2/sequenceStates': {
+  '/engagement/v2/sequence_state': {
     get: operations['salesEngagement-listSequenceStates']
+    post: operations['salesEngagement-insertSequenceState']
   }
-  '/engagement/v2/users': {
+  '/engagement/v2/user': {
     get: operations['salesEngagement-listUsers']
   }
-  '/engagement/v2/accounts': {
+  '/engagement/v2/account': {
     get: operations['salesEngagement-listAccounts']
   }
-  '/engagement/v2/mailboxes': {
+  '/engagement/v2/mailbox': {
     get: operations['salesEngagement-listMailboxes']
   }
-  '/engagement/v2/accounts/_upsert': {
+  '/engagement/v2/account/_upsert': {
     post: operations['salesEngagement-upsertAccount']
   }
-  '/engagement/v2/contacts/_upsert': {
+  '/engagement/v2/contact/_upsert': {
     post: operations['salesEngagement-upsertContact']
-  }
-  '/engagement/v2/sequenceState': {
-    post: operations['salesEngagement-insertSequenceState']
   }
   '/crm/v2/{entity}/_count': {
     get: operations['crm-countEntity']
@@ -344,8 +342,8 @@ export interface components {
       account_id?: string
       job_title: string
       address: components['schemas']['sales-engagement.address']
-      email_addresses: components['schemas']['sales-engagement.email_addresses']
-      phone_numbers: components['schemas']['sales-engagement.phone_numbers']
+      email_addresses: components['schemas']['sales-engagement.email_address'][]
+      phone_numbers: components['schemas']['sales-engagement.phone_number'][]
       open_count: number
       click_count: number
       reply_count: number
@@ -366,16 +364,16 @@ export interface components {
       street_1: string
       street_2: string
     }
-    'sales-engagement.email_addresses': {
+    'sales-engagement.email_address': {
       email_address: string
       /** @enum {string} */
-      email_address_type: 'primary' | 'personal' | 'work'
-    }[]
-    'sales-engagement.phone_numbers': {
+      email_address_type: 'primary' | 'personal' | 'work' | 'other'
+    }
+    'sales-engagement.phone_number': {
       phone_number: string
       /** @enum {string} */
       phone_number_type: 'primary' | 'work' | 'home' | 'mobile' | 'other'
-    }[]
+    }
     'sales-engagement.sequence': {
       id: string
       name?: string
@@ -1048,7 +1046,7 @@ export interface operations {
       200: {
         content: {
           'application/json': {
-            nextPageCursor?: string | null
+            next_page_cursor?: string | null
             items: components['schemas']['sales-engagement.contact'][]
           }
         }
@@ -1084,7 +1082,7 @@ export interface operations {
       200: {
         content: {
           'application/json': {
-            nextPageCursor?: string | null
+            next_page_cursor?: string | null
             items: components['schemas']['sales-engagement.sequence'][]
           }
         }
@@ -1120,7 +1118,7 @@ export interface operations {
       200: {
         content: {
           'application/json': {
-            nextPageCursor?: string | null
+            next_page_cursor?: string | null
             items: components['schemas']['sales-engagement.sequenceState'][]
           }
         }
@@ -1145,6 +1143,48 @@ export interface operations {
       }
     }
   }
+  'salesEngagement-insertSequenceState': {
+    requestBody: {
+      content: {
+        'application/json': {
+          record: {
+            /** @example 9f3e97fd-4d5d-4efc-959d-bbebfac079f5 */
+            contact_id: string
+            /** @example ae4be028-9078-4850-a0bf-d2112b7c4d11 */
+            mailbox_id: string
+            /** @example b854e510-1c40-4ef6-ade4-8eb35f49d331 */
+            sequence_id: string
+            /** @example c590dc63-8e43-48a4-8154-1fbb00ac936b */
+            user_id?: string | null
+          }
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': {
+            record?: {
+              id: string
+            }
+          }
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
   'salesEngagement-listUsers': {
     parameters: {
       query?: {
@@ -1156,7 +1196,7 @@ export interface operations {
       200: {
         content: {
           'application/json': {
-            nextPageCursor?: string | null
+            next_page_cursor?: string | null
             items: components['schemas']['sales-engagement.user'][]
           }
         }
@@ -1192,7 +1232,7 @@ export interface operations {
       200: {
         content: {
           'application/json': {
-            nextPageCursor?: string | null
+            next_page_cursor?: string | null
             items: components['schemas']['sales-engagement.account'][]
           }
         }
@@ -1228,7 +1268,7 @@ export interface operations {
       200: {
         content: {
           'application/json': {
-            nextPageCursor?: string | null
+            next_page_cursor?: string | null
             items: components['schemas']['sales-engagement.mailbox'][]
           }
         }
@@ -1375,48 +1415,6 @@ export interface operations {
           upsert_on: {
             /** @description Contact email to upsert on. Supported for Outreach, Salesloft, and Apollo. */
             email?: string
-          }
-        }
-      }
-    }
-    responses: {
-      /** @description Successful response */
-      200: {
-        content: {
-          'application/json': {
-            record?: {
-              id: string
-            }
-          }
-        }
-      }
-      /** @description Invalid input data */
-      400: {
-        content: {
-          'application/json': components['schemas']['error.BAD_REQUEST']
-        }
-      }
-      /** @description Internal server error */
-      500: {
-        content: {
-          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
-        }
-      }
-    }
-  }
-  'salesEngagement-insertSequenceState': {
-    requestBody: {
-      content: {
-        'application/json': {
-          record: {
-            /** @example 9f3e97fd-4d5d-4efc-959d-bbebfac079f5 */
-            contact_id: string
-            /** @example ae4be028-9078-4850-a0bf-d2112b7c4d11 */
-            mailbox_id: string
-            /** @example b854e510-1c40-4ef6-ade4-8eb35f49d331 */
-            sequence_id: string
-            /** @example c590dc63-8e43-48a4-8154-1fbb00ac936b */
-            user_id?: string | null
           }
         }
       }

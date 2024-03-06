@@ -192,7 +192,7 @@ export const outreachProvider = {
         : '/prospects',
     )
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.contact) ?? [],
     }
   },
@@ -208,7 +208,7 @@ export const outreachProvider = {
     )
 
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.sequence) ?? [],
     }
   },
@@ -224,7 +224,7 @@ export const outreachProvider = {
     )
 
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.sequenceState) ?? [],
     }
   },
@@ -240,7 +240,7 @@ export const outreachProvider = {
     )
 
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.account) ?? [],
     }
   },
@@ -256,7 +256,7 @@ export const outreachProvider = {
     )
 
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.mailbox) ?? [],
     }
   },
@@ -272,7 +272,7 @@ export const outreachProvider = {
     )
 
     return {
-      nextPageCursor: listResponse.parse(res.data).links?.next ?? undefined,
+      next_page_cursor: listResponse.parse(res.data).links?.next ?? undefined,
       items: res.data.data?.map(mappers.user) ?? [],
     }
   },
