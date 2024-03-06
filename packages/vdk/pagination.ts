@@ -2,6 +2,14 @@ import JsonURL from '@jsonurl/jsonurl'
 import {extendZodWithOpenApi, z} from '@opensdks/util-zod'
 
 export const zPaginationParams = z.object({
+  sync_mode: z
+    .enum(['full', 'incremental'])
+    .optional()
+    .describe(
+      'Used for syncing data and impacts return value of cursor.' +
+        ' When not specified it is up to each provider to decide the default.' +
+        ' Sometimes it will have no effect if a provider only supports one mode',
+    ),
   cursor: z.string().nullish(),
   page_size: z.number().optional(),
 })

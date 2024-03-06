@@ -1412,6 +1412,14 @@
         "parameters": [
           {
             "in": "query",
+            "name": "sync_mode",
+            "schema": {
+              "type": "string",
+              "enum": ["full", "incremental"]
+            }
+          },
+          {
+            "in": "query",
             "name": "cursor",
             "schema": {
               "type": ["string", "null"]
@@ -1763,6 +1771,14 @@
       "get": {
         "operationId": "crm-listContacts",
         "parameters": [
+          {
+            "in": "query",
+            "name": "sync_mode",
+            "schema": {
+              "type": "string",
+              "enum": ["full", "incremental"]
+            }
+          },
           {
             "in": "query",
             "name": "cursor",
@@ -2118,6 +2134,14 @@
         "parameters": [
           {
             "in": "query",
+            "name": "sync_mode",
+            "schema": {
+              "type": "string",
+              "enum": ["full", "incremental"]
+            }
+          },
+          {
+            "in": "query",
             "name": "cursor",
             "schema": {
               "type": ["string", "null"]
@@ -2260,6 +2284,14 @@
         "parameters": [
           {
             "in": "query",
+            "name": "sync_mode",
+            "schema": {
+              "type": "string",
+              "enum": ["full", "incremental"]
+            }
+          },
+          {
+            "in": "query",
             "name": "cursor",
             "schema": {
               "type": ["string", "null"]
@@ -2400,6 +2432,14 @@
       "get": {
         "operationId": "crm-listUsers",
         "parameters": [
+          {
+            "in": "query",
+            "name": "sync_mode",
+            "schema": {
+              "type": "string",
+              "enum": ["full", "incremental"]
+            }
+          },
           {
             "in": "query",
             "name": "cursor",
@@ -2549,6 +2589,14 @@
               "type": "string"
             },
             "required": true
+          },
+          {
+            "in": "query",
+            "name": "sync_mode",
+            "schema": {
+              "type": "string",
+              "enum": ["full", "incremental"]
+            }
           },
           {
             "in": "query",

@@ -44,6 +44,22 @@ export const HUBSPOT_STANDARD_OBJECTS = [
   'task',
 ] as const
 
+export const HSAssociation = z.object({
+  id: z.string().describe('Id of the related object'),
+  type: z.string().openapi({
+    examples: ['contact_to_company', 'contact_to_company_unlabeled'],
+  }),
+})
+
+export const HSAssociations = z.record(
+  // Technically can be anything... but we are only using `companies` for now
+  z.string().openapi({
+    example: 'companies',
+    description: 'pluralized form object type',
+  }),
+  z.union([z.undefined(), z.object({results: z.array(HSAssociation)})]),
+)
+
 export const HSBase = z.object({
   id: z.string(),
   properties: z
@@ -52,6 +68,7 @@ export const HSBase = z.object({
       createdate: z.string().nullish(),
       lastmodifieddate: z.string().nullish(),
       hs_lastmodifieddate: z.string().nullish(),
+      associations: HSAssociations.nullish(),
     })
     .passthrough(),
   createdAt: z.string(),
@@ -71,6 +88,7 @@ export const HSContact = z.object({
       phone: z.string().nullish(),
       firstname: z.string().nullish(),
       lastname: z.string().nullish(),
+      associations: HSAssociations.nullish(),
     })
     .passthrough(),
   createdAt: z.string(),
@@ -100,15 +118,13 @@ export const HSDeal = z.object({
       // status: z.string().nullish(),
       is_deleted: z.boolean().nullish(), // Does this exist?
       archivedAt: z.string().nullish(), // Does this exist?
+      associations: HSAssociations.nullish(),
     })
     .passthrough(),
   createdAt: z.string(),
   updatedAt: z.string(),
   archived: z.boolean(),
   /** toObjectType => toObjectId[] */
-  '#associations': z
-    .record(z.enum(['company']), z.array(z.string()))
-    .optional(),
   '#pipelineStageMapping': zCast<PipelineStageMapping>(),
 })
 export const HSCompany = z.object({
@@ -128,6 +144,7 @@ export const HSCompany = z.object({
       phonenumbers: z.string().nullish(), // Assuming phonenumbers is a string; adjust the type if needed
       lifecyclestage: z.string().nullish(),
       notes_last_updated: z.string().nullish(),
+      associations: HSAssociations.nullish(),
     })
     .passthrough(),
   createdAt: z.string(),
@@ -135,23 +152,11 @@ export const HSCompany = z.object({
   archived: z.boolean(),
 })
 
+export const associationsToFetch = {
+  contact: ['company'],
+  deal: ['company'],
+}
 export const propertiesToFetch = {
-  account: [
-    'Id',
-    'Name',
-    'Type',
-    'ParentId',
-    'BillingAddress',
-    'ShippingAddress',
-    'Phone',
-    'Fax',
-    'Website',
-    'Industry',
-    'NumberOfEmployees',
-    'OwnerId',
-    'CreatedDate',
-    'LastModifiedDate',
-  ],
   company: [
     'hubspot_owner_id',
     'description',
@@ -242,7 +247,8 @@ export const mappers = {
       r['#pipelineStageMapping'][r.properties.pipeline ?? '']?.stageLabelById?.[
         r.properties.dealstage ?? ''
       ],
-    account_id: (r) => r['#associations']?.company?.[0],
+    account_id: (r) =>
+      r.properties.associations?.['companies']?.results?.[0]?.id,
     close_date: 'properties.closedate',
     amount: (record) =>
       record.properties.amount

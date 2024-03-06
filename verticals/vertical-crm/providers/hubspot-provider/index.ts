@@ -11,8 +11,9 @@ import * as RM from 'remeda'
 import type {Oas_crm_schemas} from '@opensdks/sdk-hubspot'
 import {initHubspotSDK, type HubspotSDK} from '@opensdks/sdk-hubspot'
 import type {CRMProvider} from '../../router'
-import type {HSDeal} from './mappers'
+import type {HSAssociation, HSAssociations} from './mappers'
 import {
+  associationsToFetch,
   HUBSPOT_STANDARD_OBJECTS,
   mappers,
   propertiesToFetch,
@@ -26,6 +27,26 @@ const isStandardObjectType = (
     objectType as (typeof HUBSPOT_STANDARD_OBJECTS)[number],
   )
 
+/** Hubspot associations are plural form unfortunately... */
+function hubspotPluralize(word: string) {
+  // Apply basic pluralization rules
+  if (
+    word.endsWith('s') ||
+    word.endsWith('ch') ||
+    word.endsWith('sh') ||
+    word.endsWith('x') ||
+    word.endsWith('z')
+  ) {
+    return word + 'es'
+  } else if (
+    word.endsWith('y') &&
+    !['a', 'e', 'i', 'o', 'u'].includes(word.charAt(word.length - 2))
+  ) {
+    return word.slice(0, -1) + 'ies'
+  } else {
+    return word + 's'
+  }
+}
 /**
  * In certain cases, Hubspot cannot determine the object type based on just the name for custom objects,
  * so we need to get the ID.
@@ -57,6 +78,54 @@ async function getObjectTypeFromNameOrId(
     )
   }
   return schemaId
+}
+const _listObjectsFullThenMap = async <TIn, TOut extends BaseRecord>(
+  instance: HubspotSDK,
+  {
+    objectType,
+    ...opts
+  }: {
+    objectType: string
+    fields?: string[]
+    associations?: string[]
+    mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
+    page_size?: number
+    cursor?: string | null
+  },
+) => {
+  const res =
+    objectType === 'owner'
+      ? await instance[`crm_${objectType as 'owners'}`].GET(
+          `/crm/v3/${objectType as 'owners'}/`,
+          {
+            params: {
+              query: {
+                after: opts?.cursor ?? undefined,
+                limit: opts?.page_size ?? 100,
+              },
+            },
+          },
+        )
+      : await instance[`crm_${objectType as 'contacts'}`].GET(
+          `/crm/v3/objects/${objectType as 'contacts'}`,
+          {
+            params: {
+              query: {
+                after: opts?.cursor ?? undefined,
+                limit: opts?.page_size ?? 100,
+                properties: opts?.fields ?? undefined,
+                associations: opts?.associations ?? undefined,
+              },
+            },
+          },
+        )
+  return {
+    items: res.data.results.map(opts.mapper.parse),
+    has_next_page: !!res.data.paging?.next?.after,
+    // This would reset the sync and loop back from the beginning, except
+    // the has_next_page check prevents that
+    next_cursor: res.data.paging?.next?.after,
+  }
 }
 
 const _listObjectsIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
@@ -151,17 +220,19 @@ const _listObjectsIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
       : undefined
 
   const resultsExtended = res.data.results.map((rawData) => {
-    const currentAssociations = Object.fromEntries(
+    const associations = Object.fromEntries(
       batchedAssociations.map(([associatedType, toObjectIdsByFromObjectId]) => {
         const toIds = toObjectIdsByFromObjectId[rawData.id] ?? []
-        return [associatedType, toIds]
+        return [hubspotPluralize(associatedType), {results: toIds}]
       }),
-    ) satisfies z.infer<typeof HSDeal>['#associations']
-    // console.log('currentAssociations:', currentAssociations)
+    ) satisfies z.infer<typeof HSAssociations>
+    // console.log('associations:', associations)
 
     return {
       ...rawData,
-      '#associations': currentAssociations,
+      // polyfill associations that are not normally available from the search endpoint
+      properties: {...rawData.properties, associations},
+      // Will only be set for deals
       '#pipelineStageMapping': pipelineStageMapping,
     }
   })
@@ -196,7 +267,7 @@ export const _batchListAssociations = async (
     fromObjectType: string
     toObjectType: string
   },
-): Promise<Record<string /*fromId*/, string[] /* toIds */>> => {
+): Promise<Record<string /*fromId*/, Array<z.infer<typeof HSAssociation>>>> => {
   if (!opts.fromObjectIds.length) {
     return {}
   }
@@ -215,7 +286,7 @@ export const _batchListAssociations = async (
     )
     return associations.data.results
       .map((result) => ({
-        [result.from.id]: [...new Set(result.to.map(({id}) => id))],
+        [result.from.id]: result.to,
       }))
       .reduce((acc, curr) => ({...acc, ...curr}), {})
   } catch (err) {
@@ -301,38 +372,6 @@ const _getPipelineStageMapping = async (instance: HubspotSDK) => {
       ]),
     },
   ])
-}
-
-const _listObjectsFullThenMap = async <TIn, TOut extends BaseRecord>(
-  instance: HubspotSDK,
-  {
-    objectType,
-    ...opts
-  }: {
-    objectType: string
-    mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
-    page_size?: number
-    cursor?: string | null
-  },
-) => {
-  const res = await instance[`crm_${objectType as 'owners'}`].GET(
-    `/crm/v3/${objectType as 'owners'}/`,
-    {
-      params: {
-        query: {
-          after: opts?.cursor ?? undefined,
-          limit: opts?.page_size ?? 100,
-        },
-      },
-    },
-  )
-  return {
-    items: res.data.results.map(opts.mapper.parse),
-    has_next_page: !!res.data.paging?.next?.after,
-    // This would reset the sync and loop back from the beginning, except
-    // the has_next_page check prevents that
-    next_cursor: res.data.paging?.next?.after,
-  }
 }
 
 const _createObject = async <T extends 'contacts' | 'companies'>(
@@ -427,14 +466,24 @@ export const hubspotProvider = {
       links: (defaultLinks) => [...proxyLinks, ...defaultLinks],
     }),
   listContacts: async ({instance, input, ctx}) =>
-    _listObjectsIncrementalThenMap(instance, {
-      ...input,
-      objectType: 'contacts',
-      mapper: mappers.contacts,
-      fields: propertiesToFetch.contact,
-      includeAllFields: true,
-      ctx,
-    }),
+    input?.sync_mode === 'full'
+      ? _listObjectsFullThenMap(instance, {
+          objectType: 'contacts',
+          mapper: mappers.contacts,
+          page_size: input?.page_size,
+          cursor: input?.cursor,
+          fields: propertiesToFetch.contact,
+          associations: associationsToFetch.contact,
+        })
+      : _listObjectsIncrementalThenMap(instance, {
+          ...input,
+          objectType: 'contacts',
+          mapper: mappers.contacts,
+          fields: propertiesToFetch.contact,
+          includeAllFields: true,
+          associations: associationsToFetch.contact,
+          ctx,
+        }),
 
   createContact: ({instance, input}) =>
     _createObject(instance, {...input, objectType: 'contacts'}),
@@ -444,14 +493,22 @@ export const hubspotProvider = {
     _upsertObject(instance, {...input, objectType: 'contacts'}),
 
   listAccounts: async ({instance, input, ctx}) =>
-    _listObjectsIncrementalThenMap(instance, {
-      ...input,
-      objectType: 'companies',
-      mapper: mappers.companies,
-      fields: propertiesToFetch.account,
-      includeAllFields: true,
-      ctx,
-    }),
+    input?.sync_mode === 'full'
+      ? _listObjectsFullThenMap(instance, {
+          objectType: 'companies',
+          mapper: mappers.companies,
+          page_size: input?.page_size,
+          cursor: input?.cursor,
+          fields: propertiesToFetch.company,
+        })
+      : _listObjectsIncrementalThenMap(instance, {
+          ...input,
+          objectType: 'companies',
+          mapper: mappers.companies,
+          fields: propertiesToFetch.company,
+          includeAllFields: true,
+          ctx,
+        }),
   createAccount: ({instance, input}) =>
     _createObject(instance, {...input, objectType: 'companies'}),
   updateAccount: ({instance, input}) =>
@@ -460,15 +517,24 @@ export const hubspotProvider = {
     _upsertObject(instance, {...input, objectType: 'companies'}),
 
   listOpportunities: async ({instance, input, ctx}) =>
-    _listObjectsIncrementalThenMap(instance, {
-      ...input,
-      objectType: 'deals',
-      mapper: mappers.opportunity,
-      fields: propertiesToFetch.deal,
-      includeAllFields: true,
-      associations: ['company'],
-      ctx,
-    }),
+    input?.sync_mode === 'full'
+      ? _listObjectsFullThenMap(instance, {
+          objectType: 'deals',
+          mapper: mappers.opportunity,
+          page_size: input?.page_size,
+          cursor: input?.cursor,
+          fields: propertiesToFetch.deal,
+          associations: associationsToFetch.deal,
+        })
+      : _listObjectsIncrementalThenMap(instance, {
+          ...input,
+          objectType: 'deals',
+          mapper: mappers.opportunity,
+          fields: propertiesToFetch.deal,
+          includeAllFields: true,
+          associations: associationsToFetch.deal,
+          ctx,
+        }),
   // Original supaglue never implemented this, TODO: handle me...
   // listLeads: async ({instance, input, ctx}) =>
   //   _listObjectsFullThenMap(instance, {

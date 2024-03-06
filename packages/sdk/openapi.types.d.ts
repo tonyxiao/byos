@@ -1482,6 +1482,7 @@ export interface operations {
   'crm-listAccounts': {
     parameters: {
       query?: {
+        sync_mode?: 'full' | 'incremental'
         cursor?: string | null
         page_size?: number
       }
@@ -1669,6 +1670,7 @@ export interface operations {
   'crm-listContacts': {
     parameters: {
       query?: {
+        sync_mode?: 'full' | 'incremental'
         cursor?: string | null
         page_size?: number
       }
@@ -1856,6 +1858,7 @@ export interface operations {
   'crm-listLeads': {
     parameters: {
       query?: {
+        sync_mode?: 'full' | 'incremental'
         cursor?: string | null
         page_size?: number
       }
@@ -1930,6 +1933,7 @@ export interface operations {
   'crm-listOpportunities': {
     parameters: {
       query?: {
+        sync_mode?: 'full' | 'incremental'
         cursor?: string | null
         page_size?: number
       }
@@ -2004,6 +2008,7 @@ export interface operations {
   'crm-listUsers': {
     parameters: {
       query?: {
+        sync_mode?: 'full' | 'incremental'
         cursor?: string | null
         page_size?: number
       }
@@ -2078,6 +2083,7 @@ export interface operations {
   'crm-listCustomObjectRecords': {
     parameters: {
       query?: {
+        sync_mode?: 'full' | 'incremental'
         cursor?: string | null
         page_size?: number
       }
