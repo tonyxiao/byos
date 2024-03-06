@@ -345,7 +345,7 @@ const createAccount = (async ({instance, input}) => {
   if (!created) {
     throw new InternalServerError('Failed to create account')
   }
-  return {record: {id: created.id}}
+  return {record: mappers.account.parse(created)}
 }) satisfies CRMProvider<HubspotSDK>['createAccount']
 
 const updateAccount = (async ({instance, input}) => {
@@ -358,8 +358,34 @@ const updateAccount = (async ({instance, input}) => {
   if (!updated) {
     throw new InternalServerError('Failed to update account')
   }
-  return {record: {id: updated.id}}
+  return {record: mappers.account.parse(updated)}
 }) satisfies CRMProvider<HubspotSDK>['updateAccount']
+
+const createContact = (async ({instance, input}) => {
+  const properties = reverseMappers.contact_input.parse(input.record)
+  const res = await instance.crm_contacts.POST(
+    '/crm/v3/objects/contacts/batch/create',
+    {body: {inputs: [{properties, associations: []}]}},
+  )
+  const created = res.data.results[0]
+  if (!created) {
+    throw new InternalServerError('Failed to create contact')
+  }
+  return {record: mappers.contact.parse(created)}
+}) satisfies CRMProvider<HubspotSDK>['createContact']
+
+const updateContact = (async ({instance, input}) => {
+  const properties = reverseMappers.contact_input.parse(input.record)
+  const res = await instance.crm_contacts.POST(
+    '/crm/v3/objects/contacts/batch/update',
+    {body: {inputs: [{properties, id: input.id}]}},
+  )
+  const updated = res.data.results[0]
+  if (!updated) {
+    throw new InternalServerError('Failed to update contact')
+  }
+  return {record: mappers.contact.parse(updated)}
+}) satisfies CRMProvider<HubspotSDK>['updateContact']
 
 export const hubspotProvider = {
   __init__: ({proxyLinks}) =>
@@ -376,6 +402,38 @@ export const hubspotProvider = {
       includeAllFields: true,
       ctx,
     }),
+  createContact,
+  updateContact,
+  upsertContact: async ({instance, input, ctx}) => {
+    // TODO: DRY up this implementation across different properties...
+    const {key, values} = input.upsert_on
+    const contacts = await instance.crm_contacts
+      .POST('/crm/v3/objects/contacts/search', {
+        body: {
+          filterGroups: [
+            {filters: [{propertyName: key, values, operator: 'IN'}]},
+          ],
+          sorts: [key],
+          properties: ['id', key],
+          limit: 2,
+          after: '',
+        },
+      })
+      .then((r) => r.data.results)
+    if (contacts.length > 1) {
+      throw new BadRequestError('More than one record found for upsert query')
+    }
+    const existingId = contacts[0]?.id
+    if (!existingId) {
+      return createContact({instance, input: {record: input.record}, ctx})
+    } else {
+      return updateContact({
+        instance,
+        input: {record: input.record, id: existingId},
+        ctx,
+      })
+    }
+  },
   listAccounts: async ({instance, input, ctx}) =>
     _listObjectsIncrementalThenMap(instance, {
       ...input,

@@ -319,8 +319,14 @@ export const reverseMappers = {
       state: input.addresses?.[0]?.state ?? '',
       zip: input.addresses?.[0]?.postal_code ?? '',
       country: input.addresses?.[0]?.country ?? '',
-      // ...input.customFields,
-      // TODO: Add 1) add custom fields here
+      ...input.passthrough_fields,
+    }),
+  ),
+  contact_input: mapper(unified.contact_input, HSProperties, (input) =>
+    removeUndefinedValues({
+      last_name: nullToEmptyString(input.last_name),
+      first_name: nullToEmptyString(input.first_name),
+      ...input.passthrough_fields,
     }),
   ),
 }

@@ -37,13 +37,13 @@ export const crmRouter = trpc.router({
   createAccount: remoteProcedure
     .meta(oapi({method: 'POST', path: '/account'}))
     .input(z.object({record: unified.account_input}))
-    .output(z.object({record: unified.account.pick({id: true})}))
+    .output(z.object({record: unified.account}))
     .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   updateAccount: remoteProcedure
     .meta(oapi({method: 'PATCH', path: '/account/{id}'}))
     .input(z.object({id: z.string(), record: unified.account_input}))
-    .output(z.object({record: unified.account.pick({id: true})}))
+    .output(z.object({record: unified.account}))
     .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   upsertAccount: remoteProcedure
@@ -65,7 +65,7 @@ export const crmRouter = trpc.router({
         record: unified.account_input,
       }),
     )
-    .output(z.object({record: unified.account.pick({id: true})}))
+    .output(z.object({record: unified.account}))
     .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   // MARK: - Contact
   listContacts: remoteProcedure
@@ -79,6 +79,38 @@ export const crmRouter = trpc.router({
     .output(z.object({record: unified.contact, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
+  createContact: remoteProcedure
+    .meta(oapi({method: 'POST', path: '/contact'}))
+    .input(z.object({record: unified.contact_input}))
+    .output(z.object({record: unified.contact}))
+    .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+
+  updateContact: remoteProcedure
+    .meta(oapi({method: 'PATCH', path: '/contact/{id}'}))
+    .input(z.object({id: z.string(), record: unified.contact_input}))
+    .output(z.object({record: unified.contact}))
+    .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+  upsertContact: remoteProcedure
+    .meta(oapi({method: 'POST', path: '/contact/_upsert'}))
+    .input(
+      z.object({
+        upsert_on: z.object({
+          key: z
+            .enum(['email'])
+            .describe(
+              'The key to upsert on. Only `email` is supported for all providers.',
+            ),
+          values: z
+            .array(z.string())
+            .describe(
+              'The values to upsert on. If more than one value is provided, it will act as a logical OR. If more than one record is found that matches, then an error will be thrown.',
+            ),
+        }),
+        record: unified.account_input,
+      }),
+    )
+    .output(z.object({record: unified.contact}))
+    .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   // MARK: - Lead
   listLeads: remoteProcedure
     .meta(oapi({method: 'GET', path: '/lead'}))

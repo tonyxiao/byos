@@ -292,7 +292,29 @@ export const account_input = account
     owner_id: true,
     lifecycle_stage: true,
   })
+  .partial()
   .extend({
-    extra_fields: z.record(z.unknown()).optional(),
+    passthrough_fields: z.record(z.unknown()).nullish(),
   })
   .openapi({ref: 'crm.account_input'})
+
+export const contact_input = contact
+  .pick({
+    /** @example George */
+    first_name: true,
+    /** @example Xing */
+    last_name: true,
+    // /** @example 64571bff-48ea-4469-9fa0-ee1a0bab38bd */
+    // account_id: true,
+    // addresses: true,
+    // email_addresses: true,
+    // phone_numbers: true,
+    // /** @example 9f3e97fd-4d5d-4efc-959d-bbebfac079f5 */
+    // owner_id: true,
+    // lifecycle_stage: true,
+  })
+  .partial()
+  .extend({
+    passthrough_fields: z.record(z.unknown()).nullish(),
+  })
+  .openapi({ref: 'crm.contact_input'})
