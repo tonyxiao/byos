@@ -6,7 +6,6 @@ import {
   uniqBy,
 } from '@supaglue/vdk'
 import * as jsforce from 'jsforce'
-import type {SalesforceSDKTypes} from '@opensdks/sdk-salesforce'
 import {
   initSalesforceSDK,
   type SalesforceSDK as _SalesforceSDK,
@@ -15,8 +14,6 @@ import type {CRMProvider} from '../../router'
 import {SALESFORCE_API_VERSION, SALESFORCE_STANDARD_OBJECTS} from './constants'
 import {salesforceProviderJsForce} from './jsforce'
 import {capitalizeFirstChar, listFields, mappers} from './mappers'
-
-export type SFDC = SalesforceSDKTypes['oas']['components']['schemas']
 
 type SalesforceSDK = _SalesforceSDK & {
   getJsForce: () => Promise<jsforce.Connection>

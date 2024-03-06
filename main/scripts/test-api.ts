@@ -15,6 +15,15 @@ const supaglue = initBYOSupaglueSDK({
 })
 
 async function main() {
+  await supaglue.GET('/customers/{customer_id}/connections/{provider_name}', {
+    params: {
+      path: {
+        customer_id: envRequired['CUSTOMER_ID'],
+        provider_name: envRequired['PROVIDER_NAME'],
+      },
+    },
+  })
+  return
   await supaglue.GET('/crm/v2/account', {}).then((r) => console.log(r.data))
   await supaglue.POST('/crm/v2/account/_upsert', {
     body: {
@@ -25,14 +34,6 @@ async function main() {
   return
   await supaglue.GET('/customers/{customer_id}/connections', {
     params: {path: {customer_id: envRequired['CUSTOMER_ID']}},
-  })
-  await supaglue.GET('/customers/{customer_id}/connections/{provider_name}', {
-    params: {
-      path: {
-        customer_id: envRequired['CUSTOMER_ID'],
-        provider_name: envRequired['PROVIDER_NAME'],
-      },
-    },
   })
   await supaglue.GET('/crm/v2/metadata/objects', {
     params: {query: {type: 'custom'}},

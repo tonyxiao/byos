@@ -65,7 +65,14 @@ export async function getConnection(
         query: {provider_config_key: toNangoProviderConfigKey(provider_name)},
       },
     })
-    .then((r) => r.data as NangoConnection)
+    .then((r) => {
+      const conn = r.data as NangoConnection
+      return {
+        ...conn,
+        // TODO: Nango openapi spec is wrong and provider can be missing. So we patch it here.
+        provider: conn.provider ?? toNangoProvider(provider_name),
+      }
+    })
 }
 
 /** Leverage nango for authentication so we don't need a separate one */
