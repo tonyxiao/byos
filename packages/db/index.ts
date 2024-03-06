@@ -12,7 +12,9 @@ export * from './upsert'
 export {schema}
 
 const url = new URL(env.POSTGRES_URL)
-console.log('[db] host', url.host)
+if (env.DEBUG) {
+  console.log('[db] host', url.host)
+}
 
 // TODO: Remove these global variables...
 export const pgClient = postgres(env.POSTGRES_URL)
