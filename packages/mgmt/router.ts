@@ -121,7 +121,7 @@ async function mgmtProxyCallProvider({
 
   if (typeof implementation !== 'function') {
     throw new NotImplementedError(
-      `${ctx.providerName} provider does not implement ${ctx.path}`,
+      `${ctx.mgmtProviderName} provider does not implement ${ctx.path}`,
     )
   }
 
