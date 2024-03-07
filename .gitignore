@@ -145,3 +145,4 @@ types
 
 debug.ts
 debug*.json
+*.play.*

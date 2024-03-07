@@ -20,8 +20,8 @@ export const byoSupaglueSDkDef = {
   oasMeta,
 } satisfies SdkDefinition<BYOSupaglueSDKTypes>
 
-export function initBYOSupaglueSDK(opts: BYOSupaglueSDKTypes['options']) {
+export function initByosSDK(opts: BYOSupaglueSDKTypes['options']) {
   return initSDK(byoSupaglueSDkDef, opts)
 }
 
-export type BYOSupaglueSDK = ReturnType<typeof initBYOSupaglueSDK>
+export type BYOSupaglueSDK = ReturnType<typeof initByosSDK>

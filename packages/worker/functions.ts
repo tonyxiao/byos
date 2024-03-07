@@ -9,7 +9,7 @@ import {
 } from '@supaglue/db'
 import {env} from '@supaglue/env'
 import type {Events} from '@supaglue/events'
-import {initBYOSupaglueSDK} from '@supaglue/sdk'
+import {initByosSDK} from '@supaglue/sdk'
 import {and, eq, sql} from 'drizzle-orm'
 import type {SendEventPayload} from 'inngest/helpers/types'
 import {HTTPError, parseErrorInfo} from '../vdk/errors'
@@ -38,7 +38,7 @@ export async function scheduleSyncs({
   event,
 }: FunctionInput<'scheduler.requested'>) {
   console.log('[scheduleSyncs]', event)
-  const byos = initBYOSupaglueSDK({
+  const byos = initByosSDK({
     headers: {
       'x-api-key': env.SUPAGLUE_API_KEY,
       'x-nango-secret-key': env.NANGO_SECRET_KEY,
@@ -106,6 +106,8 @@ export async function scheduleSyncs({
 
 const sqlNow = sql`now()`
 
+// TODO: We should Cancel previous sync if it's still running... 
+// or not allow new syncs. Full sync should probably be prioritized over incremental syncs.
 export async function syncConnection({
   event,
   step,
@@ -164,7 +166,7 @@ export async function syncConnection({
     .returning()
     .then((rows) => rows[0]!.id)
 
-  const byos = initBYOSupaglueSDK({
+  const byos = initByosSDK({
     headers: {
       'x-api-key': env.SUPAGLUE_API_KEY,
       'x-nango-secret-key': env.NANGO_SECRET_KEY,

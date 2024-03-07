@@ -1,7 +1,7 @@
 import {env, envRequired} from '@supaglue/env'
-import {initBYOSupaglueSDK} from '@supaglue/sdk'
+import {initByosSDK} from '@supaglue/sdk'
 
-const supaglue = initBYOSupaglueSDK({
+const supaglue = initByosSDK({
   ...(env['BYOS_URL'] && {baseUrl: env['BYOS_URL']}),
   headers: {
     // 'x-api-key': env['SUPAGLUE_API_KEY'],
@@ -103,7 +103,7 @@ async function main() {
 
 main()
 
-// const supaglue = initBYOSupaglueSDK({
+// const supaglue = initByosSDK({
 //   headers: {
 //     'x-customer-id': 'hubspot1',
 //     'x-provider-name': 'hubspot',
