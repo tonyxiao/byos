@@ -384,10 +384,10 @@ const _createObject = async <T extends 'contacts' | 'companies'>(
     record: Record<string, unknown>
   },
 ) => {
-  const properties = reverseMappers[`${objectType}_input`].parse(input.record)
+  const hubspotInput = reverseMappers[`${objectType}_input`].parse(input.record)
   const res = await instance[`crm_${objectType}` as 'crm_contacts'].POST(
     `/crm/v3/objects/${objectType as 'contacts'}/batch/create`,
-    {body: {inputs: [{properties, associations: []}]}},
+    {body: {inputs: [{associations: [], ...hubspotInput}]}},
   )
   const created = res.data.results[0]
   if (!created) {
@@ -408,10 +408,10 @@ const _updateObject = async <T extends 'contacts' | 'companies'>(
     record: Record<string, unknown>
   },
 ) => {
-  const properties = reverseMappers[`${objectType}_input`].parse(input.record)
+  const hubspotInput = reverseMappers[`${objectType}_input`].parse(input.record)
   const res = await instance[`crm_${objectType}` as 'crm_contacts'].POST(
     `/crm/v3/objects/${objectType as 'contacts'}/batch/update`,
-    {body: {inputs: [{properties, id: input.id}]}},
+    {body: {inputs: [{...hubspotInput, id: input.id}]}},
   )
   const updated = res.data.results[0]
   if (!updated) {

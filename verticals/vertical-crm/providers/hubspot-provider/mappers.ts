@@ -279,6 +279,10 @@ export const mappers = {
   }),
 }
 const HSProperties = z.record(z.string())
+const HSObject = z.object({
+  properties: HSProperties,
+  associations: z.any().optional(), // for now
+})
 
 // const reverse_address = mapper(unified.address, zHSProperties, {
 //   address: (addr) => addr?.street_1 ?? '',
@@ -302,10 +306,20 @@ const HSProperties = z.record(z.string())
 //   },
 // )
 
+function getIfObject(
+  props: Record<string, unknown> | null | undefined,
+  key: string,
+) {
+  return props?.[key] != null && typeof props[key] === 'object'
+    ? (props[key] as Record<string, unknown>)
+    : {}
+}
+
 /** destinations mappers */
 export const reverseMappers = {
-  companies_input: mapper(unified.account_input, HSProperties, (input) =>
-    removeUndefinedValues({
+  companies_input: mapper(unified.account_input, HSObject, (input) => ({
+    ...input.passthrough_fields,
+    properties: removeUndefinedValues({
       // We will remove undefined values later... Though it's arguable this is stil the right approach
       // for mapping when it got so complicated
       name: nullToEmptyString(input.name),
@@ -327,18 +341,19 @@ export const reverseMappers = {
       state: input.addresses?.[0]?.state ?? '',
       zip: input.addresses?.[0]?.postal_code ?? '',
       country: input.addresses?.[0]?.country ?? '',
-      ...input.passthrough_fields,
+      ...getIfObject(input.passthrough_fields, 'properties'),
     }),
-  ),
-  contacts_input: mapper(unified.contact_input, HSProperties, (input) =>
-    removeUndefinedValues({
+  })),
+  contacts_input: mapper(unified.contact_input, HSObject, (input) => ({
+    ...input.passthrough_fields,
+    properties: removeUndefinedValues({
       last_name: nullToEmptyString(input.last_name),
       first_name: nullToEmptyString(input.first_name),
       email: nullToEmptyString(input.email),
       phone: nullToEmptyString(input.phone),
-      ...input.passthrough_fields,
+      ...getIfObject(input.passthrough_fields, 'properties'),
     }),
-  ),
+  })),
 }
 
 // MARK: - Utils
