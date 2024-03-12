@@ -106,7 +106,7 @@ export async function scheduleSyncs({
 
 const sqlNow = sql`now()`
 
-// TODO: We should Cancel previous sync if it's still running... 
+// TODO: We should Cancel previous sync if it's still running...
 // or not allow new syncs. Full sync should probably be prioritized over incremental syncs.
 export async function syncConnection({
   event,
@@ -414,7 +414,7 @@ export async function sendWebhook({event}: FunctionInput<keyof Events>) {
     // TODO: Adopt standardwebhooks and implement actual signing rather than simple secret.
     headers: {'x-webhook-secret': env.WEBHOOK_SECRET ?? ''},
   })
-  return responseToJson(res)
+  return {...responseToJson(res), target: env.WEBHOOK_URL}
 }
 
 async function responseToJson(res: Response) {
