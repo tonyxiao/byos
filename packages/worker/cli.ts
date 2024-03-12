@@ -27,7 +27,19 @@ const {
 switch (cmd) {
   case 'scheduleSyncs':
     void routines
-      .scheduleSyncs({event: {data: {} as never, name: '' as never}, step})
+      .scheduleSyncs({
+        event: {
+          name: 'scheduler.requested',
+          data: {
+            provider_names: env.PROVIDER_NAME
+              ? [env.PROVIDER_NAME]
+              : ['hubspot', 'salesforce'],
+            sync_mode: env.SYNC_MODE ?? 'incremental',
+            vertical: env.VERTICAL ?? 'crm',
+          },
+        },
+        step,
+      })
       .finally(() => pgClient.end())
     break
   case 'syncConnection':
@@ -65,7 +77,16 @@ switch (cmd) {
 async function runBackfill() {
   const syncEvents: Array<Events['sync.requested']> = []
   await routines.scheduleSyncs({
-    event: {data: {} as never, name: '' as never},
+    event: {
+      data: {
+        provider_names: env.PROVIDER_NAME
+          ? [env.PROVIDER_NAME]
+          : ['hubspot', 'salesforce'],
+        sync_mode: env.SYNC_MODE ?? 'incremental',
+        vertical: env.VERTICAL ?? 'crm',
+      },
+      name: 'scheduler.requested',
+    },
     step: {
       ...step,
       sendEvent(_stepId, _events) {
