@@ -7,42 +7,29 @@ export type SimplePublicObject =
   Oas_crm_contacts['components']['schemas']['SimplePublicObject']
 export type Owner = Oas_crm_owners['components']['schemas']['PublicOwner']
 
-//   // In certain cases, Hubspot cannot determine the object type based on just the name for custom objects,
-//   // so we need to get the ID.
-//  const getObjectTypeIdFromNameOrId = async(nameOrId: string): Promise<string> => {
-//     // Standard objects can be referred by name no problem
-//     if (isStandardObjectType(nameOrId)) {
-//       return nameOrId;
-//     }
-//     if (this.#isAlreadyObjectTypeId(nameOrId)) {
-//       return nameOrId;
-//     }
-//     await this.maybeRefreshAccessToken();
-//     const schemas = await this.#client.crm.schemas.coreApi.getAll();
-//     const schemaId = schemas.results.find((schema) => schema.name === nameOrId || schema.objectTypeId === nameOrId)
-//       ?.objectTypeId;
-//     if (!schemaId) {
-//       throw new NotFoundError(`Could not find custom object schema with name or id ${nameOrId}`);
-//     }
-//     return schemaId;
-//   }
+export const HUBSPOT_OBJECT_SINGULAR_TO_PLURAL = {
+  company: 'companies',
+  contact: 'contacts',
+  deal: 'deals',
+  line_item: 'line_items',
+  product: 'products',
+  ticket: 'tickets',
+  quote: 'quotes',
+  call: 'calls',
+  communication: 'communications',
+  email: 'emails',
+  meeting: 'meetings',
+  note: 'notes',
+  postal_mail: 'postal_mails',
+  task: 'tasks',
+  // Technically not a "standard" object, but we are treating it as such
+  owner: 'owners',
+} as const
 
-export const HUBSPOT_STANDARD_OBJECTS = [
-  'company',
-  'contact',
-  'deal',
-  'line_item',
-  'product',
-  'ticket',
-  'quote',
-  'call',
-  'communication',
-  'email',
-  'meeting',
-  'note',
-  'postal_mail',
-  'task',
-] as const
+export type HubspotObjectTypeSingular =
+  keyof typeof HUBSPOT_OBJECT_SINGULAR_TO_PLURAL
+export type HubspotObjectTypePlural =
+  (typeof HUBSPOT_OBJECT_SINGULAR_TO_PLURAL)[HubspotObjectTypeSingular]
 
 export const HSAssociation = z.object({
   id: z.string().describe('Id of the related object'),

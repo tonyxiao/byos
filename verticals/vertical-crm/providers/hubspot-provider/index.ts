@@ -11,10 +11,15 @@ import * as RM from 'remeda'
 import type {Oas_crm_schemas} from '@opensdks/sdk-hubspot'
 import {initHubspotSDK, type HubspotSDK} from '@opensdks/sdk-hubspot'
 import type {CRMProvider} from '../../router'
-import type {HSAssociation, HSAssociations} from './mappers'
+import type {
+  HSAssociation,
+  HSAssociations,
+  HubspotObjectTypePlural,
+  HubspotObjectTypeSingular,
+} from './mappers'
 import {
   associationsToFetch,
-  HUBSPOT_STANDARD_OBJECTS,
+  HUBSPOT_OBJECT_SINGULAR_TO_PLURAL,
   mappers,
   propertiesToFetch,
   reverseMappers,
@@ -22,13 +27,17 @@ import {
 
 const isStandardObjectType = (
   objectType: string,
-): objectType is (typeof HUBSPOT_STANDARD_OBJECTS)[number] =>
-  HUBSPOT_STANDARD_OBJECTS.includes(
-    objectType as (typeof HUBSPOT_STANDARD_OBJECTS)[number],
-  )
+): objectType is HubspotObjectTypeSingular =>
+  HUBSPOT_OBJECT_SINGULAR_TO_PLURAL[objectType as HubspotObjectTypeSingular] !=
+  null
 
 /** Hubspot associations are plural form unfortunately... */
-function hubspotPluralize(word: string) {
+function hubspotPluralize(word: string): HubspotObjectTypePlural {
+  const plural =
+    HUBSPOT_OBJECT_SINGULAR_TO_PLURAL[word as HubspotObjectTypeSingular]
+  if (plural) {
+    return plural
+  }
   // Apply basic pluralization rules
   if (
     word.endsWith('s') ||
@@ -37,14 +46,14 @@ function hubspotPluralize(word: string) {
     word.endsWith('x') ||
     word.endsWith('z')
   ) {
-    return word + 'es'
+    return (word + 'es') as HubspotObjectTypePlural
   } else if (
     word.endsWith('y') &&
     !['a', 'e', 'i', 'o', 'u'].includes(word.charAt(word.length - 2))
   ) {
-    return word.slice(0, -1) + 'ies'
+    return (word.slice(0, -1) + 'ies') as HubspotObjectTypePlural
   } else {
-    return word + 's'
+    return (word + 's') as HubspotObjectTypePlural
   }
 }
 /**
@@ -85,7 +94,7 @@ const _listObjectsFullThenMap = async <TIn, TOut extends BaseRecord>(
     objectType,
     ...opts
   }: {
-    objectType: string
+    objectType: HubspotObjectTypePlural
     fields?: string[]
     associations?: string[]
     mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
@@ -94,7 +103,7 @@ const _listObjectsFullThenMap = async <TIn, TOut extends BaseRecord>(
   },
 ) => {
   const res =
-    objectType === 'owner'
+    objectType === 'owners'
       ? await instance[`crm_${objectType as 'owners'}`].GET(
           `/crm/v3/${objectType as 'owners'}/`,
           {
@@ -135,7 +144,7 @@ const _listObjectsIncrementalThenMap = async <TIn, TOut extends BaseRecord>(
     fields,
     ...opts
   }: {
-    objectType: string
+    objectType: HubspotObjectTypePlural
     fields: string[]
     /** Will use the properties endpoint to fetch all available fields */
     includeAllFields?: boolean
@@ -555,7 +564,10 @@ export const hubspotProvider = {
   // MARK: - Custom objects
   listCustomObjectRecords: async ({instance, input}) =>
     _listObjectsFullThenMap(instance, {
-      objectType: await getObjectTypeFromNameOrId(instance, input.object_name),
+      objectType: await getObjectTypeFromNameOrId(
+        instance,
+        input.object_name,
+      ).then(hubspotPluralize),
       mapper: mappers.customObject,
       page_size: input?.page_size,
       cursor: input?.cursor,
@@ -582,7 +594,10 @@ export const hubspotProvider = {
     uniqBy(
       [
         ...(!input.type || input.type === 'standard'
-          ? HUBSPOT_STANDARD_OBJECTS.map((obj) => ({id: obj, name: obj}))
+          ? Object.keys(HUBSPOT_OBJECT_SINGULAR_TO_PLURAL).map((objType) => ({
+              id: objType,
+              name: objType,
+            }))
           : []),
         ...(!input.type || input.type === 'custom'
           ? await instance.crm_schemas
