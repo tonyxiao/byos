@@ -25,6 +25,18 @@ const {
 })
 
 switch (cmd) {
+  case 'sendWebhook':
+    void routines.sendWebhook({
+      event: {
+        name: 'sync.completed',
+        data: {
+          customer_id: env['CUSTOMER_ID']!,
+          provider_name: env['PROVIDER_NAME']!,
+        },
+      },
+      step,
+    })
+    break
   case 'scheduleSyncs':
     void routines
       .scheduleSyncs({

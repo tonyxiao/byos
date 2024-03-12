@@ -411,8 +411,11 @@ export async function sendWebhook({event}: FunctionInput<keyof Events>) {
   const res = await fetch(env.WEBHOOK_URL, {
     method: 'POST',
     body: JSON.stringify(event),
-    // TODO: Adopt standardwebhooks and implement actual signing rather than simple secret.
-    headers: {'x-webhook-secret': env.WEBHOOK_SECRET ?? ''},
+    headers: {
+      'content-type': 'application/json',
+      // TODO: Adopt standardwebhooks and implement actual signing rather than simple secret.
+      'x-webhook-secret': env.WEBHOOK_SECRET ?? '',
+    },
   })
   return {...responseToJson(res), target: env.WEBHOOK_URL}
 }
