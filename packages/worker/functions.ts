@@ -417,7 +417,8 @@ export async function sendWebhook({event}: FunctionInput<keyof Events>) {
       'x-webhook-secret': env.WEBHOOK_SECRET ?? '',
     },
   })
-  return {...responseToJson(res), target: env.WEBHOOK_URL}
+  const responseAsJson = await responseToJson(res)
+  return {...responseAsJson, target: env.WEBHOOK_URL}
 }
 
 async function responseToJson(res: Response) {
