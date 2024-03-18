@@ -1690,6 +1690,66 @@
         }
       }
     },
+    "/crm/v2/account/batch_read": {
+      "post": {
+        "operationId": "crm-batchReadAccounts",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "properties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["ids", "properties"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/crm/v2/account/_upsert": {
       "post": {
         "operationId": "crm-upsertAccount",
@@ -2034,6 +2094,66 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/error.NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/v2/contact/_batch_read": {
+      "post": {
+        "operationId": "crm-batchReadContacts",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "properties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["ids", "properties"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error.BAD_REQUEST"
                 }
               }
             }
@@ -3026,6 +3146,20 @@
     }
   },
   "webhooks": {
+    "scheduler.requested": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/webhooks.scheduler.requested"
+              }
+            }
+          }
+        },
+        "responses": {}
+      }
+    },
     "sync.requested": {
       "post": {
         "requestBody": {
@@ -3098,6 +3232,39 @@
       }
     },
     "schemas": {
+      "webhooks.scheduler.requested": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "provider_names": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "vertical": {
+                "type": "string",
+                "enum": ["crm", "engagement"]
+              },
+              "sync_mode": {
+                "type": "string",
+                "enum": ["full", "incremental"]
+              }
+            },
+            "required": ["provider_names", "vertical", "sync_mode"]
+          },
+          "name": {
+            "type": "string",
+            "enum": ["scheduler.requested"]
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["data", "name"]
+      },
       "webhooks.sync.requested": {
         "type": "object",
         "properties": {

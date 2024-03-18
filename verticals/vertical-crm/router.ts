@@ -34,6 +34,14 @@ export const crmRouter = trpc.router({
     .output(z.object({record: unified.account, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
+  batchReadAccounts: remoteProcedure
+    .meta(oapi({method: 'POST', path: '/account/batch_read'}))
+    .input(
+      z.object({ids: z.array(z.string()), properties: z.array(z.string())}),
+    )
+    .output(z.array(unified.account))
+    .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
+
   createAccount: remoteProcedure
     .meta(oapi({method: 'POST', path: '/account'}))
     .input(z.object({record: unified.account_input}))
@@ -79,6 +87,13 @@ export const crmRouter = trpc.router({
     .output(z.object({record: unified.contact, raw: z.unknown()}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
+  batchReadContacts: remoteProcedure
+    .meta(oapi({method: 'POST', path: '/contact/_batch_read'}))
+    .input(
+      z.object({ids: z.array(z.string()), properties: z.array(z.string())}),
+    )
+    .output(z.array(unified.contact))
+    .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   createContact: remoteProcedure
     .meta(oapi({method: 'POST', path: '/contact'}))
     .input(z.object({record: unified.contact_input}))

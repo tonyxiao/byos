@@ -468,6 +468,32 @@ const _upsertObject = async <T extends 'contacts' | 'companies'>(
   }
 }
 
+const _batchReadObjectThenMap = async <TIn, TOut extends BaseRecord>(
+  instance: HubspotSDK,
+  {
+    objectType,
+    mapper,
+    ...input
+  }: {
+    objectType: HubspotObjectTypePlural
+    mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
+    ids: string[]
+    properties: string[]
+  },
+) => {
+  const res = await instance[`crm_${objectType}` as 'crm_contacts'].POST(
+    `/crm/v3/objects/${objectType as 'contacts'}/batch/read`,
+    {
+      body: {
+        inputs: input.ids.map((id) => ({id})),
+        properties: input.properties,
+        propertiesWithHistory: [],
+      },
+    },
+  )
+  return res.data.results.map(mapper.parse)
+}
+
 export const hubspotProvider = {
   __init__: ({proxyLinks}) =>
     initHubspotSDK({
@@ -493,7 +519,12 @@ export const hubspotProvider = {
           associations: associationsToFetch.contact,
           ctx,
         }),
-
+  batchReadContacts: async ({instance, input}) =>
+    _batchReadObjectThenMap(instance, {
+      ...input,
+      objectType: 'contacts',
+      mapper: mappers.contacts,
+    }),
   createContact: ({instance, input}) =>
     _createObject(instance, {...input, objectType: 'contacts'}),
   updateContact: ({instance, input}) =>
@@ -518,6 +549,12 @@ export const hubspotProvider = {
           includeAllFields: true,
           ctx,
         }),
+  batchReadAccounts: async ({instance, input}) =>
+    _batchReadObjectThenMap(instance, {
+      ...input,
+      objectType: 'companies',
+      mapper: mappers.companies,
+    }),
   createAccount: ({instance, input}) =>
     _createObject(instance, {...input, objectType: 'companies'}),
   updateAccount: ({instance, input}) =>
