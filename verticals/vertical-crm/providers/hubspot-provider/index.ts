@@ -468,6 +468,32 @@ const _upsertObject = async <T extends 'contacts' | 'companies'>(
   }
 }
 
+const _batchReadObject = async <T extends 'contacts' | 'companies'>(
+  instance: HubspotSDK,
+  {
+    objectType,
+    ...input
+  }: {
+    objectType: T
+    id: string
+    properties: string[]
+  },
+) => {
+  const res = await instance[`crm_${objectType}` as 'crm_contacts'].POST(
+    `/crm/v3/objects/${objectType as 'contacts'}/batch/read`,
+    {body: {
+      inputs: [
+        {
+          id: input.id
+        }
+      ],
+      properties: input.properties,
+      propertiesWithHistory: []
+    }},
+  )
+  return res.data.results
+}
+
 export const hubspotProvider = {
   __init__: ({proxyLinks}) =>
     initHubspotSDK({
@@ -493,7 +519,8 @@ export const hubspotProvider = {
           associations: associationsToFetch.contact,
           ctx,
         }),
-
+  batchReadContacts: async ({instance, input}) => 
+    _batchReadObject(instance, {...input, objectType: 'contacts'}),
   createContact: ({instance, input}) =>
     _createObject(instance, {...input, objectType: 'contacts'}),
   updateContact: ({instance, input}) =>
@@ -518,6 +545,8 @@ export const hubspotProvider = {
           includeAllFields: true,
           ctx,
         }),
+  batchReadAccounts: async ({instance, input}) =>
+    _batchReadObject(instance, {...input, objectType: 'contacts'}),
   createAccount: ({instance, input}) =>
     _createObject(instance, {...input, objectType: 'companies'}),
   updateAccount: ({instance, input}) =>

@@ -70,6 +70,9 @@ export interface paths {
     get: operations['crm-getAccount']
     patch: operations['crm-updateAccount']
   }
+  '/crm/v2/batch_account': {
+    post: operations['crm-batchReadAccounts']
+  }
   '/crm/v2/account/_upsert': {
     post: operations['crm-upsertAccount']
   }
@@ -80,6 +83,9 @@ export interface paths {
   '/crm/v2/contact/{id}': {
     get: operations['crm-getContact']
     patch: operations['crm-updateContact']
+  }
+  '/crm/v2/batch_contact': {
+    post: operations['crm-batchReadContacts']
   }
   '/crm/v2/contact/_upsert': {
     post: operations['crm-upsertContact']
@@ -120,6 +126,16 @@ export interface paths {
 }
 
 export interface webhooks {
+  'scheduler.requested': {
+    post: {
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['webhooks.scheduler.requested']
+        }
+      }
+      responses: {}
+    }
+  }
   'sync.requested': {
     post: {
       requestBody?: {
@@ -154,6 +170,18 @@ export interface webhooks {
 
 export interface components {
   schemas: {
+    'webhooks.scheduler.requested': {
+      data: {
+        provider_names: string[]
+        /** @enum {string} */
+        vertical: 'crm' | 'engagement'
+        /** @enum {string} */
+        sync_mode: 'full' | 'incremental'
+      }
+      /** @enum {string} */
+      name: 'scheduler.requested'
+      id?: string
+    }
     'webhooks.sync.requested': {
       data: {
         customer_id: string
@@ -1627,6 +1655,36 @@ export interface operations {
       }
     }
   }
+  'crm-batchReadAccounts': {
+    requestBody: {
+      content: {
+        'application/json': {
+          id: string
+          properties: string[]
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
   'crm-upsertAccount': {
     requestBody: {
       content: {
@@ -1805,6 +1863,36 @@ export interface operations {
       404: {
         content: {
           'application/json': components['schemas']['error.NOT_FOUND']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['error.INTERNAL_SERVER_ERROR']
+        }
+      }
+    }
+  }
+  'crm-batchReadContacts': {
+    requestBody: {
+      content: {
+        'application/json': {
+          id: string
+          properties: string[]
+        }
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Invalid input data */
+      400: {
+        content: {
+          'application/json': components['schemas']['error.BAD_REQUEST']
         }
       }
       /** @description Internal server error */
