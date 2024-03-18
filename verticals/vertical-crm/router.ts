@@ -39,7 +39,7 @@ export const crmRouter = trpc.router({
     .input(
       z.object({ids: z.array(z.string()), properties: z.array(z.string())}),
     )
-    .output(z.any())
+    .output(z.array(unified.account))
     .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   createAccount: remoteProcedure
@@ -92,7 +92,7 @@ export const crmRouter = trpc.router({
     .input(
       z.object({ids: z.array(z.string()), properties: z.array(z.string())}),
     )
-    .output(z.any())
+    .output(z.array(unified.contact))
     .mutation(async ({input, ctx}) => proxyCallProvider({input, ctx})),
   createContact: remoteProcedure
     .meta(oapi({method: 'POST', path: '/contact'}))

@@ -468,13 +468,15 @@ const _upsertObject = async <T extends 'contacts' | 'companies'>(
   }
 }
 
-const _batchReadObject = async <T extends 'contacts' | 'companies'>(
+const _batchReadObjectThenMap = async <TIn, TOut extends BaseRecord>(
   instance: HubspotSDK,
   {
     objectType,
+    mapper,
     ...input
   }: {
-    objectType: T
+    objectType: HubspotObjectTypePlural
+    mapper: {parse: (rawData: unknown) => TOut; _in: TIn}
     ids: string[]
     properties: string[]
   },
@@ -489,7 +491,7 @@ const _batchReadObject = async <T extends 'contacts' | 'companies'>(
       },
     },
   )
-  return res.data.results
+  return res.data.results.map(mapper.parse)
 }
 
 export const hubspotProvider = {
@@ -518,7 +520,11 @@ export const hubspotProvider = {
           ctx,
         }),
   batchReadContacts: async ({instance, input}) =>
-    _batchReadObject(instance, {...input, objectType: 'contacts'}),
+    _batchReadObjectThenMap(instance, {
+      ...input,
+      objectType: 'contacts',
+      mapper: mappers.contacts,
+    }),
   createContact: ({instance, input}) =>
     _createObject(instance, {...input, objectType: 'contacts'}),
   updateContact: ({instance, input}) =>
@@ -544,7 +550,11 @@ export const hubspotProvider = {
           ctx,
         }),
   batchReadAccounts: async ({instance, input}) =>
-    _batchReadObject(instance, {...input, objectType: 'contacts'}),
+    _batchReadObjectThenMap(instance, {
+      ...input,
+      objectType: 'companies',
+      mapper: mappers.companies,
+    }),
   createAccount: ({instance, input}) =>
     _createObject(instance, {...input, objectType: 'companies'}),
   updateAccount: ({instance, input}) =>
