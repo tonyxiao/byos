@@ -15,7 +15,12 @@ const supaglue = initByosSDK({
 })
 
 async function main() {
-  await supaglue.GET('/crm/v2/contact', {}).then((r) => console.log(r.data))
+  // await supaglue.GET('/crm/v2/contact', {}).then((r) => console.log(r.data))
+  await supaglue
+    .POST('/crm/v2/contact/_batch_read', {
+      body: {ids: ['1', '51'], properties: ['firstname']},
+    })
+    .then((r) => console.log(r.data))
   return
   await supaglue.POST('/crm/v2/contact/_upsert', {
     body: {

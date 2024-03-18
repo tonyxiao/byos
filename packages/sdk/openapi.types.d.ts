@@ -70,7 +70,7 @@ export interface paths {
     get: operations['crm-getAccount']
     patch: operations['crm-updateAccount']
   }
-  '/crm/v2/batch_account': {
+  '/crm/v2/account/batch_read': {
     post: operations['crm-batchReadAccounts']
   }
   '/crm/v2/account/_upsert': {
@@ -84,7 +84,7 @@ export interface paths {
     get: operations['crm-getContact']
     patch: operations['crm-updateContact']
   }
-  '/crm/v2/batch_contact': {
+  '/crm/v2/contact/_batch_read': {
     post: operations['crm-batchReadContacts']
   }
   '/crm/v2/contact/_upsert': {
@@ -1659,7 +1659,7 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': {
-          id: string
+          ids: string[]
           properties: string[]
         }
       }
@@ -1877,7 +1877,7 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': {
-          id: string
+          ids: string[]
           properties: string[]
         }
       }

@@ -475,21 +475,19 @@ const _batchReadObject = async <T extends 'contacts' | 'companies'>(
     ...input
   }: {
     objectType: T
-    id: string
+    ids: string[]
     properties: string[]
   },
 ) => {
   const res = await instance[`crm_${objectType}` as 'crm_contacts'].POST(
     `/crm/v3/objects/${objectType as 'contacts'}/batch/read`,
-    {body: {
-      inputs: [
-        {
-          id: input.id
-        }
-      ],
-      properties: input.properties,
-      propertiesWithHistory: []
-    }},
+    {
+      body: {
+        inputs: input.ids.map((id) => ({id})),
+        properties: input.properties,
+        propertiesWithHistory: [],
+      },
+    },
   )
   return res.data.results
 }
@@ -519,7 +517,7 @@ export const hubspotProvider = {
           associations: associationsToFetch.contact,
           ctx,
         }),
-  batchReadContacts: async ({instance, input}) => 
+  batchReadContacts: async ({instance, input}) =>
     _batchReadObject(instance, {...input, objectType: 'contacts'}),
   createContact: ({instance, input}) =>
     _createObject(instance, {...input, objectType: 'contacts'}),
