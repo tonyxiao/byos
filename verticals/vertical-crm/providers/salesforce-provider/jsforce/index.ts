@@ -7,6 +7,10 @@ import {
   validateCustomObject,
 } from './mappers'
 
+async function getCurrentUserId(sfdc: jsforce.Connection) {
+  return sfdc.userInfo?.id ?? sfdc.identity().then((r) => r.user_id)
+}
+
 async function updateFieldPermissions(
   sfdc: jsforce.Connection,
   objectName: string,
@@ -22,13 +26,10 @@ async function updateFieldPermissions(
   // adding permissions, and we want the second call to this endpoint to fix that.
   //
   // TODO: do we want to make it visible for all profiles?
-  const {userInfo} = sfdc
-  if (!userInfo) {
-    throw new Error('Could not get info of current user')
-  }
+  const userId = await getCurrentUserId(sfdc)
 
   // Get the user record
-  const user = await sfdc.retrieve('User', userInfo.id, {
+  const user = await sfdc.retrieve('User', userId, {
     fields: ['ProfileId'],
   })
 
@@ -238,13 +239,10 @@ export const salesforceProviderJsForce = {
       }
     }
 
-    const {userInfo} = sfdc
-    if (!userInfo) {
-      throw new Error('Could not get info of current user')
-    }
+    const userId = await getCurrentUserId(sfdc)
 
     // Get the user record
-    const user = await sfdc.retrieve('User', userInfo.id, {
+    const user = await sfdc.retrieve('User', userId, {
       fields: ['ProfileId'],
     })
 
