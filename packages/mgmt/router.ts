@@ -1,3 +1,4 @@
+import {and, db, eq, schema} from '@supaglue/db'
 import type {_Provider, ProviderFromRouter} from '@supaglue/vdk'
 import {NotImplementedError, publicProcedure, trpc, z} from '@supaglue/vdk'
 import {nangoPostgresProvider} from './providers/nango-postgres-provider'
@@ -74,7 +75,23 @@ export const mgmtRouter = trpc.router({
     })
     .input(z.object({customer_id: z.string(), provider_name: z.string()}))
     .output(z.void())
-    .query(({ctx, input}) => mgmtProxyCallProvider({ctx, input})),
+    .query(async ({ctx, input}) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const ret = await mgmtProxyCallProvider({ctx, input})
+      // Remove sync state once connection is deleted. This is because
+      // we are not using unique connection id but instead using customer_id and
+      // provider_name combo to identify a connection.
+      await db
+        .delete(schema.sync_state)
+        .where(
+          and(
+            eq(schema.sync_state.customer_id, input.customer_id),
+            eq(schema.sync_state.provider_name, input.provider_name),
+          ),
+        )
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return ret
+    }),
 
   // MARK: - Sync config management
 
