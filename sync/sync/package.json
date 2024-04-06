@@ -1,0 +1,21 @@
+{
+  "name": "@openint/sync",
+  "version": "0.0.0",
+  "private": true,
+  "module": "./index.ts",
+  "scripts": {
+    "download": "run-p download:*",
+    "download:low-code-connector": "curl --fail https://raw.githubusercontent.com/airbytehq/airbyte/master/airbyte-cdk/python/airbyte_cdk/sources/declarative/declarative_component_schema.yaml -o ./low-code-connector.schema.yaml",
+    "download:protocol": "curl --fail https://raw.githubusercontent.com/airbytehq/airbyte-protocol/main/protocol-models/src/main/resources/airbyte_protocol/airbyte_protocol.yaml -o ./protocol.schema.yaml",
+    "generate": "run-p generate:*",
+    "generate:low-code-connector": "pnpm js-yaml low-code-connector.schema.yaml | npx quicktype -s schema -l typescript --just-types --top-level LowCodeConnector > low-code-connector.schema.ts",
+    "generate:protocol": "pnpm js-yaml protocol.schema.yaml | npx quicktype -s schema -l typescript --just-types --top-level AirbyteProtocol > protocol.schema.ts"
+  },
+  "dependencies": {
+    "@opensdks/util-zod": "0.0.15"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0",
+    "quicktype": "^23.0.115"
+  }
+}
