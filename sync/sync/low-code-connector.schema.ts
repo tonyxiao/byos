@@ -28,9 +28,7 @@ export interface StreamsToCheck {
     [property: string]: any;
 }
 
-export enum CheckType {
-    CheckStream = "CheckStream",
-}
+export type CheckType = "CheckStream";
 
 /**
  * A source specification made up of connector metadata and how it can be configured.
@@ -86,10 +84,7 @@ export interface AuthFlow {
 /**
  * The type of auth to use
  */
-export enum AuthFlowType {
-    Oauth10 = "oauth1.0",
-    Oauth20 = "oauth2.0",
-}
+export type AuthFlowType = "oauth2.0" | "oauth1.0";
 
 /**
  * Specification describing how an 'advanced' Auth flow would need to function.
@@ -192,9 +187,7 @@ export interface OAuthConfigSpecification {
     [property: string]: any;
 }
 
-export enum SpecType {
-    Spec = "Spec",
-}
+export type SpecType = "Spec";
 
 /**
  * Partition router component whose behavior is derived from a custom code implementation of
@@ -434,26 +427,13 @@ export interface RequestOption {
  * Configures where the descriptor should be set on the HTTP requests. Note that request
  * parameters that are already encoded in the URL path will not be duplicated.
  */
-export enum InjectInto {
-    BodyData = "body_data",
-    BodyJSON = "body_json",
-    Header = "header",
-    RequestParameter = "request_parameter",
-}
+export type InjectInto = "request_parameter" | "header" | "body_data" | "body_json";
 
-export enum EndTimeOptionType {
-    RequestOption = "RequestOption",
-}
+export type EndTimeOptionType = "RequestOption";
 
-export enum PartitionRouterType {
-    CustomPartitionRouter = "CustomPartitionRouter",
-    ListPartitionRouter = "ListPartitionRouter",
-    SubstreamPartitionRouter = "SubstreamPartitionRouter",
-}
+export type PartitionRouterType = "CustomPartitionRouter" | "ListPartitionRouter" | "SubstreamPartitionRouter";
 
-export enum ParentStreamConfigType {
-    ParentStreamConfig = "ParentStreamConfig",
-}
+export type ParentStreamConfigType = "ParentStreamConfig";
 
 /**
  * Paginator component that describes how to navigate through the API's pages.
@@ -487,9 +467,7 @@ export interface JSONDecoder {
     [property: string]: any;
 }
 
-export enum DecoderType {
-    JSONDecoder = "JsonDecoder",
-}
+export type DecoderType = "JsonDecoder";
 
 /**
  * Optionally configures how the end datetime will be sent in requests to the source API.
@@ -526,10 +504,7 @@ export interface Request {
     [property: string]: any;
 }
 
-export enum PageTokenOptionType {
-    RequestOption = "RequestOption",
-    RequestPath = "RequestPath",
-}
+export type PageTokenOptionType = "RequestOption" | "RequestPath";
 
 /**
  * Strategy defining how records are paginated.
@@ -583,17 +558,9 @@ export interface PaginationStrategy {
     [property: string]: any;
 }
 
-export enum PaginationStrategyType {
-    CursorPagination = "CursorPagination",
-    CustomPaginationStrategy = "CustomPaginationStrategy",
-    OffsetIncrement = "OffsetIncrement",
-    PageIncrement = "PageIncrement",
-}
+export type PaginationStrategyType = "CursorPagination" | "CustomPaginationStrategy" | "OffsetIncrement" | "PageIncrement";
 
-export enum PaginatorType {
-    DefaultPaginator = "DefaultPaginator",
-    NoPagination = "NoPagination",
-}
+export type PaginatorType = "DefaultPaginator" | "NoPagination";
 
 /**
  * Component that describes how to extract records from a HTTP response.
@@ -641,10 +608,7 @@ export interface Extractor {
     [property: string]: any;
 }
 
-export enum ExtractorType {
-    CustomRecordExtractor = "CustomRecordExtractor",
-    DpathExtractor = "DpathExtractor",
-}
+export type ExtractorType = "CustomRecordExtractor" | "DpathExtractor";
 
 /**
  * Responsible for filtering records to be emitted by the Source.
@@ -669,22 +633,14 @@ export interface RecordFilter {
     [property: string]: any;
 }
 
-export enum RecordFilterType {
-    CustomRecordFilter = "CustomRecordFilter",
-    RecordFilter = "RecordFilter",
-}
+export type RecordFilterType = "CustomRecordFilter" | "RecordFilter";
 
 /**
  * Responsible for normalization according to the schema.
  */
-export enum SchemaNormalization {
-    Default = "Default",
-    None = "None",
-}
+export type SchemaNormalization = "None" | "Default";
 
-export enum RecordSelectorType {
-    RecordSelector = "RecordSelector",
-}
+export type RecordSelectorType = "RecordSelector";
 
 /**
  * Requester component that describes how to prepare HTTP requests to send to the source
@@ -1228,13 +1184,7 @@ export interface BackoffStrategy {
     [property: string]: any;
 }
 
-export enum BackoffStrategyType {
-    ConstantBackoffStrategy = "ConstantBackoffStrategy",
-    CustomBackoffStrategy = "CustomBackoffStrategy",
-    ExponentialBackoffStrategy = "ExponentialBackoffStrategy",
-    WaitTimeFromHeader = "WaitTimeFromHeader",
-    WaitUntilTimeFromHeader = "WaitUntilTimeFromHeader",
-}
+export type BackoffStrategyType = "ConstantBackoffStrategy" | "CustomBackoffStrategy" | "ExponentialBackoffStrategy" | "WaitTimeFromHeader" | "WaitUntilTimeFromHeader";
 
 /**
  * Error handler that sequentially iterates over a list of error handlers.
@@ -1301,39 +1251,20 @@ export interface HTTPResponseFilter {
 /**
  * Action to execute if a response matches the filter.
  */
-export enum Action {
-    Fail = "FAIL",
-    Ignore = "IGNORE",
-    Retry = "RETRY",
-    Success = "SUCCESS",
-}
+export type Action = "SUCCESS" | "FAIL" | "RETRY" | "IGNORE";
 
-export enum ResponseFilterType {
-    HTTPResponseFilter = "HttpResponseFilter",
-}
+export type ResponseFilterType = "HttpResponseFilter";
 
-export enum ErrorHandlerType {
-    CompositeErrorHandler = "CompositeErrorHandler",
-    DefaultErrorHandler = "DefaultErrorHandler",
-}
+export type ErrorHandlerType = "CompositeErrorHandler" | "DefaultErrorHandler";
 
-export enum ErrorHandlerTypeEnum {
-    CompositeErrorHandler = "CompositeErrorHandler",
-    CustomErrorHandler = "CustomErrorHandler",
-    DefaultErrorHandler = "DefaultErrorHandler",
-}
+export type ErrorHandlerTypeEnum = "DefaultErrorHandler" | "CustomErrorHandler" | "CompositeErrorHandler";
 
 /**
  * The HTTP method used to fetch data from the source (can be GET or POST).
  */
-export enum HTTPMethod {
-    Get = "GET",
-    Post = "POST",
-}
+export type HTTPMethod = "GET" | "POST";
 
-export enum LoginRequesterType {
-    HTTPRequester = "HttpRequester",
-}
+export type LoginRequesterType = "HttpRequester";
 
 export interface TokenUpdaterObject {
     /**
@@ -1387,43 +1318,15 @@ export interface APIKeyAuthenticator {
     [property: string]: any;
 }
 
-export enum APIKeyAuthenticatorType {
-    APIKey = "ApiKey",
-    Bearer = "Bearer",
-}
+export type APIKeyAuthenticatorType = "ApiKey" | "Bearer";
 
-export enum AuthenticatorType {
-    APIKeyAuthenticator = "ApiKeyAuthenticator",
-    BasicHTTPAuthenticator = "BasicHttpAuthenticator",
-    BearerAuthenticator = "BearerAuthenticator",
-    CustomAuthenticator = "CustomAuthenticator",
-    LegacySessionTokenAuthenticator = "LegacySessionTokenAuthenticator",
-    NoAuth = "NoAuth",
-    OAuthAuthenticator = "OAuthAuthenticator",
-    SessionTokenAuthenticator = "SessionTokenAuthenticator",
-}
+export type AuthenticatorType = "ApiKeyAuthenticator" | "BasicHttpAuthenticator" | "BearerAuthenticator" | "CustomAuthenticator" | "OAuthAuthenticator" | "NoAuth" | "SessionTokenAuthenticator" | "LegacySessionTokenAuthenticator";
 
-export enum AuthenticatorTypeEnum {
-    APIKeyAuthenticator = "ApiKeyAuthenticator",
-    BasicHTTPAuthenticator = "BasicHttpAuthenticator",
-    BearerAuthenticator = "BearerAuthenticator",
-    CustomAuthenticator = "CustomAuthenticator",
-    LegacySessionTokenAuthenticator = "LegacySessionTokenAuthenticator",
-    NoAuth = "NoAuth",
-    OAuthAuthenticator = "OAuthAuthenticator",
-    SelectiveAuthenticator = "SelectiveAuthenticator",
-    SessionTokenAuthenticator = "SessionTokenAuthenticator",
-}
+export type AuthenticatorTypeEnum = "ApiKeyAuthenticator" | "BasicHttpAuthenticator" | "BearerAuthenticator" | "CustomAuthenticator" | "OAuthAuthenticator" | "NoAuth" | "SessionTokenAuthenticator" | "LegacySessionTokenAuthenticator" | "SelectiveAuthenticator";
 
-export enum RequesterType {
-    CustomRequester = "CustomRequester",
-    HTTPRequester = "HttpRequester",
-}
+export type RequesterType = "CustomRequester" | "HttpRequester";
 
-export enum RetrieverType {
-    CustomRetriever = "CustomRetriever",
-    SimpleRetriever = "SimpleRetriever",
-}
+export type RetrieverType = "CustomRetriever" | "SimpleRetriever";
 
 /**
  * Component used to fetch data incrementally based on a time field in the data.
@@ -1603,14 +1506,9 @@ export interface MinMaxDatetime {
     [property: string]: any;
 }
 
-export enum MinMaxDatetimeType {
-    MinMaxDatetime = "MinMaxDatetime",
-}
+export type MinMaxDatetimeType = "MinMaxDatetime";
 
-export enum IncrementalSyncType {
-    CustomIncrementalSync = "CustomIncrementalSync",
-    DatetimeBasedCursor = "DatetimeBasedCursor",
-}
+export type IncrementalSyncType = "CustomIncrementalSync" | "DatetimeBasedCursor";
 
 /**
  * Component used to retrieve the schema for the current stream.
@@ -1644,11 +1542,7 @@ export interface SchemaLoader {
     [property: string]: any;
 }
 
-export enum SchemaLoaderType {
-    CustomSchemaLoader = "CustomSchemaLoader",
-    InlineSchemaLoader = "InlineSchemaLoader",
-    JSONFileSchemaLoader = "JsonFileSchemaLoader",
-}
+export type SchemaLoaderType = "InlineSchemaLoader" | "JsonFileSchemaLoader" | "CustomSchemaLoader";
 
 /**
  * Transforms the input state for per-partitioned streams from the legacy format to the
@@ -1671,10 +1565,7 @@ export interface StateMigration {
     [property: string]: any;
 }
 
-export enum StateMigrationType {
-    CustomStateMigration = "CustomStateMigration",
-    LegacyToPerPartitionStateMigration = "LegacyToPerPartitionStateMigration",
-}
+export type StateMigrationType = "LegacyToPerPartitionStateMigration" | "CustomStateMigration";
 
 /**
  * Transformation which adds field to an output record. The path of the added field can be
@@ -1734,32 +1625,17 @@ export interface DefinitionOfFieldToAdd {
     [property: string]: any;
 }
 
-export enum FieldType {
-    AddedFieldDefinition = "AddedFieldDefinition",
-}
+export type FieldType = "AddedFieldDefinition";
 
 /**
  * Type of the value. If not specified, the type will be inferred from the value.
  *
  * A schema type.
  */
-export enum ValueType {
-    Boolean = "boolean",
-    Integer = "integer",
-    Number = "number",
-    String = "string",
-}
+export type ValueType = "string" | "number" | "integer" | "boolean";
 
-export enum TransformationType {
-    AddFields = "AddFields",
-    CustomTransformation = "CustomTransformation",
-    RemoveFields = "RemoveFields",
-}
+export type TransformationType = "AddFields" | "CustomTransformation" | "RemoveFields";
 
-export enum StreamType {
-    DeclarativeStream = "DeclarativeStream",
-}
+export type StreamType = "DeclarativeStream";
 
-export enum LowCodeConnectorType {
-    DeclarativeSource = "DeclarativeSource",
-}
+export type LowCodeConnectorType = "DeclarativeSource";

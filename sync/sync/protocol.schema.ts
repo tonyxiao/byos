@@ -94,10 +94,7 @@ export interface AirbyteStream {
     [property: string]: any;
 }
 
-export enum SyncMode {
-    FullRefresh = "full_refresh",
-    Incremental = "incremental",
-}
+export type SyncMode = "full_refresh" | "incremental";
 
 /**
  * Airbyte connection status
@@ -108,10 +105,7 @@ export interface AirbyteConnectionStatus {
     [property: string]: any;
 }
 
-export enum Status {
-    Failed = "FAILED",
-    Succeeded = "SUCCEEDED",
-}
+export type Status = "SUCCEEDED" | "FAILED";
 
 /**
  * connector config message: a message to communicate an updated configuration from a
@@ -149,9 +143,7 @@ export interface AirbyteControlConnectorConfigMessage {
 /**
  * the type of orchestrator message
  */
-export enum OrchestratorType {
-    ConnectorConfig = "CONNECTOR_CONFIG",
-}
+export type OrchestratorType = "CONNECTOR_CONFIG";
 
 /**
  * log message: any kind of logging you want the platform to know about.
@@ -175,14 +167,7 @@ export interface AirbyteLogMessage {
 /**
  * log level
  */
-export enum Level {
-    Debug = "DEBUG",
-    Error = "ERROR",
-    Fatal = "FATAL",
-    Info = "INFO",
-    Trace = "TRACE",
-    Warn = "WARN",
-}
+export type Level = "FATAL" | "ERROR" | "WARN" | "INFO" | "DEBUG" | "TRACE";
 
 /**
  * record message: the record
@@ -241,27 +226,12 @@ export interface AirbyteRecordMessageMetaChange {
 /**
  * The type of change that occurred
  */
-export enum Change {
-    Nulled = "NULLED",
-    Truncated = "TRUNCATED",
-}
+export type Change = "NULLED" | "TRUNCATED";
 
 /**
  * The reason that the change occurred
  */
-export enum Reason {
-    DestinationFieldSizeLimitation = "DESTINATION_FIELD_SIZE_LIMITATION",
-    DestinationRecordSizeLimitation = "DESTINATION_RECORD_SIZE_LIMITATION",
-    DestinationSerializationError = "DESTINATION_SERIALIZATION_ERROR",
-    DestinationTypecastError = "DESTINATION_TYPECAST_ERROR",
-    PlatformFieldSizeLimitation = "PLATFORM_FIELD_SIZE_LIMITATION",
-    PlatformRecordSizeLimitation = "PLATFORM_RECORD_SIZE_LIMITATION",
-    PlatformSerializationError = "PLATFORM_SERIALIZATION_ERROR",
-    SourceFieldSizeLimitation = "SOURCE_FIELD_SIZE_LIMITATION",
-    SourceRecordSizeLimitation = "SOURCE_RECORD_SIZE_LIMITATION",
-    SourceRetrievalError = "SOURCE_RETRIEVAL_ERROR",
-    SourceSerializationError = "SOURCE_SERIALIZATION_ERROR",
-}
+export type Reason = "SOURCE_RECORD_SIZE_LIMITATION" | "DESTINATION_RECORD_SIZE_LIMITATION" | "PLATFORM_RECORD_SIZE_LIMITATION" | "SOURCE_FIELD_SIZE_LIMITATION" | "DESTINATION_FIELD_SIZE_LIMITATION" | "PLATFORM_FIELD_SIZE_LIMITATION" | "SOURCE_SERIALIZATION_ERROR" | "DESTINATION_SERIALIZATION_ERROR" | "PLATFORM_SERIALIZATION_ERROR" | "SOURCE_RETRIEVAL_ERROR" | "DESTINATION_TYPECAST_ERROR";
 
 /**
  * Specification of a connector (source/destination)
@@ -334,10 +304,7 @@ export interface AdvancedAuth {
     [property: string]: any;
 }
 
-export enum AuthFlowType {
-    Oauth10 = "oauth1.0",
-    Oauth20 = "oauth2.0",
-}
+export type AuthFlowType = "oauth2.0" | "oauth1.0";
 
 export interface OAuthConfigSpecification {
     /**
@@ -445,11 +412,7 @@ export interface OAuthConfigSpecification {
     [property: string]: any;
 }
 
-export enum DestinationSyncMode {
-    Append = "append",
-    AppendDedup = "append_dedup",
-    Overwrite = "overwrite",
-}
+export type DestinationSyncMode = "append" | "overwrite" | "append_dedup";
 
 /**
  * schema message: the state. Must be the last message produced. The platform uses this
@@ -511,11 +474,7 @@ export interface StreamDescriptor {
  * The state present in this field correspond to the isolated state of the associated stream
  * description.
  */
-export enum AirbyteStateType {
-    Global = "GLOBAL",
-    Legacy = "LEGACY",
-    Stream = "STREAM",
-}
+export type AirbyteStateType = "GLOBAL" | "STREAM" | "LEGACY";
 
 /**
  * trace message: a message to communicate information about the status and performance of a
@@ -599,11 +558,7 @@ export interface AirbyteErrorTraceMessage {
 /**
  * The type of error
  */
-export enum FailureType {
-    ConfigError = "config_error",
-    SystemError = "system_error",
-    TransientError = "transient_error",
-}
+export type FailureType = "system_error" | "config_error" | "transient_error";
 
 /**
  * Estimate trace message: a guess at how much data will be produced in this sync
@@ -645,10 +600,7 @@ export interface AirbyteEstimateTraceMessage {
  * SYNC estimates can be emitted. Sources should not emit both STREAM and SOURCE estimates
  * within a sync.
  */
-export enum EstimateType {
-    Stream = "STREAM",
-    Sync = "SYNC",
-}
+export type EstimateType = "STREAM" | "SYNC";
 
 /**
  * Stream status trace message:  the current status of a stream within a source
@@ -670,36 +622,17 @@ export interface AirbyteStreamStatusTraceMessage {
  *
  * The current status of a stream within the context of an executing synchronization job.
  */
-export enum AirbyteStreamStatus {
-    Complete = "COMPLETE",
-    Incomplete = "INCOMPLETE",
-    Running = "RUNNING",
-    Started = "STARTED",
-}
+export type AirbyteStreamStatus = "STARTED" | "RUNNING" | "COMPLETE" | "INCOMPLETE";
 
 /**
  * the type of trace message
  */
-export enum TraceType {
-    Analytics = "ANALYTICS",
-    Error = "ERROR",
-    Estimate = "ESTIMATE",
-    StreamStatus = "STREAM_STATUS",
-}
+export type TraceType = "ERROR" | "ESTIMATE" | "STREAM_STATUS" | "ANALYTICS";
 
 /**
  * Message type
  */
-export enum Type {
-    Catalog = "CATALOG",
-    ConnectionStatus = "CONNECTION_STATUS",
-    Control = "CONTROL",
-    Log = "LOG",
-    Record = "RECORD",
-    Spec = "SPEC",
-    State = "STATE",
-    Trace = "TRACE",
-}
+export type Type = "RECORD" | "STATE" | "LOG" | "SPEC" | "CONNECTION_STATUS" | "CATALOG" | "TRACE" | "CONTROL";
 
 /**
  * Airbyte stream schema catalog
