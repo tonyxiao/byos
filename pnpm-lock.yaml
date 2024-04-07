@@ -389,6 +389,24 @@ importers:
         specifier: ^0.20.12
         version: 0.20.12
 
+  sync/source-unified-crm:
+    dependencies:
+      '@openint/sync':
+        specifier: workspace:*
+        version: link:../sync
+      '@opensdks/util-zod':
+        specifier: 0.0.15
+        version: 0.0.15
+      '@supaglue/api':
+        specifier: workspace:*
+        version: link:../../packages/api
+      '@supaglue/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
+
   sync/sync:
     dependencies:
       '@opensdks/util-zod':

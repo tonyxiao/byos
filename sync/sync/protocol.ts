@@ -7,6 +7,7 @@ import type {
   AirbyteRecordMessage,
   AirbyteStateMessage,
   AirbyteTraceMessage,
+  ConfiguredAirbyteCatalog,
   ConnectorSpecification,
   Type,
 } from './protocol.schema'
@@ -37,3 +38,48 @@ export type Link = (obs: Observable<SyncMessage>) => Observable<SyncMessage>
 export type Destination = (
   obs: Observable<SyncMessage>,
 ) => Observable<SyncMessage>
+
+export const STATE_COMMIT = {
+  type: 'STATE',
+  state: {type: 'COMMIT'},
+} satisfies SyncMessage
+
+export const STATE_INITIAL_RECORDS_EMITTED = {
+  type: 'STATE',
+  state: {type: 'INITIAL_RECORDS_EMITTED'},
+} satisfies SyncMessage
+
+/**
+ * https://docs.airbyte.com/understanding-airbyte/airbyte-protocol-docker/#source
+ * spec() -> ConnectorSpecification
+ * check(Config) -> AirbyteConnectionStatus
+ * discover(Config) -> AirbyteCatalog
+ * read(Config, ConfiguredAirbyteCatalog, State) -> Stream<AirbyteRecordMessage | AirbyteStateMessage>
+ */
+export interface SourceConnector<TConfig, TState = unknown> {
+  spec?(): ConnectorSpecification
+  check?(config: TConfig): AirbyteConnectionStatus
+  discover?(config: TConfig): AirbyteCatalog
+  read(
+    config: TConfig,
+    catalog: ConfiguredAirbyteCatalog,
+    state: TState,
+  ): Source
+}
+
+/**
+ * https://docs.airbyte.com/understanding-airbyte/airbyte-protocol-docker/#destination
+ * spec() -> ConnectorSpecification
+ * check(Config) -> AirbyteConnectionStatus
+ * write(Config, AirbyteCatalog, Stream<AirbyteMessage>(stdin)) -> Stream<AirbyteStateMessage>
+ */
+export interface DestinationConnector<TConfig> {
+  spec?(): ConnectorSpecification
+  check?(config: TConfig): AirbyteConnectionStatus
+  /** This gets turned into the destination */
+  write(
+    config: TConfig,
+    catalog: AirbyteCatalog,
+    source: Source,
+  ): Observable<SyncMessage<'STATE'>>
+}
