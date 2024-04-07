@@ -10,6 +10,8 @@ export * from './stripeNullByte'
 export * from './upsert'
 
 export {schema}
+export {default as postgres} from 'postgres'
+export {drizzle} from 'drizzle-orm/postgres-js'
 
 const url = new URL(env.POSTGRES_URL)
 if (env.DEBUG) {

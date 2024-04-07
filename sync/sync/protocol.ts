@@ -77,9 +77,5 @@ export interface DestinationConnector<TConfig> {
   spec?(): ConnectorSpecification
   check?(config: TConfig): AirbyteConnectionStatus
   /** This gets turned into the destination */
-  write(
-    config: TConfig,
-    catalog: AirbyteCatalog,
-    source: Source,
-  ): Observable<SyncMessage<'STATE'>>
+  write(config: TConfig, catalog: AirbyteCatalog, source: Source): Source
 }

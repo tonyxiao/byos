@@ -389,7 +389,25 @@ importers:
         specifier: ^0.20.12
         version: 0.20.12
 
-  sync/source-unified-crm:
+  sync/destination-postgres:
+    dependencies:
+      '@openint/sync':
+        specifier: workspace:*
+        version: link:../sync
+      '@opensdks/util-zod':
+        specifier: 0.0.15
+        version: 0.0.15
+      '@supaglue/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@supaglue/env':
+        specifier: workspace:*
+        version: link:../../packages/env
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
+
+  sync/source-unified-api:
     dependencies:
       '@openint/sync':
         specifier: workspace:*
