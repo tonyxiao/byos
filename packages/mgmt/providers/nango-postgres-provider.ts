@@ -41,6 +41,7 @@ export function fromNangoConnection(c: NangoConnection): unified.Connection {
     id: `${c.id}`,
     customer_id: fromNangoConnectionId(c.connection_id),
     provider_name: fromNangoProvider(c.provider),
+    sync_config: c.metadata,
   }
 }
 
@@ -49,7 +50,7 @@ export async function getCustomerOrFail(db: typeof _db, id: string) {
     where: eq(schema.customer.id, id),
   })
   if (!cus) {
-    throw new NotFoundError(`Customer not found even after upsert. id: ${id}`)
+    throw new NotFoundError(`Customer not found id: ${id}`)
   }
   return {...cus, customer_id: cus.id}
 }

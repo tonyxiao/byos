@@ -335,11 +335,7 @@ export interface components {
       id: string
       customer_id: string
       provider_name: string
-    }
-    sync_config: components['schemas']['connection_sync_config'] & {
-      provider_name: string
-      /** @description If true, the sync will start automatically when the connection is created. */
-      auto_start_on_connection?: boolean | null
+      sync_config?: components['schemas']['connection_sync_config'] | null
     }
     connection_sync_config: {
       destination_config?: {
@@ -361,6 +357,11 @@ export interface components {
             object: string
           }[]
         | null
+    }
+    sync_config: components['schemas']['connection_sync_config'] & {
+      provider_name: string
+      /** @description If true, the sync will start automatically when the connection is created. */
+      auto_start_on_connection?: boolean | null
     }
     'sales-engagement.contact': {
       id: string
@@ -1668,7 +1669,7 @@ export interface operations {
       /** @description Successful response */
       200: {
         content: {
-          'application/json': unknown
+          'application/json': components['schemas']['crm.account'][]
         }
       }
       /** @description Invalid input data */
@@ -1886,7 +1887,7 @@ export interface operations {
       /** @description Successful response */
       200: {
         content: {
-          'application/json': unknown
+          'application/json': components['schemas']['crm.contact'][]
         }
       }
       /** @description Invalid input data */

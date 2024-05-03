@@ -25,15 +25,6 @@ export const customer = z
   })
   .openapi({ref: 'customer'})
 
-export const connection = z
-  .object({
-    id: z.string(),
-    customer_id: z.string(),
-    provider_name: z.string(),
-  })
-  .openapi({ref: 'connection'})
-export type Connection = z.infer<typeof connection>
-
 export const connection_sync_config = z
   .object({
     destination_config: z
@@ -46,6 +37,16 @@ export const connection_sync_config = z
   })
   .openapi({ref: 'connection_sync_config'})
 export type ConnectionSyncConfig = z.infer<typeof connection_sync_config>
+
+export const connection = z
+  .object({
+    id: z.string(),
+    customer_id: z.string(),
+    provider_name: z.string(),
+    sync_config: connection_sync_config.nullish(),
+  })
+  .openapi({ref: 'connection'})
+export type Connection = z.infer<typeof connection>
 
 export const sync_config = z
   .intersection(
