@@ -2187,7 +2187,14 @@ export interface operations {
           'application/json': {
             next_cursor?: string | null
             has_next_page: boolean
-            items: unknown[]
+            items: {
+              id: string
+              /** @description ISO8601 date string */
+              updated_at: string
+              raw_data?: {
+                [key: string]: unknown
+              }
+            }[]
           }
         }
       }

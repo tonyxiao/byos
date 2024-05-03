@@ -4,6 +4,7 @@ import {
   dbUpsert,
   ensureSchema,
   getCommonObjectTable,
+  getProviderObjectTable,
   schema,
   stripNullByte,
 } from '@supaglue/db'
@@ -81,8 +82,15 @@ export async function scheduleSyncs({
           customer_id: c.customer_id,
           provider_name: c.provider_name,
           vertical: event.data.vertical,
-          unified_objects: syncConfig?.unified_objects?.map((o) => o.object),
-          standard_objects: syncConfig?.standard_objects?.map((o) => o.object),
+          unified_objects: (
+            c.sync_config?.unified_objects ?? syncConfig?.unified_objects
+          )?.map((o) => o.object),
+          standard_objects: (
+            c.sync_config?.standard_objects ?? syncConfig?.standard_objects
+          )?.map((o) => o.object),
+          custom_objects: (
+            c.sync_config?.custom_objects ?? syncConfig?.custom_objects
+          )?.map((o) => o.object),
           destination_schema: env.DESTINATION_SCHEMA,
           sync_mode: event.data.sync_mode,
         },
@@ -117,10 +125,10 @@ export async function syncConnection({
       customer_id,
       provider_name,
       vertical,
-      unified_objects = [],
       sync_mode = 'incremental',
       destination_schema,
       page_size,
+      unified_objects = [],
       custom_objects = [],
       standard_objects = [],
     },
@@ -197,53 +205,109 @@ export async function syncConnection({
     metrics[name] = value
     return metrics[name] as T
   }
+  const streams = [
+    ...unified_objects.map((o) => ({name: o, type: 'unified' as const})),
+    ...custom_objects.map((o) => ({name: o, type: 'custom' as const})),
+  ]
 
+  type Stream = (typeof streams)[number]
   async function syncStreamPage(
-    stream: string,
-    table: ReturnType<typeof getCommonObjectTable>,
+    stream: Stream,
+    table:
+      | ReturnType<typeof getProviderObjectTable>
+      | ReturnType<typeof getCommonObjectTable>,
+
     state: {cursor?: string | null},
   ) {
     try {
-      const res = await byos.GET(
-        `/${vertical}/v2/${stream}` as '/crm/v2/contact',
-        {params: {query: {cursor: state.cursor, page_size}}},
-      )
-      const count = incrementMetric(`${stream}_count`, res.data.items.length)
-      incrementMetric(`${stream}_page_count`)
-      console.log(`Syncing ${vertical} ${stream} count=${count}`)
-      if (res.data.items.length) {
-        await dbUpsert(
-          db,
-          table,
-          res.data.items.map(({raw_data, ...item}) => ({
-            // Primary keys
-            _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
-            _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
-            _supaglue_provider_name: provider_name,
-            id: item.id,
-            // Other columns
-            created_at: sqlNow,
-            updated_at: sqlNow,
-            _supaglue_emitted_at: sqlNow,
-            last_modified_at: sqlNow, // TODO: Fix me...
-            is_deleted: false,
-            // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
-            raw_data: sql`${stripNullByte(raw_data) ?? null}::jsonb`,
-            _supaglue_unified_data: sql`${stripNullByte(item)}::jsonb`,
-          })),
+      const key = `${stream.type}_${stream.name}`
+      if (stream.type === 'unified') {
+        const res = await byos.GET(
+          `/${vertical}/v2/${stream.name}` as '/crm/v2/contact',
+          {params: {query: {cursor: state.cursor, page_size}}},
+        )
+        const count = incrementMetric(`${key}_count`, res.data.items.length)
+        incrementMetric(`${key}_page_count`)
+        console.log(`Syncing ${vertical} ${key} count=${count}`)
+        if (res.data.items.length) {
+          await dbUpsert(
+            db,
+            table as ReturnType<typeof getCommonObjectTable>,
+            res.data.items.map(({raw_data, ...item}) => ({
+              // Primary keys
+              _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
+              _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
+              _supaglue_provider_name: provider_name,
+              id: item.id,
+              // Other columns
+              created_at: sqlNow,
+              updated_at: sqlNow,
+              _supaglue_emitted_at: sqlNow,
+              last_modified_at: sqlNow, // TODO: Fix me...
+              is_deleted: false,
+              // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
+              raw_data: sql`${stripNullByte(raw_data) ?? null}::jsonb`,
+              _supaglue_unified_data: sql`${stripNullByte(item)}::jsonb`,
+            })),
+            {
+              insertOnlyColumns: ['created_at'],
+              noDiffColumns: [
+                '_supaglue_emitted_at',
+                'last_modified_at',
+                'updated_at',
+              ],
+            },
+          )
+        }
+        return {
+          next_cursor: res.data.next_cursor,
+          has_next_page: res.data.has_next_page,
+        }
+      } else {
+        const res = await byos.GET(
+          `/${vertical}/v2/custom_objects/{object_name}` as '/crm/v2/custom_objects/{object_name}',
           {
-            insertOnlyColumns: ['created_at'],
-            noDiffColumns: [
-              '_supaglue_emitted_at',
-              'last_modified_at',
-              'updated_at',
-            ],
+            params: {
+              query: {cursor: state.cursor, page_size},
+              path: {object_name: stream.name},
+            },
           },
         )
-      }
-      return {
-        next_cursor: res.data.next_cursor,
-        has_next_page: res.data.has_next_page,
+        const count = incrementMetric(`${key}_count`, res.data.items.length)
+        incrementMetric(`${key}_page_count`)
+        console.log(`Syncing ${vertical} ${key} count=${count}`)
+        if (res.data.items.length) {
+          await dbUpsert(
+            db,
+            table as ReturnType<typeof getProviderObjectTable>,
+            res.data.items.map(({id, raw_data}) => ({
+              // Primary keys
+              _supaglue_application_id: env.SUPAGLUE_APPLICATION_ID,
+              _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
+              _supaglue_provider_name: provider_name,
+              _supaglue_id: id,
+              // Other columns
+              _supaglue_emitted_at: sqlNow,
+              _supaglue_last_modified_at: sqlNow, // TODO: Fix me...
+              _supaglue_is_deleted: false,
+              // Workaround jsonb support issue... https://github.com/drizzle-team/drizzle-orm/issues/724
+              _supaglue_raw_data: sql`${
+                stripNullByte(raw_data) ?? null
+              }::jsonb`,
+              _supaglue_object_name: stream.name,
+            })),
+            {
+              noDiffColumns: [
+                '_supaglue_emitted_at',
+                '_supaglue_last_modified_at',
+              ],
+            },
+          )
+        }
+        return {
+          next_cursor: res.data.next_cursor,
+          has_next_page: res.data.has_next_page,
+        }
       }
     } catch (err) {
       // HTTP 501 not implemented
@@ -251,7 +315,7 @@ export async function syncConnection({
         // NOTE: vercel doesn't understand console.warn unfortunately... so this will show up as error
         // https://vercel.com/docs/observability/runtime-logs#level
         console.warn(
-          `[sync progress] ${provider_name} does not implement ${stream}`,
+          `[sync progress] ${provider_name} does not implement ${stream.name}`,
         )
         return {has_next_page: false, next_cursor: null}
       }
@@ -259,17 +323,24 @@ export async function syncConnection({
     }
   }
 
-  async function syncStream(stream: string) {
-    const fullEntity = `${vertical}_${stream}`
+  async function syncStream(stream: Stream) {
+    const {name, type} = stream
+    const fullEntity = `${vertical}_${name}`
     console.log('[syncConnection] Syncing', fullEntity)
-    const table = getCommonObjectTable(fullEntity, {
-      schema: destination_schema,
-    })
+    const table =
+      type === 'custom'
+        ? getProviderObjectTable(fullEntity, {
+            custom: true,
+            schema: destination_schema,
+          })
+        : getCommonObjectTable(fullEntity, {
+            schema: destination_schema,
+          })
     await db.execute(table.createIfNotExistsSql())
-    const state = sync_mode === 'full' ? {} : overallState[stream] ?? {}
-    overallState[stream] = state
+    const state = sync_mode === 'full' ? {} : overallState[name] ?? {}
+    overallState[name] = state
     const streamSyncMode = state.cursor ? 'incremental' : 'full'
-    setMetric(`${stream}_sync_mode`, streamSyncMode)
+    setMetric(`${name}_sync_mode`, streamSyncMode)
 
     while (true) {
       // const ret = await step.run(
@@ -278,7 +349,7 @@ export async function syncConnection({
       // )
       const ret = await syncStreamPage(stream, table, state)
       console.log('[sync progress]', {
-        stream,
+        stream: name,
         completed_cursor: state.cursor,
         ...ret,
       })
@@ -322,8 +393,9 @@ export async function syncConnection({
       await ensureSchema(db, destination_schema)
       console.log('[syncConnection] Ensured schema', destination_schema)
     }
+
     // TODO: Collect list of errors not just the last one...
-    for (const stream of unified_objects) {
+    for (const stream of streams) {
       try {
         await syncStream(stream)
       } catch (err) {

@@ -5,6 +5,7 @@ import {
   trpc,
   withWarnings,
   z,
+  zBaseRecord,
   zPaginatedResult,
   zPaginationParams,
 } from '@supaglue/vdk'
@@ -171,7 +172,7 @@ export const crmRouter = trpc.router({
         ...zPaginationParams.shape,
       }),
     )
-    .output(zPaginatedResult.extend({items: z.array(z.unknown())}))
+    .output(zPaginatedResult.extend({items: z.array(zBaseRecord)}))
     .query(async ({input, ctx}) => proxyCallProvider({input, ctx})),
 
   createCustomObjectRecord: remoteProcedure
