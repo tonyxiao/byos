@@ -51,6 +51,7 @@ export const env = createEnv({
     UNIFIED_OBJECT: z
       .enum(['account', 'contact', 'opportunity', 'lead', 'user'])
       .optional(),
+    CUSTOM_OBJECT: z.string().optional(),
     SYNC_MODE: z.enum(['incremental', 'full']).optional(),
     PAGE_SIZE: z.string().optional(), // TODO: parse number / boolean from str
 
@@ -69,6 +70,7 @@ export const env = createEnv({
     CONNECTION_ID: process.env['CONNECTION_ID'],
     CUSTOMER_ID: process.env['CUSTOMER_ID'],
     DEBUG: process.env['DEBUG'],
+    CUSTOM_OBJECT: process.env['CUSTOM_OBJECT'],
     DESTINATION_SCHEMA: process.env['DESTINATION_SCHEMA'],
     INNGEST_EVENT_KEY: process.env['INNGEST_EVENT_KEY'],
     INNGEST_SIGNING_KEY: process.env['INNGEST_SIGNING_KEY'],

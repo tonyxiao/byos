@@ -286,6 +286,7 @@ export async function syncConnection({
               _supaglue_customer_id: customer_id, //  '$YOUR_CUSTOMER_ID',
               _supaglue_provider_name: provider_name,
               _supaglue_id: id,
+              _supaglue_mapped_data: sql`'{}'::jsonb`,
               // Other columns
               _supaglue_emitted_at: sqlNow,
               _supaglue_last_modified_at: sqlNow, // TODO: Fix me...

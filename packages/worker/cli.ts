@@ -67,6 +67,9 @@ switch (cmd) {
             unified_objects: env['UNIFIED_OBJECT']
               ? [env['UNIFIED_OBJECT']]
               : ['account', 'contact', 'opportunity', 'lead', 'user'],
+            custom_objects: env['CUSTOM_OBJECT']
+              ? [env['CUSTOM_OBJECT']]
+              : undefined,
             sync_mode: env['SYNC_MODE'],
             destination_schema: env['DESTINATION_SCHEMA'],
             page_size: env['PAGE_SIZE']

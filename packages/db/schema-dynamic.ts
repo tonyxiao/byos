@@ -131,7 +131,7 @@ export function getProviderObjectTable<TName extends string>(
         .default(false)
         .notNull(),
       _supaglue_raw_data: jsonb('_supaglue_raw_data'),
-      _supaglue_mapped_data: jsonb('_supaglue_mapped_data'),
+      _supaglue_mapped_data: jsonb('_supaglue_mapped_data').notNull(),
       // e.g. salesforce_product_gaps_c , or hubspot_productgaps
       // ...(opts?.custom && {
       // asssume exists, we don't sync standard anymore
@@ -145,6 +145,7 @@ export function getProviderObjectTable<TName extends string>(
           table._supaglue_provider_name,
           table._supaglue_customer_id,
           table._supaglue_id,
+          table._supaglue_object_name,
         ],
         name: `${tableName}_pkey`,
       }),
@@ -165,7 +166,7 @@ export function getProviderObjectTable<TName extends string>(
         "_supaglue_last_modified_at" timestamp(3) NOT NULL,
         "_supaglue_is_deleted" boolean DEFAULT false NOT NULL,
         "_supaglue_raw_data" jsonb,
-        "_supaglue_mapped_data" jsonb,
+        "_supaglue_mapped_data" jsonb NOT NULL,
         "_supaglue_object_name" text NOT NULL,
         CONSTRAINT "${_table}_pkey" PRIMARY KEY("_supaglue_application_id","_supaglue_provider_name","_supaglue_customer_id","_supaglue_id")
       );
