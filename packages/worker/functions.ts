@@ -1,3 +1,4 @@
+import util from 'node:util'
 import {createAppHandler} from '@supaglue/api'
 import {
   db,
@@ -481,17 +482,25 @@ export async function sendWebhook({event}: FunctionInput<keyof Events>) {
   // We shall let inngest handle the retries and backoff for now
   // Would be nice to have a openSDK for sending webhook payloads that are typed actually, after all it has
   // the exact same shape as paths.
-  const res = await fetch(env.WEBHOOK_URL, {
-    method: 'POST',
-    body: JSON.stringify(event),
-    headers: {
-      'content-type': 'application/json',
-      // TODO: Adopt standardwebhooks and implement actual signing rather than simple secret.
-      'x-webhook-secret': env.WEBHOOK_SECRET ?? '',
-    },
-  })
-  const responseAsJson = await responseToJson(res)
-  return {...responseAsJson, target: env.WEBHOOK_URL}
+  try {
+    const res = await fetch(env.WEBHOOK_URL, {
+      method: 'POST',
+      body: JSON.stringify(event),
+      headers: {
+        'content-type': 'application/json',
+        // TODO: Adopt standardwebhooks and implement actual signing rather than simple secret.
+        'x-webhook-secret': env.WEBHOOK_SECRET ?? '',
+      },
+    })
+    const responseAsJson = await responseToJson(res)
+    return {...responseAsJson, target: env.WEBHOOK_URL}
+  } catch (err) {
+    console.warn('Failed to deliver webhook', err)
+    return {
+      error: `Failed to deliver webhook: ${util.format(err)}`,
+      target: env.WEBHOOK_URL,
+    }
+  }
 }
 
 async function responseToJson(res: Response) {
