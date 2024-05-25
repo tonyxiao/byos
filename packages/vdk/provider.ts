@@ -11,7 +11,7 @@ import {initNangoSDK} from '@opensdks/sdk-nango'
 import {initSupaglueSDK} from '@opensdks/sdk-supaglue'
 import {
   nangoConnectionWithCredentials,
-  nangoProxyLink,
+  // nangoProxyLink,
   toNangoConnectionId,
   toNangoProviderConfigKey,
 } from './nangoProxyLink'
@@ -19,7 +19,7 @@ import {supaglueProxyLink} from './supaglueProxyLink'
 import type {RemoteProcedureContext} from './trpc'
 
 export type _Provider<TInitOpts, TInstance = unknown> = {
-  __init__: (opts: TInitOpts) => TInstance
+  __init__: (opts: TInitOpts) => TInstance | Promise<TInstance>
 }
 
 /** To be refactored out of vdk probably...  */
@@ -27,6 +27,8 @@ export type ExtraInitOpts = {
   proxyLinks: FetchLink[]
   /** Used to get the raw credentails in case proxyLink doesn't work (e.g. SOAP calls). Hard coded to rest for now... */
   getCredentials: () => Promise<{
+    /** If present then access token may be not */
+    api_key?: string
     access_token: string
     // refresh_token: string
     // expires_at: string
@@ -93,16 +95,18 @@ export async function proxyCallProvider({
             })
             .then((r) => nangoConnectionWithCredentials.parse(r.data))
           return {
-            access_token: conn.credentials.access_token,
+            // undefined for providers like like apollo
+            access_token: conn.credentials.access_token ?? '',
             instance_url: conn.connection_config?.instance_url,
+            api_key: conn.credentials.api_key ?? undefined,
           }
         },
         proxyLinks: [
-          nangoProxyLink({
-            secretKey: ctx.required['x-nango-secret-key'],
-            connectionId,
-            providerConfigKey,
-          }),
+          // nangoProxyLink({
+          //   secretKey: ctx.required['x-nango-secret-key'],
+          //   connectionId,
+          //   providerConfigKey,
+          // }),
         ],
       }
     }
@@ -152,8 +156,6 @@ export async function proxyCallProvider({
     }
   })()
 
-  const instance = ctx.provider.__init__({ctx, ...extraInitOpts})
-
   const methodName = ctx.path.split('.').pop() ?? ''
   const implementation = ctx.provider?.[methodName] as Function
 
@@ -163,6 +165,7 @@ export async function proxyCallProvider({
       message: `${ctx.providerName} provider does not implement ${ctx.path}`,
     })
   }
+  const instance = await ctx.provider.__init__({ctx, ...extraInitOpts})
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const out = await implementation({instance, input, ctx})

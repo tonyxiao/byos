@@ -95,9 +95,9 @@ const mappers = {
 }
 
 export const apolloProvider = {
-  __init__: ({proxyLinks}) =>
+  __init__: async ({proxyLinks, getCredentials}) =>
     initApolloSDK({
-      api_key: '', // This will be populated by Nango, or you can populate your own
+      api_key: (await getCredentials()).api_key!, // This will be populated by Nango, or you can populate your own
       links: (defaultLinks) => [
         ...defaultLinks.slice(0, -1),
         ...proxyLinks, // proxy links shoudl be in the middle...

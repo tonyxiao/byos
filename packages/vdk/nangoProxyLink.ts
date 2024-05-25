@@ -181,8 +181,10 @@ export const nangoConnectionWithCredentials = z.object({
   provider_config_key: z.string(),
   connection_id: z.string(),
   credentials: z.object({
+    /** "API_KEY", "OAUTH1", "OAUTH2" */
     type: z.string().nullish(),
-    access_token: z.string(),
+    access_token: z.string().nullish(),
+    api_key: z.string().nullish(),
     expires_at: z.string().nullish(),
     raw: z.object({
       token_type: z.string().nullish(),

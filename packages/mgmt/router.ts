@@ -131,7 +131,6 @@ async function mgmtProxyCallProvider({
   input: unknown
   ctx: MgmtProcedureContext
 }) {
-  const instance = ctx.provider.__init__({ctx})
   // verticals.salesEngagement.listContacts -> listContacts
   const methodName = ctx.path.split('.').pop() ?? ''
   const implementation = ctx.provider?.[methodName as '__init__'] as Function
@@ -141,7 +140,8 @@ async function mgmtProxyCallProvider({
       `${ctx.mgmtProviderName} provider does not implement ${ctx.path}`,
     )
   }
-
+  const instance = await ctx.provider.__init__({ctx})
+  
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const out = await implementation({instance, input, ctx})
   // console.log('[proxyCallRemote] output', out)
