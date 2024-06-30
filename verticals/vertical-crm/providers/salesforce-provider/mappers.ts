@@ -194,6 +194,7 @@ const propertiesForCommonObject = {
     'CloseDate',
     'CreatedDate',
     'AccountId',
+    'Type',
   ] satisfies Array<keyof SFDC['OpportunitySObject']>,
   lead: [
     'OwnerId',

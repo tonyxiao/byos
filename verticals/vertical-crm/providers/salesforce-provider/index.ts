@@ -112,6 +112,7 @@ export const salesforceProvider = {
     const sdk = initSalesforceSDK({
       // baseUrl: PLACEHOLDER_BASE_URL,
       baseUrl: `${creds.instance_url}/services/data/v${SALESFORCE_API_VERSION}`,
+      headers: {Authorization: `Bearer ${creds.access_token}`},
       links: (defaultLinks) => [
         // (req, next) =>
         //   next(
